@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.rtl.min.css" xintegrity="sha384-HSEi/M10r+6+Yk2r5s1L1P2jJ/t728k4J+P42X0yTj8F1iP2c2f+F5q5P3f2X0r+F2+F5q5P3f2X0r" crossorigin="anonymous">
+
+    <title>Login</title>
+</head>
+<body>
+    <div class="text-center">
+        <h1>Login</h1>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-12">
+                <form method="post">
+                {% csrf_token %}
+
+                    {%  for foo in form %}
+                        <div class="mb-3">
+                            {{ foo.errors }}
+
+                            {{ foo }}
+                        </div>
+                    {% endfor %}
+                        {{ form.non_field_errors }}
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
