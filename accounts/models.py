@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
@@ -47,9 +49,9 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     last_name = models.CharField(max_length=255)
     position = models.CharField(max_length=255)
     department = models.CharField(max_length=255)
-    salary = models.FloatField(default=0.0)
+    salary = models.FloatField()
     phone_number = models.CharField(max_length=20)
-    date_hired = models.DateField(default="2025-08-25")
+    date_hired = models.DateField(default=date.today())
     emergency_contact = models.CharField(max_length=20)
     photo = models.ImageField(upload_to="employee_photos", blank=True, null=True)
     staff = models.BooleanField(default=False)

@@ -1,4 +1,4 @@
-{#{% extends "base.html" %}#}
+{% extends "base.html" %}
 {% block content %}
 <div class="container mt-5">
   <div class="card shadow-lg rounded-4">
@@ -50,9 +50,10 @@
         
         <!-- Edit Button (only for self or admin) -->
         {% if request.user == employee or request.user.is_staff %}
-          <a href="{% url 'employee_update' employee.slug %}" class="btn btn-warning">Edit Profile</a>
+          <a href="{% url 'employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
         {% endif %}
-        <a href="{% url 'employee_list' %}" class="btn btn-secondary">Back to List</a>
+{#      replaced employee_slug with employee_detail.slug #}
+        <a href="{% url 'employees' %}" class="btn btn-secondary">Back to List</a>
       </div>
     </div>
   </div>

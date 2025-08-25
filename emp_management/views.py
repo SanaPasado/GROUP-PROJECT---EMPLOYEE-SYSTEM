@@ -4,9 +4,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView, DetailView, ListView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from accounts.models import Employee  # import your custom model
-from emp_management.forms import EmployeeUpdateForm, EmployeeDetailForm
+from emp_management.forms import EmployeeUpdateForm
 
 
 class EmpListView(ListView):
@@ -20,13 +20,12 @@ class EmpListView(ListView):
 
 class EmpDetailView(DetailView):
     model = Employee
-    form_class = EmployeeDetailForm
     context_object_name = 'employee_detail'
     template_name = 'emp_management/employee_detail.html'
 
     def get_queryset(self):
         # Exclude staff/admin users
-        return Employee.objects.filter(staff=False, admin=False)
+        return Employee.objects.filter(is_staff=False, is_superuser=False)
 
     def get_object(self):
         return Employee.objects.get(slug=self.kwargs["slug"])
@@ -37,8 +36,17 @@ class EmpUpdateView(UpdateView):
     context_object_name = 'employee_update'
     template_name = 'emp_management/employee_update.html'
 
+    def get_queryset(self):
+        # Exclude staff/admin users
+        return Employee.objects.filter(is_staff=False, is_superuser=False)
+
     def get_object(self):
         return Employee.objects.get(slug=self.kwargs["slug"])
+
+    def get_success_url(self):
+        # This redirects to the 'employee-detail' URL,
+        # passing the slug of the object that was just updated.
+        return reverse('employee_detail', kwargs={'slug': self.object.slug})
 
 
 
