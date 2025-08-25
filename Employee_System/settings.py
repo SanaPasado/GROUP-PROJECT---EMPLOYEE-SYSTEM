@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'accounts',
     'emp_management',
 ]
+AUTH_USER_MODEL = "accounts.Employee"
+
+#so that django will use this customer user model
+# that we made instead of default basic one
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

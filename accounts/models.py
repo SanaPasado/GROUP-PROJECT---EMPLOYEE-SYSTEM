@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.db import models
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False,):
@@ -39,19 +40,17 @@ class UserManager(BaseUserManager):
 
 
 
-class Employee(AbstractBaseUser): #-----> means that we're telling django that we'll use custom user model
-    email = models.EmailField( max_length=255, unique=True)
+class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're telling django that we'll use custom user model
+    email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    date_hired = models.DateTimeField(max_length=255)
     position = models.CharField(max_length=255)
     department = models.CharField(max_length=255)
-    salary = models.FloatField()
-    phone_number = models.CharField(max_length=255)
-    photo = models.ImageField(upload_to='employee_photos', blank=True, null=True)
-    # status      = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    salary = models.FloatField(default=0.0)
+    phone_number = models.CharField(max_length=20)
+    date_hired = models.DateField(default="2025-08-25")
+    emergency_contact = models.CharField(max_length=20)
+    photo = models.ImageField(upload_to="employee_photos", blank=True, null=True)
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
@@ -64,7 +63,7 @@ class Employee(AbstractBaseUser): #-----> means that we're telling django that w
 
     def __str__(self):
         return self.email
-        return self.email
+
 
     def has_perm(self, perm, obj=None):
         return True
@@ -83,5 +82,5 @@ class Employee(AbstractBaseUser): #-----> means that we're telling django that w
     @property
     def is_active(self):
         return self.active
-
+    #removing this because it is duplicate of the attributes above
 

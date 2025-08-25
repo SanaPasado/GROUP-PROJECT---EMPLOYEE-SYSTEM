@@ -24,9 +24,11 @@ from accounts.views import register_page, login_page
 urlpatterns = [
 
 
-    path('', register_page, name='register'),
+    path('register/', register_page, name='register'),
 
-    path('login', login_page, name='login'),
+    # path('home/', , name='home'),
+
+    path('login/', login_page, name='login'),
 ]
 
 

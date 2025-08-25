@@ -1,25 +1,24 @@
 from django.shortcuts import render, redirect
 from accounts.forms import RegisterForm, LoginForm
-from django.contrib.auth import get_user_model, login, authenticate
+from django.contrib.auth import get_user_model, login
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
-
+@login_required
 def register_page(request):
-    form = RegisterForm(request.POST or None)
-    context = {
-        'form': form}
+    if not request.user.is_staff and not request.user.is_superuser:
+        return redirect("home")
+
+    form = RegisterForm(request.POST or None, request.FILES or None)
+    context = {"form": form}
 
     if form.is_valid():
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            newUser = User.objects.create_user(first_name, last_name, email, password)
+        new_user = form.save(commit=False)  # don't save yet
+        new_user.set_password(form.cleaned_data["password"])  # hash password
+        new_user.save()  # now save to DB
+        return redirect("home")
 
-            login(request, newUser)
-            return redirect("home")
-
-    return render(request, 'auth/register.html', context)
+    return render(request, "auth/register.html", context)
 
 def login_page(request):
     form = LoginForm(request.POST or None)
@@ -27,11 +26,12 @@ def login_page(request):
         'form': form}
 
     if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
+        user = form.cleaned_data["user"]
+        login(request, user)
+        return redirect("home")
+    #user is used instead of email and password because
+    # we used 'cleaned_data = user' in forms and user = authenticate
 
-    user = authenticate(request, username=email, password=password)
-#do i still need this if i have it in forms already
     return render(request, 'login/login.html', context)
 
 
