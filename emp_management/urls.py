@@ -1,0 +1,15 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
+
+from emp_management.views import EmpListView, EmpDetailView, EmpUpdateView
+
+urlpatterns = [
+    path('employees/', EmpListView.as_view(), name='employees'),
+
+    path("employees/<slug:slug>/", EmpDetailView.as_view(), name="employee_detail"),
+
+    path("employees/<slug:slug>/update",  EmpUpdateView.as_view(), name="employee_update"),
+
+]

@@ -16,7 +16,7 @@ def register_page(request):
         new_user = form.save(commit=False)  # don't save yet
         new_user.set_password(form.cleaned_data["password"])  # hash password
         new_user.save()  # now save to DB
-        return redirect("home")
+        return redirect("employees")
 
     return render(request, "auth/register.html", context)
 
@@ -28,7 +28,7 @@ def login_page(request):
     if form.is_valid():
         user = form.cleaned_data["user"]
         login(request, user)
-        return redirect("home")
+        return redirect("employees")
     #user is used instead of email and password because
     # we used 'cleaned_data = user' in forms and user = authenticate
 

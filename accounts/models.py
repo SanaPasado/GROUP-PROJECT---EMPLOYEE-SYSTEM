@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.template.defaultfilters import slugify
 
 
 class UserManager(BaseUserManager):
@@ -54,12 +55,24 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email' #username
     REQUIRED_FIELDS = []#fields that are needed when creating a superuser or admin account
 
     objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(f"{self.first_name}-{self.last_name}")
+            slug = base_slug
+            num = 1
+            while Employee.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{num}"
+                num += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email

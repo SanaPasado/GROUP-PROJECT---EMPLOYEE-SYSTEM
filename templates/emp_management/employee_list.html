@@ -1,0 +1,37 @@
+{#{% extends "base.html" %}#}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Employee Directory</h2>
+
+    <table class="table table-hover table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Position</th>
+                <th>Date Hired</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for employee in employees %}
+            <tr>
+                <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.position }}</td>
+                <td>{{ employee.date_hired }}</td>
+                <td>
+                    <a href="{% url 'employee_detail' employee.slug %}" class="btn btn-sm btn-primary">
+                        View Details
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No employees found.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -24,6 +24,8 @@ urlpatterns = [
 
     path('', include('accounts.urls')),
 
+    path('', include('emp_management.urls')),
+
 
 ]
 

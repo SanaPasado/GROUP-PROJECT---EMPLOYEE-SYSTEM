@@ -28,7 +28,7 @@ urlpatterns = [
 
     # path('home/', , name='home'),
 
-    path('login/', login_page, name='login'),
+    path('', login_page, name='login'),
 ]
 
 
