@@ -54,7 +54,8 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     department = models.CharField(max_length=255)
     salary = models.FloatField(null=True, blank=True)
     phone_number = models.CharField(max_length=20)
-    date_hired = models.DateField(default=date.today())
+    date_hired = models.DateField(auto_now_add=True)
+    #changed this to auto now add, so that when an account is being made, current date will be used
     emergency_contact = models.CharField(max_length=20)
     photo = models.ImageField(upload_to="employee_photos", blank=True, null=True)
     staff = models.BooleanField(default=False)

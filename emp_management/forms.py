@@ -43,6 +43,7 @@ class EmployeeUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Employee
+
         fields = [
             'first_name',
             'last_name',
@@ -60,5 +61,29 @@ class EmployeeUpdateForm(forms.ModelForm):
 class AdminEmployeeUpdateForm(forms.ModelForm):
     class Meta:
         model = Employee
-        # Add all the fields that you want the admin to be able to edit
-        fields = '__all__'
+        first_name = forms.CharField(
+            widget=forms.TextInput(attrs={'readonly': 'readonly'})
+        )
+        last_name = forms.CharField(
+            widget=forms.TextInput(attrs={'readonly': 'readonly'})
+        )
+        email = forms.EmailField(
+            widget=forms.EmailInput(attrs={'readonly': 'readonly'})
+        )
+
+        fields = [
+            'first_name',
+            'last_name',
+            'email',
+            'phone_number',
+            'emergency_contact',
+            'department',
+            'position',
+            'salary',
+            'photo',
+        ]
+
+
+
+
+

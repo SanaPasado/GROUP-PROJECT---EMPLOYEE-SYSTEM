@@ -57,7 +57,6 @@ class RegisterForm(forms.ModelForm):
             'department',
             'salary',
             'phone_number',
-            'date_hired',
             'emergency_contact',
             'photo',
         ]
@@ -69,7 +68,6 @@ class RegisterForm(forms.ModelForm):
             'department': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Department"}),
             'salary': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Salary"}),
             'phone_number': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Phone Number"}),
-            'date_hired': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'emergency_contact': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Emergency Contact"}),
             'photo': forms.FileInput(attrs={'class': 'form-control'}),
         }

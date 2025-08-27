@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView, DetailView, ListView
 from django.urls import reverse_lazy, reverse
 from accounts.models import Employee  # import your custom model
-from emp_management.forms import EmployeeUpdateForm
+from emp_management.forms import EmployeeUpdateForm, AdminEmployeeUpdateForm
 
 
 class EmpListView(ListView):
@@ -39,6 +39,18 @@ class EmpUpdateView(UpdateView):
     def get_object(self, queryset=None):
         # fetch the employee using slug
         return get_object_or_404(Employee, slug=self.kwargs["slug"])
+
+    def form_invalid(self, form):
+        print("Form errors:", form.errors)
+        return super().form_invalid(form)
+    #this is for debugging
+
+    def get_form_class(self):
+        if self.request.user.is_staff:
+            print("✅ Using ADMIN form")
+            return AdminEmployeeUpdateForm
+        print("✅ Using EMPLOYEE form")
+        return EmployeeUpdateForm
 
     def get_success_url(self):
         # after saving, redirect back to detail page
