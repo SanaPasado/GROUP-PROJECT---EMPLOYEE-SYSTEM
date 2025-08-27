@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.template.defaultfilters import slugify
 
+from Employee_System import settings
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False,):
@@ -44,12 +46,13 @@ class UserManager(BaseUserManager):
 
 
 class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're telling django that we'll use custom user model
+    # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     position = models.CharField(max_length=255)
     department = models.CharField(max_length=255)
-    salary = models.FloatField()
+    salary = models.FloatField(null=True, blank=True)
     phone_number = models.CharField(max_length=20)
     date_hired = models.DateField(default=date.today())
     emergency_contact = models.CharField(max_length=20)
@@ -97,5 +100,5 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     @property
     def is_active(self):
         return self.active
-    #removing this because it is duplicate of the attributes above
+
 

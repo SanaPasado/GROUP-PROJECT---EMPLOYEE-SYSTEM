@@ -27,14 +27,19 @@ from accounts.models import Employee
 #         }
 
 # This form is for the regular user, with restricted editable fields
+from django import forms
+from accounts.models import Employee
+
 class EmployeeUpdateForm(forms.ModelForm):
-    # These fields are read-only
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'readonly': 'readonly'}))
-    department = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-    position = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
-    salary = forms.FloatField(widget=forms.NumberInput(attrs={'readonly': 'readonly'}))
+    # fields naka disabled kase kapag naka readonly sila,
+    # need parin ivalidate ng form and rerquire ka
+    # magsend ng bagong data so that fails
+    first_name = forms.CharField(disabled=True)
+    last_name = forms.CharField(disabled=True)
+    email = forms.EmailField(disabled=True)
+    department = forms.CharField(disabled=True)
+    position = forms.CharField(disabled=True)
+    salary = forms.FloatField(disabled=True)
 
     class Meta:
         model = Employee
@@ -49,6 +54,7 @@ class EmployeeUpdateForm(forms.ModelForm):
             'salary',
             'photo',
         ]
+
 
 # This form is for the admin, with all fields editable
 class AdminEmployeeUpdateForm(forms.ModelForm):

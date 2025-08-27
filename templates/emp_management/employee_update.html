@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Update Your Profile</h2>
+    <h2 class="mb-4">Update Profile: {{ employee.first_name }} {{ employee.last_name }}</h2>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -12,58 +12,48 @@
             </div>
         {% endif %}
 
+        <!-- Render fields from form -->
         <div class="mb-3">
-            <label for="id_first_name" class="form-label">First Name</label>
-            <input type="text" name="first_name" value="{{ form.first_name.value }}" class="form-control" id="id_first_name" readonly>
-        </div>
-
-        <div class="mb-3">
-            <label for="id_last_name" class="form-label">Last Name</label>
-            <input type="text" name="last_name" value="{{ form.last_name.value }}" class="form-control" id="id_last_name" readonly>
-        </div>
-
-        <div class="mb-3">
-            <label for="id_phone_number" class="form-label">Phone Number</label>
+            <label class="form-label">Phone Number</label>
             {{ form.phone_number }}
         </div>
 
         <div class="mb-3">
-            <label for="id_emergency_contact" class="form-label">Emergency Contact</label>
+            <label class="form-label">Emergency Contact</label>
             {{ form.emergency_contact }}
         </div>
 
         <div class="mb-3">
-            <label for="id_department" class="form-label">Department</label>
+            <label class="form-label">Department</label>
             {{ form.department }}
         </div>
 
         <div class="mb-3">
-            <label for="id_position" class="form-label">Position</label>
+            <label class="form-label">Position</label>
             {{ form.position }}
         </div>
 
         <div class="mb-3">
-            <label for="id_salary" class="form-label">Salary</label>
+            <label class="form-label">Salary</label>
             {{ form.salary }}
         </div>
 
         <div class="mb-3">
             <label class="form-label">Current Photo</label><br>
-            {% if user.employee.photo %}
-                <img src="{{ user.employee.photo.url }}" alt="Profile Photo" class="img-thumbnail mb-2" width="150">
+            {% if employee.photo %}
+                <img src="{{ employee.photo.url }}" alt="Profile Photo" class="img-thumbnail mb-2" width="150">
             {% else %}
                 <span class="text-muted">No photo uploaded</span>
             {% endif %}
         </div>
 
         <div class="mb-3">
-            <label for="id_photo" class="form-label">Change Photo</label>
+            <label class="form-label">Change Photo</label>
             {{ form.photo }}
         </div>
 
         <button type="submit" class="btn btn-success">Update Profile</button>
-
+        <a href="{% url 'employee_detail' employee.slug %}" class="btn btn-secondary">Cancel</a>
     </form>
-
 </div>
 {% endblock %}
