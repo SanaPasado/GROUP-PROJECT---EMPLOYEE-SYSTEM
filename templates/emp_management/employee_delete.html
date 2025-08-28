@@ -1,8 +1,27 @@
-<h1>Delete {{ object.title }}?</h1>
-<p>Are you sure you want to delete the "{{employee.first_name }} {{ employee.last_name }} "s User Profile ?<p>
+{% extends "base.html" %}
 
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">Confirm</button>
-  <a href="{% url 'employee_detail' employee.slug %}">Cancel</a>
-</form>
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="card shadow-lg p-4">
+                    <div class="card-body">
+                        <h1 class="card-title text-center text-danger mb-4">Delete User Profile</h1>
+                        <p class="card-text text-center text-muted">
+                            Are you sure you want to delete the user profile for **{{ employee.first_name }} {{ employee.last_name }}**?
+                            <br>
+                            This action cannot be undone.
+                        </p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <form method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-lg me-md-2">Confirm Delete</button>
+                            </form>
+                            <a href="{% url 'employee_detail' employee.slug %}" class="btn btn-secondary btn-lg">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

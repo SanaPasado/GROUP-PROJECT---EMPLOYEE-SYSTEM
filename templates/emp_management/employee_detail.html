@@ -53,9 +53,11 @@
           <a href="{% url 'employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
         {% endif %}
 {#      replaced employee_slug with employee_detail.slug #}
-        <a href="{% url 'employees' %}" class="btn btn-secondary">Back to List</a>
-              <a href="{% url 'employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
 
+        <a href="{% url 'employees' %}" class="btn btn-secondary">Back to List</a>
+          {% if user.is_staff %}
+              <a href="{% url 'employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
+      {% endif %}
       </div>
     </div>
   </div>

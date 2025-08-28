@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404
 
@@ -11,21 +13,27 @@ from emp_management.forms import EmployeeUpdateForm, AdminEmployeeUpdateForm
 
 class EmpListView(ListView):
     model = Employee
-    context_object_name = 'employees' #data inside template
+    context_object_name = 'employees'
     template_name = 'emp_management/employee_list.html'
 
     def get_queryset(self):
-        # Exclude staff/admin users
-        return Employee.objects.filter(staff=False, admin=False)
+        # kase nakikita yung admins sa list view i don wan dat
+        queryset = Employee.objects.filter(staff=False, admin=False)
+        query = self.request.GET.get('q')
+
+        if query:
+            queryset = queryset.filter(
+                Q(slug__icontains=query) |
+                Q(position__icontains=query) |
+                Q(department__icontains=query))
+        return queryset
+
+
 
 class EmpDetailView(DetailView):
     model = Employee
     context_object_name = 'employee_detail'
     template_name = 'emp_management/employee_detail.html'
-
-    def get_queryset(self):
-        # Exclude staff/admin users
-        return Employee.objects.filter(is_staff=False, is_superuser=False)
 
     def get_object(self):
         return Employee.objects.get(slug=self.kwargs["slug"])

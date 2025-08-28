@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 from accounts.views import register_page, login_page
-
+app_name = 'accounts'
 urlpatterns = [
 
 
