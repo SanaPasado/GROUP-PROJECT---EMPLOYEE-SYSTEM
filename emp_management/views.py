@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.views.generic import UpdateView, DetailView, ListView
+from django.views.generic import UpdateView, DetailView, ListView, DeleteView
 from django.urls import reverse_lazy, reverse
 from accounts.models import Employee  # import your custom model
 from emp_management.forms import EmployeeUpdateForm, AdminEmployeeUpdateForm
@@ -56,40 +56,12 @@ class EmpUpdateView(UpdateView):
         # after saving, redirect back to detail page
         return reverse('employee_detail', kwargs={'slug': self.object.slug})
 
+class EmpDeleteView(DeleteView):
+    model = Employee
+    context_object_name = 'employee'
+    template_name = 'emp_management/employee_delete.html'
+    success_url = reverse_lazy('employees')
+    #im not sure if it bases on employees in urls.py
+    #or what u put on the context object name of list view
 
 
-
-
-# class EmpUpdateView(UpdateView):
-#     model = Employee
-#     form_class = EmployeeUpdateForm
-#     context_object_name = 'employee_update'
-#     template_name = 'emp_management/employee_update.html'
-#
-#     def get_queryset(self):
-#         # Exclude staff/admin users
-#         return Employee.objects.filter(is_staff=False, is_superuser=False)
-#
-#     def get_object(self):
-#         return Employee.objects.get(slug=self.kwargs["slug"])
-#
-#     def get_success_url(self):
-#         # This redirects to the 'employee-detail' URL,
-#         # passing the slug of the object that was just updated.
-#         return reverse('employee_detail', kwargs={'slug': self.object.slug})
-#
-
-
-
-
-
-# @method_decorator(login_required, name='dispatch')
-# class MyProfileUpdateView(UpdateView):
-#     model = Employee
-#     fields = ['phone_number', 'emergency_contact', 'photo']
-#     template_name = "emp_management/profile_update.html"
-#     success_url = reverse_lazy("my-profile")
-#
-#     def get_object(self):
-#         # only allow employee to edit their own record
-#         return self.request.user

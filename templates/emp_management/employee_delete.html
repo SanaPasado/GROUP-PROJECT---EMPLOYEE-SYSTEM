@@ -1,0 +1,8 @@
+<h1>Delete {{ object.title }}?</h1>
+<p>Are you sure you want to delete the "{{employee.first_name }} {{ employee.last_name }} "s User Profile ?<p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Confirm</button>
+  <a href="{% url 'employee_detail' employee.slug %}">Cancel</a>
+</form>

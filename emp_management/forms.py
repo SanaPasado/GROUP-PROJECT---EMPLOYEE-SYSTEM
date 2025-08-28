@@ -82,6 +82,9 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
             'salary',
             'photo',
         ]
+# class AdminEmployeeDeleteForm(forms.ModelForm):
+#     class Meta:
+#         model = Employee
 
 
 
