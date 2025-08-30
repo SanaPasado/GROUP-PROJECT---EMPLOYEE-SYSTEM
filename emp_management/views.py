@@ -35,6 +35,7 @@ class EmpDetailView(DetailView):
     context_object_name = 'employee_detail'
     template_name = 'emp_management/employee_detail.html'
 
+
     def get_object(self):
         return Employee.objects.get(slug=self.kwargs["slug"])
 

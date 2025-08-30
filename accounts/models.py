@@ -1,9 +1,8 @@
-from datetime import datetime, date
-
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.utils import timezone
 
 from Employee_System import settings
 
@@ -46,7 +45,7 @@ class UserManager(BaseUserManager):
 
 
 class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're telling django that we'll use custom user model
-    # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -54,10 +53,15 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     department = models.CharField(max_length=255)
     salary = models.FloatField(null=True, blank=True)
     phone_number = models.CharField(max_length=20)
-    date_hired = models.DateField(auto_now_add=True)
+    date_hired = models.DateField(default=timezone.now)
     #changed this to auto now add, so that when an account is being made, current date will be used
     emergency_contact = models.CharField(max_length=20)
     photo = models.ImageField(upload_to="employee_photos", blank=True, null=True)
+    address = models.CharField(max_length=255, default='Unknown Address')
+    vacation_days = models.IntegerField(default=0)
+    working_hours = models.IntegerField(default=0)
+    sick_leaves = models.IntegerField(default=0)
+    last_seen = models.DateTimeField(auto_now=True)
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     active = models.BooleanField(default=True)

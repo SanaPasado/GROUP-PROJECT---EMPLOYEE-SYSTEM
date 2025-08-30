@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,9 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'emp_management',
+
 ]
 AUTH_USER_MODEL = "accounts.Employee"
-
+ASGI_APPLICATION = 'Employee_System.asgi.application'
+CHANNEL_LAYERS = {}
 #so that django will use this customer user model
 # that we made instead of default basic one
 
@@ -53,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Employee_System.middleware.UpdateLastSeenMiddleware',
+
 ]
 
 ROOT_URLCONF = 'Employee_System.urls'

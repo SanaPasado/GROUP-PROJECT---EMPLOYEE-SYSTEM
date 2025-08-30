@@ -53,6 +53,21 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Vacation Days</label>
+            {{ form.vacation_days }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Working Hours</label>
+            {{ form.working_hours }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Sick Leaves</label>
+            {{ form.sick_leaves }}
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Current Photo</label><br>
             {% if employee.photo %}
                 <img src="{{ employee.photo.url }}" alt="Profile Photo" class="img-thumbnail mb-2" width="150">

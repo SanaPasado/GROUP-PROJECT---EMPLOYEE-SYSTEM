@@ -30,7 +30,10 @@
         <tbody>
         {% for employee in employees %}
             <tr>
-                <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                <td>
+                    {{ employee.first_name }} {{ employee.last_name }}
+                    <span id="status-{{ employee.user.id }}"></span>
+                </td>
                 <td>{{ employee.department }}</td>
                 <td>{{ employee.position }}</td>
                 <td>{{ employee.date_hired }}</td>
@@ -48,4 +51,40 @@
         </tbody>
     </table>
 </div>
+
+<script type="text/javascript">
+    const socket = new WebSocket(
+        'ws://' + window.location.host + '/ws/online_status/'
+    );
+
+    function updateStatusIcon(userId, isOnline) {
+        const iconElement = document.getElementById('status-' + userId);
+        if (iconElement) {
+            iconElement.innerHTML = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:5px; background-color:${isOnline ? 'green' : 'red'};"></span>`;
+        }
+    }
+
+    // Set initial status of all employees to offline (red button)
+    const employeesInTable = document.querySelectorAll('tbody tr');
+    employeesInTable.forEach(row => {
+        const userId = row.querySelector('[id^="status-"]').id.replace('status-', '');
+        updateStatusIcon(userId, false);
+    });
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+
+        // Handle the initial list of online users when the page first loads
+        if (data.type === 'initial_online_users') {
+            const { user_ids } = data;
+            user_ids.forEach(userId => {
+                updateStatusIcon(userId, true);
+            });
+        // Otherwise, handle real-time updates for a single user
+        } else if (data.status === 'online' || data.status === 'offline') {
+            const { user_id } = data;
+            updateStatusIcon(user_id, data.status === 'online');
+        }
+    };
+</script>
 {% endblock %}

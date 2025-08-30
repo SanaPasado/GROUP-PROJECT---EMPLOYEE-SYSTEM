@@ -59,6 +59,12 @@ class RegisterForm(forms.ModelForm):
             'phone_number',
             'emergency_contact',
             'photo',
+            'sick_leaves',
+            'vacation_days',
+            'working_hours',
+            'address',
+
+
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', "placeholder": "First Name"}),
@@ -70,6 +76,10 @@ class RegisterForm(forms.ModelForm):
             'phone_number': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Phone Number"}),
             'emergency_contact': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Emergency Contact"}),
             'photo': forms.FileInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Address"}),
+            'sick_leaves': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Sick Leaves"}),
+            'vacation_days': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Vacation Days"}),
+            'working_hours': forms.NumberInput(attrs={'class': 'form-control' , "placeholder": "Working Hours"}),
         }
 
 
