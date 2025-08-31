@@ -67,6 +67,7 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     active = models.BooleanField(default=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    totp_secret = models.CharField(max_length=32, blank=True, null=True, help_text="TOTP secret for Google Authenticator")
 
     USERNAME_FIELD = 'email' #username
     REQUIRED_FIELDS = []#fields that are needed when creating a superuser or admin account
@@ -105,5 +106,3 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     @property
     def is_active(self):
         return self.active
-
-

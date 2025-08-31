@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model, authenticate
+from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from accounts.models import Employee
 
@@ -30,7 +31,34 @@ class LoginForm(forms.Form):
         return cleaned_data
 
 
+class OTPVerifyForm(forms.Form):
+    """
+    Form for verifying a Time-based One-Time Password (TOTP).
+    """
+    otp_code = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', "placeholder": "OTP Code"}),
+        label="One-Time Password",
+        required=True
+    )
 
+    def verify_otp(self, user, otp_code):
+        """
+        Verifies the OTP code against the user's TOTP device.
+
+        Args:
+            user: The user object.
+            otp_code: The OTP code to verify.
+
+        Returns:
+            bool: True if the OTP is valid, False otherwise.
+        """
+        # Get the user's OTP device (assuming one per user)
+        try:
+            device = TOTPDevice.objects.get(user=user)
+            # Use the verify_token method from the django_otp library
+            return device.verify_token(otp_code)
+        except TOTPDevice.DoesNotExist:
+            return False
 
 
 class RegisterForm(forms.ModelForm):

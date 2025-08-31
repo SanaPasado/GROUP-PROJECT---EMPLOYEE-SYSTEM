@@ -38,8 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
     'accounts',
     'emp_management',
+    'two_factor',
 
 ]
 AUTH_USER_MODEL = "accounts.Employee"
@@ -59,13 +62,22 @@ MIDDLEWARE = [
     'Employee_System.middleware.UpdateLastSeenMiddleware',
 
 ]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+TWO_FACTOR_FORMS = {
+    'login': 'two_factor.forms.TwoFactorAuthenticationForm',
+    'profile': 'two_factor.forms.ProfileForm',
+    'setup': 'two_factor.forms.SetupForm',
+}
+
+LOGIN_URL = 'two_factor:login'
 
 ROOT_URLCONF = 'Employee_System.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR / 'templates', 'accounts']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -76,7 +88,7 @@ TEMPLATES = [
             ],
         },
     },
-]
+]#i  added accounts app to base directories for 2FA
 
 WSGI_APPLICATION = 'Employee_System.wsgi.application'
 

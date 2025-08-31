@@ -19,7 +19,8 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from accounts.views import register_page, login_page
+from accounts.views import register_page, login_page, otp_verify
+
 app_name = 'accounts'
 urlpatterns = [
 
@@ -29,6 +30,9 @@ urlpatterns = [
     # path('home/', , name='home'),
 
     path('', login_page, name='login'),
+
+
+    path('otp-verify/', otp_verify, name='otp_verify'),
 ]
 
 

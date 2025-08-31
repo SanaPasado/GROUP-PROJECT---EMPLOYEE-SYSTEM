@@ -27,6 +27,8 @@ urlpatterns = [
     path('', include('emp_management.urls')),
 
 
+
+
 ]
 
 if settings.DEBUG:
