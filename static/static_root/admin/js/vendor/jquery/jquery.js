@@ -6365,7 +6365,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 		// Support: IE 9 - 11+, Edge 15 - 18+
 		// IE/Edge misreport `getComputedStyle` of table rows with width/height
-		// set in CSS while `offset*` properties report correct values.
+		// set in CSS while `offset*` properties reports correct values.
 		// Behavior in IE 9 is more subtle than in newer versions & it passes
 		// some versions of this test; make sure not to make it pass there!
 		//
@@ -6679,7 +6679,7 @@ function getWidthOrHeight( elem, dimension, extra ) {
 
 		// Support: IE 10 - 11+, Edge 15 - 18+
 		// IE/Edge misreport `getComputedStyle` of table rows with width/height
-		// set in CSS while `offset*` properties report correct values.
+		// set in CSS while `offset*` properties reports correct values.
 		// Interestingly, in some cases IE 9 doesn't suffer from this issue.
 		!support.reliableTrDimensions() && nodeName( elem, "tr" ) ||
 
@@ -7459,7 +7459,7 @@ function Animation( elem, properties, options ) {
 				deferred.notifyWith( elem, [ animation, 1, 0 ] );
 			}
 
-			// Resolve the animation and report its conclusion
+			// Resolve the animation and reports its conclusion
 			deferred.resolveWith( elem, [ animation ] );
 			return false;
 		},

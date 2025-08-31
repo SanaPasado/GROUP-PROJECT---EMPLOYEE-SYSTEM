@@ -5,7 +5,7 @@ from django.conf import settings
 
 from emp_management.views import EmpListView, EmpDetailView, EmpUpdateView, EmpDeleteView
 
-# app_name = 'emp_management'
+app_name = 'emp_management'
 urlpatterns = [
     path('employees/', EmpListView.as_view(), name='employees'),
 

@@ -66,13 +66,13 @@
 
         <!-- Edit Button (only for self or admin) -->
         {% if request.user == employee_detail or request.user.is_staff %}
-          <a href="{% url 'employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
+          <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
         {% endif %}
 {#      replaced employee_slug with employee_detail.slug #}
 
-        <a href="{% url 'employees' %}" class="btn btn-secondary">Back to List</a>
+        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
           {% if user.is_staff %}
-              <a href="{% url 'employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
+              <a href="{% url 'emp_management:employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
       {% endif %}
       </div>
     </div>

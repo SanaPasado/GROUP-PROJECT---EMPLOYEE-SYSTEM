@@ -82,7 +82,7 @@
         </div>
 
         <button type="submit" class="btn btn-success">Update Profile</button>
-        <a href="{% url 'employee_detail' employee.slug %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'emp_management:employee_detail' employee.slug %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}

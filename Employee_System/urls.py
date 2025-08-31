@@ -22,9 +22,11 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', include('accounts.urls', namespace='accounts')),
+    path('auth/', include('accounts.urls', namespace='accounts')),
 
-    path('', include('emp_management.urls')),
+    path('', include('emp_management.urls', namespace='emp_management')),
+
+    path('reports/', include('reports.urls', namespace='reports')),
 
 
 

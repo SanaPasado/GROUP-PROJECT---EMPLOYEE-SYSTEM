@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'emp_management',
     'two_factor',
+    'reports'
 
 ]
 AUTH_USER_MODEL = "accounts.Employee"
@@ -71,7 +72,7 @@ TWO_FACTOR_FORMS = {
     'setup': 'two_factor.forms.SetupForm',
 }
 
-LOGIN_URL = 'two_factor:login'
+LOGIN_URL = 'accounts:login_page'
 
 ROOT_URLCONF = 'Employee_System.urls'
 TEMPLATES = [

@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 
 from django.core.exceptions import PermissionDenied
@@ -11,7 +12,7 @@ from accounts.models import Employee  # import your custom model
 from emp_management.forms import EmployeeUpdateForm, AdminEmployeeUpdateForm
 
 
-class EmpListView(ListView):
+class EmpListView(LoginRequiredMixin, ListView):
     model = Employee
     context_object_name = 'employees'
     template_name = 'emp_management/employee_list.html'
@@ -30,16 +31,15 @@ class EmpListView(ListView):
 
 
 
-class EmpDetailView(DetailView):
+class EmpDetailView(LoginRequiredMixin, DetailView):
     model = Employee
     context_object_name = 'employee_detail'
     template_name = 'emp_management/employee_detail.html'
 
-
     def get_object(self):
         return Employee.objects.get(slug=self.kwargs["slug"])
 
-class EmpUpdateView(UpdateView):
+class EmpUpdateView(LoginRequiredMixin, UpdateView):
     model = Employee
     form_class = EmployeeUpdateForm
     context_object_name = 'employee'   # <--- we rename object → employee
@@ -65,7 +65,7 @@ class EmpUpdateView(UpdateView):
         # after saving, redirect back to detail page
         return reverse('employee_detail', kwargs={'slug': self.object.slug})
 
-class EmpDeleteView(DeleteView):
+class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Employee
     context_object_name = 'employee'
     template_name = 'emp_management/employee_delete.html'

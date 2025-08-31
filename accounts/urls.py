@@ -27,7 +27,6 @@ urlpatterns = [
 
     path('register/', register_page, name='register'),
 
-    # path('home/', , name='home'),
 
     path('', login_page, name='login'),
 
