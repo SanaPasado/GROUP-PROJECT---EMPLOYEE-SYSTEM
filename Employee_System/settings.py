@@ -48,7 +48,11 @@ INSTALLED_APPS = [
 ]
 AUTH_USER_MODEL = "accounts.Employee"
 ASGI_APPLICATION = 'Employee_System.asgi.application'
-CHANNEL_LAYERS = {}
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 #so that django will use this customer user model
 # that we made instead of default basic one
 
@@ -60,7 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'Employee_System.middleware.UpdateLastSeenMiddleware',
+    'Employee_System.middleware.UpdateLastSeenMiddleware'
 
 ]
 AUTHENTICATION_BACKENDS = [
@@ -93,7 +97,7 @@ TEMPLATES = [
     },
 ]#i  added accounts app to base directories for 2FA
 
-WSGI_APPLICATION = 'Employee_System.wsgi.application'
+# WSGI_APPLICATION = 'Employee_System.wsgi.application'
 
 
 # Database
@@ -151,3 +155,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media_root")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+#here my settings

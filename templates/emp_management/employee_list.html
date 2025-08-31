@@ -83,24 +83,24 @@
         }
     }
 
-    // Set initial status of all employees to offline
-    const employeesInTable = document.querySelectorAll('tbody tr');
-    employeesInTable.forEach(row => {
-        const userId = row.querySelector('[id^="status-"]').id.replace('status-', '');
-        updateStatusIcon(userId, false);
+    // Set all employees to offline initially to handle page load
+    document.querySelectorAll('span[id^="status-"]').forEach(span => {
+        updateStatusIcon(span.id.replace('status-', ''), false);
     });
 
     socket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        if (data.type === 'initial_online_users') {
-            const { user_ids } = data;
-            user_ids.forEach(userId => {
-                updateStatusIcon(userId, true);
-            });
-        } else if (data.status === 'online' || data.status === 'offline') {
-            const { user_id } = data;
-            updateStatusIcon(user_id, data.status === 'online');
-        }
+        const userId = data.user_id;
+        const isOnline = data.is_online;
+        updateStatusIcon(userId, isOnline);
+    };
+
+    socket.onopen = function(e) {
+        console.log("WebSocket connection established.");
+    };
+
+    socket.onclose = function(e) {
+        console.log("WebSocket connection closed unexpectedly.");
     };
 </script>
 {% endblock %}

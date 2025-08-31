@@ -9,7 +9,18 @@ import base64
 from io import BytesIO
 import qrcode
 from django_otp.plugins.otp_totp.models import TOTPDevice
+
 User = get_user_model()
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
 
 @login_required
 def register_page(request):
@@ -20,32 +31,48 @@ def register_page(request):
     context = {"form": form}
 
     if form.is_valid():
-        new_user = form.save(commit=False)  # don't save yet
-        new_user.set_password(form.cleaned_data["password"])  # hash password
-        new_user.save()  # now save to DB
+        new_user = form.save(commit=False)
+        new_user.set_password(form.cleaned_data["password"])
+        new_user.save()
         return redirect("emp_management:employees")
 
     return render(request, "auth/register.html", context)
+
+
 def login_page(request):
     form = LoginForm(request.POST or None)
-    context = {
-        'form': form}
+    context = {'form': form}
 
     if form.is_valid():
         user = form.cleaned_data["user"]
-        login(request, user)
-        return redirect("accounts:otp_verify")
-    #user is used instead of email and password because
-    # we used 'cleaned_data = user' in forms and user = authenticate
+
+        current_ip = get_client_ip(request)
+
+        if user.last_login_ip  == current_ip:
+            # IP is the same, no OTP required
+            user.last_login_ip = current_ip
+            user.save()
+            login(request, user)
+            return redirect('emp_management:employees')
+        else:
+            # IP has changed, require OTP
+            user.last_login_ip = current_ip
+            user.save()
+            login(request, user)
+            return redirect('accounts:otp_verify')
 
     return render(request, 'login/login.html', context)
 
+
 def logout_view(request):
-    logout(request)  # clears the session
+    logout(request)
     return redirect(reverse('accounts:login_page'))
 
+
 def otp_verify(request):
-    # Logic for secret key and QR code generation
+    if not request.user.is_authenticated:
+        return redirect('accounts:login_page')
+
     device, _ = TOTPDevice.objects.get_or_create(user=request.user)
     uri = device.config_url
     img = qrcode.make(uri)
@@ -53,13 +80,11 @@ def otp_verify(request):
     img.save(buf, format='PNG')
     qr_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 
-    # Logic for verifying the OTP code
-    form = OTPVerifyForm(request.POST or None)
+    form = OTPVerifyForm(request.POST or None, user=request.user)
 
     if request.method == 'POST':
         if form.is_valid():
             otp_code = form.cleaned_data.get("otp_code")
-            # Call the custom method defined on the form to verify the OTP.
             if form.verify_otp(request.user, otp_code):
                 request.session['otp_verified'] = True
                 return redirect('emp_management:employees')
@@ -71,4 +96,3 @@ def otp_verify(request):
         'qr_b64': qr_b64,
     }
     return render(request, 'login/otp_verify.html', context)
-

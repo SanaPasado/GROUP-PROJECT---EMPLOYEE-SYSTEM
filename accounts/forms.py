@@ -40,6 +40,10 @@ class OTPVerifyForm(forms.Form):
         label="One-Time Password",
         required=True
     )
+    def __init__(self, *args, **kwargs):
+        # This line is key! It grabs the user object.
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
 
     def verify_otp(self, user, otp_code):
         """
