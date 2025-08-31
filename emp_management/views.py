@@ -46,7 +46,6 @@ class EmpUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'emp_management/employee_update.html'
 
     def get_object(self, queryset=None):
-        # fetch the employee using slug
         return get_object_or_404(Employee, slug=self.kwargs["slug"])
 
     def form_invalid(self, form):

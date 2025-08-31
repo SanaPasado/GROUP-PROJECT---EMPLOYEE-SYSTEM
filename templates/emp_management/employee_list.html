@@ -46,7 +46,11 @@
         {% for employee in employees %}
             <tr>
                 <td>
-                    {{ employee.first_name }} {{ employee.last_name }}
+                    {% if employee.photo %}
+        <img src="{{ employee.photo.url}}"
+             style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:5px;">
+    {% endif %}
+    {{ employee.first_name }} {{ employee.last_name }}
                     <span id="status-{{ employee.user.id }}"></span>
                 </td>
                 <td>{{ employee.department }}</td>
