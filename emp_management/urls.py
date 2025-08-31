@@ -7,7 +7,7 @@ from emp_management.views import EmpListView, EmpDetailView, EmpUpdateView, EmpD
 
 app_name = 'emp_management'
 urlpatterns = [
-    path('employees/', EmpListView.as_view(), name='employees'),
+    path('', EmpListView.as_view(), name='employees'),
 
     path("employees/<slug:slug>/", EmpDetailView.as_view(), name="employee_detail"),
 

@@ -70,7 +70,7 @@ class Employee(AbstractBaseUser, PermissionsMixin): #-----> means that we're tel
     totp_secret = models.CharField(max_length=32, blank=True, null=True, help_text="TOTP secret for Google Authenticator")
 
     USERNAME_FIELD = 'email' #username
-    REQUIRED_FIELDS = []#fields that are needed when creating a superuser or admin account
+    REQUIRED_FIELDS = ['first_name','last_name']#fields that are needed when creating a superuser or admin account
 
     objects = UserManager()
 

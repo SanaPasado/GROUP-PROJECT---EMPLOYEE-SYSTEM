@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django_otp.decorators import otp_required
 
 from accounts.forms import RegisterForm, LoginForm, OTPVerifyForm
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 import base64
 from io import BytesIO
@@ -13,7 +14,7 @@ User = get_user_model()
 @login_required
 def register_page(request):
     if not request.user.is_staff and not request.user.is_superuser:
-        return redirect("home")
+        return render(request, "403.html", status=403)
 
     form = RegisterForm(request.POST or None, request.FILES or None)
     context = {"form": form}
@@ -22,7 +23,7 @@ def register_page(request):
         new_user = form.save(commit=False)  # don't save yet
         new_user.set_password(form.cleaned_data["password"])  # hash password
         new_user.save()  # now save to DB
-        return redirect("employees")
+        return redirect("emp_management:employees")
 
     return render(request, "auth/register.html", context)
 def login_page(request):
@@ -39,6 +40,9 @@ def login_page(request):
 
     return render(request, 'login/login.html', context)
 
+def logout_view(request):
+    logout(request)  # clears the session
+    return redirect(reverse('accounts:login_page'))
 
 def otp_verify(request):
     # Logic for secret key and QR code generation
@@ -58,7 +62,7 @@ def otp_verify(request):
             # Call the custom method defined on the form to verify the OTP.
             if form.verify_otp(request.user, otp_code):
                 request.session['otp_verified'] = True
-                return redirect('employees')
+                return redirect('emp_management:employees')
             else:
                 form.add_error('otp_code', 'Invalid OTP code')
 
@@ -66,5 +70,5 @@ def otp_verify(request):
         'form': form,
         'qr_b64': qr_b64,
     }
-    return render(request, 'login/totp_setup.html', context)
+    return render(request, 'login/otp_verify.html', context)
 

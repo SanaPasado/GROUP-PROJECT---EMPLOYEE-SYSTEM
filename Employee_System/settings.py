@@ -72,7 +72,9 @@ TWO_FACTOR_FORMS = {
     'setup': 'two_factor.forms.SetupForm',
 }
 
-LOGIN_URL = 'accounts:login_page'
+LOGIN_URL = "accounts:login_page"
+LOGIN_REDIRECT_URL = "emp_management:employees"
+LOGOUT_REDIRECT_URL = "accounts:login_page"
 
 ROOT_URLCONF = 'Employee_System.urls'
 TEMPLATES = [

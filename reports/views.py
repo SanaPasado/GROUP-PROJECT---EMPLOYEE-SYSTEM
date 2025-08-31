@@ -1,27 +1,32 @@
-from django.shortcuts import render, redirect
-from django.views.generic import CreateView, ListView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+from .forms import ReportForm
 from .models import Report
 
 
-class ReportCreateView(LoginRequiredMixin, CreateView):
-    model = Report
-    fields = ['subject', 'description']
-    template_name = 'reports/report_form.html'
-    success_url = reverse_lazy('report_list')
+@login_required
+def report_create(request):
+    if request.method == "POST":
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reported_by = request.user  # use request.user, not user
+            report.save()
+            return redirect('emp_management:employees')  # adjust to your url name
+    else:
+        form = ReportForm()
 
-    def form_valid(self, form):
-        # Automatically set the reported_by field to the current user
-        form.instance.reported_by = self.request.user
-        return super().form_valid(form)
+    return render(request, 'reports/report_form.html', {'form': form})
 
 
-class ReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = Report
-    context_object_name = 'reports'
-    template_name = 'reports/report_list.html'
 
-    def test_func(self):
-        # Only allow staff members to view the report list
-        return self.request.user.is_staff
+
+def is_staff(user):
+    return user.is_staff
+
+@login_required
+@user_passes_test(is_staff)
+def report_list(request):
+    reports = Report.objects.all()
+    return render(request, 'reports/report_list.html', {'reports': reports})

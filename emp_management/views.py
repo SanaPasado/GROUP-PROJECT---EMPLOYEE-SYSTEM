@@ -63,13 +63,13 @@ class EmpUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         # after saving, redirect back to detail page
-        return reverse('employee_detail', kwargs={'slug': self.object.slug})
+        return reverse('emp_management:employee_detail', kwargs={'slug': self.object.slug})
 
 class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Employee
     context_object_name = 'employee'
     template_name = 'emp_management/employee_delete.html'
-    success_url = reverse_lazy('employees')
+    success_url = reverse_lazy('emp_management:employees')
     #im not sure if it bases on employees in urls.py
     #or what u put on the context object name of list view
 
