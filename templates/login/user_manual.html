@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">Employee Management System</h1>
+        <p class="lead text-muted">Quick User Guide</p>
+    </div>
+
+    <!-- Login & Security -->
+    <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white fw-bold">
+            1. Login & Security
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Enter <strong>username</strong> and <strong>password</strong>.</li>
+                <li>If IP differs from last login → system asks for <strong>Google Authenticator code</strong> (QR scanned during setup).</li>
+                <li>Code changes every 30 seconds for extra security.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Roles -->
+    <div class="card shadow-sm mb-4 border-info">
+        <div class="card-header bg-info text-white fw-bold">
+            2. Roles
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Employee</strong>: View/update profile, time in/out, request leave.</li>
+                <li><strong>Admin/HR</strong>: Manage employees, view all attendance, create accounts, generate reports.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Employee Actions -->
+    <div class="card shadow-sm mb-4 border-success">
+        <div class="card-header bg-success text-white fw-bold">
+            3. Employee Actions
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>My Profile</strong> → View/update personal info.</li>
+                <li><strong>My Attendance</strong> → Time In (green) / Time Out (red).</li>
+                <li><strong>Recent Records</strong> → See last 10 logs.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="card shadow-sm mb-4 border-warning">
+        <div class="card-header bg-warning fw-bold">
+            4. Admin Actions
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Employees</strong> → Add/edit employee accounts (admins or authorized employees can create accounts).</li>
+                <li><strong>Attendance List</strong> → Check all employees’ time in/out.</li>
+                <li><strong>Reports</strong> → Generate/export attendance or payroll reports.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="card shadow-sm border-secondary mb-4">
+        <div class="card-header bg-secondary text-white fw-bold">
+            5. Tips
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Always log out after use.</li>
+                <li>Keep contact info updated.</li>
+                <li>Report login issues to admin.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            ← Back
+        </a>
+    </div>
+</div>
+{% endblock %}

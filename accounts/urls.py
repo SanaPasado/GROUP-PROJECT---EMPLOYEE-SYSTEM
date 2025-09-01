@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from accounts.views import register_page, login_page, otp_verify, logout_view
+from accounts.views import register_page, login_page, otp_verify, logout_view, user_manual
 
 app_name = 'accounts'
 urlpatterns = [
@@ -34,6 +34,8 @@ urlpatterns = [
 
 
     path('otp-verify/', otp_verify, name='otp_verify'),
+
+    path('user-manual/', user_manual, name='user_manual'),
 ]
 
 

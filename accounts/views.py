@@ -38,6 +38,8 @@ def register_page(request):
 
     return render(request, "auth/register.html", context)
 
+def user_manual(request):
+    return render(request, 'login/user_manual.html')
 
 def login_page(request):
     form = LoginForm(request.POST or None)
