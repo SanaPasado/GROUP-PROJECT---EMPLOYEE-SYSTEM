@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'accounts',
     'emp_management',
     'two_factor',
-    'reports'
-
+    'reports',
+    'attendance',
 ]
 AUTH_USER_MODEL = "accounts.Employee"
 ASGI_APPLICATION = 'Employee_System.asgi.application'
@@ -64,7 +64,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'Employee_System.middleware.UpdateLastSeenMiddleware'
 
 ]
 AUTHENTICATION_BACKENDS = [
@@ -135,7 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 

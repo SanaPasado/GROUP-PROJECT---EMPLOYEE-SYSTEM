@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Attendance Detail</h1>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Date:</strong> {{ record.date }}</p>
+            <p><strong>Employee:</strong> {{ record.employee.get_full_name }}</p>
+            <p><strong>Department:</strong> {{ record.employee.department.name }}</p>
+            <p><strong>Position:</strong> {{ record.employee.position }}</p>
+            <p><strong>Time In:</strong> {{ record.time_in|default:"N/A" }}</p>
+            <p><strong>Time Out:</strong> {{ record.time_out|default:"N/A" }}</p>
+        </div>
+    </div>
+
+    <!-- Buttons row -->
+    <div class="mt-3">
+        <a href="{% url 'attendance:attendance_list' %}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+{% endblock %}

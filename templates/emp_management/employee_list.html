@@ -10,8 +10,13 @@
             {% if user.is_staff %}
                 <a href="{% url 'reports:report_list' %}" class="btn btn-info">Reports</a>
                 <a href="{% url 'accounts:register_page' %}" class="btn btn-success">Create Account +</a>
+                <a href="{% url 'attendance:my-attendance' %}" class="btn btn-primary">Attendance</a>
             {% endif %}
             {% if not user.is_staff %}
+                <!-- Button for individual attendance page -->
+                <a href="{% url 'attendance:my-attendance' %}" class="btn btn-secondary">
+                    My Attendance
+                </a>
                 <a href = "{% url 'emp_management:employee_detail' user.slug %}" class="btn btn-secondary">
                     {{ user.first_name }} {{ user.last_name }}
                 </a>

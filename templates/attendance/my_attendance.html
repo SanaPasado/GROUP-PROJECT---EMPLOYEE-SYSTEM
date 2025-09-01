@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Top bar with navigation buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="btn-group">
+            <!-- Attendance List button -->
+
+
+            <!-- Attendance Detail button (only for staff and if today's record exists) -->
+
+        </div>
+
+        <!-- Back button -->
+        <a href="{% url 'emp_management:employees' %}" class="btn btn-outline-secondary">
+            ← Back
+        </a>
+    </div>
+{% if not request.user.is_staff %}
+    <!-- Page header -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold display-5 text-primary">My Attendance</h1>
+        <p class="lead text-muted">Welcome, {{ request.user.first_name }}! Let's get to work.</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Time In / Time Out -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-body text-center">
+            {% if not has_timed_in %}
+                <form method="post" action="{% url 'attendance:record_time' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="in">
+                    <button type="submit" class="btn btn-success btn-lg px-5 fw-semibold">Time In</button>
+                </form>
+            {% elif not has_timed_out %}
+                <form method="post" action="{% url 'attendance:record_time' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="out">
+                    <button type="submit" class="btn btn-danger btn-lg px-5 fw-semibold">Time Out</button>
+                </form>
+            {% else %}
+                <p class="fs-5 text-secondary">You have completed your attendance for today.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Records -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white border-0">
+            <h2 class="h5 fw-bold mb-0">Recent Records</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.time_in|default:"N/A" }}</td>
+                            <td>{{ record.time_out|default:"N/A" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No recent records found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    {% endif %}
+{% endblock %}

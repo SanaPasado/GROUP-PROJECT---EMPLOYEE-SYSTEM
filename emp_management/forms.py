@@ -17,7 +17,7 @@ class EmployeeUpdateForm(forms.ModelForm):
     sick_leaves = forms.IntegerField(disabled=True)
     vacation_days = forms.IntegerField(disabled=True)
     date_hired = forms.DateField(disabled=True)
-    working_hours= forms.IntegerField(disabled=True)
+    work_schedule= forms.IntegerField(disabled=True)
 
     class Meta:
         model = Employee
@@ -35,7 +35,7 @@ class EmployeeUpdateForm(forms.ModelForm):
             'address',
             'sick_leaves',
             'vacation_days',
-            'working_hours',
+            'work_schedule',
             'date_hired',
         ]
 
@@ -65,7 +65,7 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
         date_hired = forms.DateField(
             widget=forms.DateInput(attrs={'readonly': 'readonly'})
         )
-        working_hours = forms.IntegerField(
+        work_schedule = forms.IntegerField(
             widget=forms.NumberInput(attrs={'readonly': 'readonly'})
         )
         fields = [
@@ -81,7 +81,7 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
             'address',
             'sick_leaves',
             'vacation_days',
-            'working_hours',
+            'work_schedule',
             'date_hired',
         ]
 

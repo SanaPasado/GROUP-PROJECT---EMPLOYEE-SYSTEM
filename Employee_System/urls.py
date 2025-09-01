@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -27,6 +29,8 @@ urlpatterns = [
     path('', include('emp_management.urls', namespace='emp_management')),
 
     path('reports/', include('reports.urls', namespace='reports')),
+
+    path('attendance/', include('attendance.urls', namespace='attendance')),
 
 
 
