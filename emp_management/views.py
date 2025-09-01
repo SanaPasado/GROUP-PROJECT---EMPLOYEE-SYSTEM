@@ -67,6 +67,8 @@ class EmpUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+
+
     model = Employee
     context_object_name = 'employee'
     template_name = 'emp_management/employee_delete.html'

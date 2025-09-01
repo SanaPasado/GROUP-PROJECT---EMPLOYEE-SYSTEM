@@ -61,9 +61,11 @@
                     <span id="status-{{ employee.slug }}"></span>
                 </td>
                 <td>
+                    {% if user.is_staff %}
                     <a href="{% url 'emp_management:employee_detail' employee.slug %}" class="btn btn-sm btn-secondary">
                         View Details
                     </a>
+                    {%  endif %}
                 </td>
             </tr>
         {% empty %}
