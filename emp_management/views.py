@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 
 from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
@@ -64,6 +65,7 @@ class EmpUpdateView(LoginRequiredMixin, UpdateView):
         # after saving, redirect back to detail page
         return reverse('emp_management:employee_detail', kwargs={'slug': self.object.slug})
 
+
 class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Employee
     context_object_name = 'employee'
@@ -71,5 +73,16 @@ class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('emp_management:employees')
     #im not sure if it bases on employees in urls.py
     #or what u put on the context object name of list view
+
+
+
+#function for polling
+@login_required
+def get_employee_statuses(request):
+    employees = Employee.objects.all().values('slug', 'is_online')
+    statuses = {
+        emp['slug']: emp['is_online'] for emp in employees
+    }
+    return JsonResponse(statuses)
 
 

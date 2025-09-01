@@ -1,24 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Employee Directory</h2>
-
+        <h2 class="mb-0">Employees </h2>
         <div class="d-flex align-items-center gap-2">
              <a href="{% url 'reports:report_create' %}" class="btn btn-warning">Make a Report</a>
             {% if user.is_staff %}
                 <a href="{% url 'reports:report_list' %}" class="btn btn-info">Reports</a>
-
                 <a href="{% url 'accounts:register_page' %}" class="btn btn-success">Create Account +</a>
             {% endif %}
-
-                {% if not user.is_staff %}
+            {% if not user.is_staff %}
                 <a href = "{% url 'emp_management:employee_detail' user.slug %}" class="btn btn-secondary">
                     {{ user.first_name }} {{ user.last_name }}
                 </a>
-                {% endif %}
-
+            {% endif %}
             <a href="{% url 'accounts:logout' %}" class="btn btn-danger">Logout</a>
         </div>
     </div>
@@ -39,6 +36,7 @@
                 <th>Department</th>
                 <th>Position</th>
                 <th>Date Hired</th>
+                <th>Status</th>
                 <th></th>
             </tr>
         </thead>
@@ -47,15 +45,16 @@
             <tr>
                 <td>
                     {% if employee.photo %}
-        <img src="{{ employee.photo.url}}"
-             style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:5px;">
-    {% endif %}
-    {{ employee.first_name }} {{ employee.last_name }}
-                    <span id="status-{{ employee.user.id }}"></span>
+                        <img src="{{ employee.photo.url}}" style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:5px;">
+                    {% endif %}
+                    {{ employee.first_name }} {{ employee.last_name }}
                 </td>
                 <td>{{ employee.department }}</td>
                 <td>{{ employee.position }}</td>
                 <td>{{ employee.date_hired }}</td>
+                <td>
+                    <span id="status-{{ employee.slug }}"></span>
+                </td>
                 <td>
                     <a href="{% url 'emp_management:employee_detail' employee.slug %}" class="btn btn-sm btn-primary">
                         View Details
@@ -64,7 +63,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td colspan="5" class="text-center">No employees found.</td>
+                <td colspan="6" class="text-center">No employees found.</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -72,35 +71,28 @@
 </div>
 
 <script type="text/javascript">
-    const socket = new WebSocket(
-        'ws://' + window.location.host + '/ws/online_status/'
-    );
-
-    function updateStatusIcon(userId, isOnline) {
-        const iconElement = document.getElementById('status-' + userId);
+    function updateStatusIcon(slug, isOnline) {
+        const iconElement = document.getElementById(`status-${slug}`);
         if (iconElement) {
-            iconElement.innerHTML = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:5px; background-color:${isOnline ? 'green' : 'red'};"></span>`;
+            const color = isOnline ? 'green' : 'red';
+            iconElement.innerHTML = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${color};"></span>`;
         }
     }
 
-    // Set all employees to offline initially to handle page load
-    document.querySelectorAll('span[id^="status-"]').forEach(span => {
-        updateStatusIcon(span.id.replace('status-', ''), false);
-    });
+    function fetchEmployeeStatuses() {
+        fetch("{% url 'emp_management:employee_statuses' %}")
+            .then(response => response.json())
+            .then(data => {
+                for (const slug in data) {
+                    if (data.hasOwnProperty(slug)) {
+                        updateStatusIcon(slug, data[slug]);
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching statuses:', error));
+    }
 
-    socket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const userId = data.user_id;
-        const isOnline = data.is_online;
-        updateStatusIcon(userId, isOnline);
-    };
-
-    socket.onopen = function(e) {
-        console.log("WebSocket connection established.");
-    };
-
-    socket.onclose = function(e) {
-        console.log("WebSocket connection closed unexpectedly.");
-    };
+    fetchEmployeeStatuses();
+    setInterval(fetchEmployeeStatuses, 300000);
 </script>
 {% endblock %}

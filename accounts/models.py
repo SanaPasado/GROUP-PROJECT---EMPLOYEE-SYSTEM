@@ -68,6 +68,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     vacation_days = models.IntegerField(default=0)
     working_hours = models.IntegerField(default=0)
     sick_leaves = models.IntegerField(default=0)
+    is_online = models.BooleanField(default= False)
     last_seen = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     last_login_ip = models.GenericIPAddressField(null=True, blank=True)
     staff = models.BooleanField(default=False)
