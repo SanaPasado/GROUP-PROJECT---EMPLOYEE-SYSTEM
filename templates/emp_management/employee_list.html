@@ -11,6 +11,10 @@
                 <a href="{% url 'reports:report_list' %}" class="btn btn-info">Reports</a>
                 <a href="{% url 'accounts:register_page' %}" class="btn btn-success">Create Account +</a>
                 <a href="{% url 'attendance:my-attendance' %}" class="btn btn-primary">Attendance</a>
+                  <a href="{% url 'history:history_view'  %}"
+           class="btn btn-sm btn-dark">
+            Update History
+        </a>
             {% endif %}
             {% if not user.is_staff %}
                 <!-- Button for individual attendance page -->

@@ -32,6 +32,8 @@ urlpatterns = [
 
     path('attendance/', include('attendance.urls', namespace='attendance')),
 
+    path('history/', include('history.urls', namespace='history')),
+
 
 
 

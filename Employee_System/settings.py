@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
+import django_heroku
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +27,7 @@ SECRET_KEY = 'django-insecure-91x0n(%1qz&&5^s+%-sc3!l8@^nano*#%pux=o$1v(z@e)d-wj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['employee-system.com']
 
 
 # Application definition
@@ -45,6 +47,8 @@ INSTALLED_APPS = [
     'two_factor',
     'reports',
     'attendance',
+    'history',
+
 ]
 AUTH_USER_MODEL = "accounts.Employee"
 ASGI_APPLICATION = 'Employee_System.asgi.application'
@@ -134,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Manila'
+TIME_ZONE = 'Etc/GMT-8'
 
 USE_I18N = True
 
@@ -155,3 +159,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media_root")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #here my settings
+
+django_heroku.settings(locals())
