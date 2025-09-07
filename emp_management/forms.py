@@ -82,7 +82,7 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
             'sick_leaves',
             'vacation_days',
             'work_schedule',
-            'date_hired',
+
         ]
 
 

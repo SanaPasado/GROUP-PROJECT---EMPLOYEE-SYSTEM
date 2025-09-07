@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from history.views import history_view
+from history.views import HistoryListView
 app_name = 'history'
 urlpatterns = [
-    path('', history_view, name='history_view')
+    path('', HistoryListView.as_view(), name='history_list')
+
+
 
 
 ]

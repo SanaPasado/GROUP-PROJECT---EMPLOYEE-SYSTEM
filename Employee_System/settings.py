@@ -141,8 +141,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Etc/GMT-8'
 
 USE_I18N = True
-
-USE_TZ = True
+pyUSE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

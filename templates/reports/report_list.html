@@ -23,9 +23,9 @@
         <tbody>
         {% for report in reports %}
             <tr>
-                <td>{{ report.reported_by.username }}</td>
+                <td>{{ report.reported_by }}</td>
                 <td>{{ report.subject }}</td>
-                <td>{{ report.description|truncatechars:100 }}</td>
+                <td>{{ report.description }}</td>
                 <td>{{ report.created_at|date:"F j, Y, P" }}</td>
             </tr>
         {% empty %}
