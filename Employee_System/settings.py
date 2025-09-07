@@ -100,7 +100,7 @@ TEMPLATES = [
     },
 ]#i  added accounts app to base directories for 2FA
 
-# WSGI_APPLICATION = 'Employee_System.wsgi.application'
+WSGI_APPLICATION = 'Employee_System.wsgi.application'
 
 
 # Database
