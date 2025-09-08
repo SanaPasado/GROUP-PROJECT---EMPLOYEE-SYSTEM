@@ -177,21 +177,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (User-uploaded content)
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media_root")
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Supabase Storage settings for production
 if 'RENDER' in os.environ:
+    # Get Supabase credentials from environment variables
+    SUPABASE_ENDPOINT_URL = os.environ.get('SUPABASE_ENDPOINT_URL')
+    SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME')
+
+    # Configure django-storages for S3 compatible storage
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME')
-    AWS_S3_ENDPOINT_URL = os.environ.get('SUPABASE_ENDPOINT_URL')
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-    AWS_LOCATION = 'media'  # Store files in a 'media' directory in the bucket
-    MEDIA_URL = f"https://{os.environ.get('SUPABASE_BUCKET_NAME')}.{os.environ.get('SUPABASE_ENDPOINT_URL')}/{AWS_LOCATION}/"
+    AWS_STORAGE_BUCKET_NAME = SUPABASE_BUCKET_NAME
+    AWS_S3_ENDPOINT_URL = f'https://{SUPABASE_ENDPOINT_URL}'
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_LOCATION = 'media' # Optional: Store files in a 'media' subdirectory in the bucket
+
+    # Construct the public URL for media files
+    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/'
 
 
 # Default primary key field type
