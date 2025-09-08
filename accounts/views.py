@@ -47,20 +47,24 @@ def login_page(request):
         user = form.cleaned_data["user"]
         current_ip = get_client_ip(request)
 
-        # Check if the user has a 2FA device set up
+        # First, check if the user has a 2FA device set up.
         has_2fa = TOTPDevice.objects.filter(user=user).exists()
 
-        if not has_2fa or user.last_login_ip == current_ip:
-            # If 2FA is not set up, or if the IP is the same, log them in directly.
-            user.last_login_ip = current_ip
-            user.save()
+        if not has_2fa:
+            # If the user has NO 2FA device, they MUST set one up now.
+            # Log them into a temporary session and force them to the setup page.
             login(request, user)
-            return redirect('emp_management:employees')
+            return redirect('accounts:otp_setup')
         else:
-            # IP has changed AND they have 2FA, so we must verify.
-            # We log them in to a temporary session to remember who they are.
-            login(request, user)
-            return redirect('accounts:otp_verify')
+            # If they DO have 2FA, now we can check their IP for convenience.
+            if user.last_login_ip == current_ip:
+                # IP is the same, log them in directly.
+                login(request, user)
+                return redirect('emp_management:employees')
+            else:
+                # IP has changed, require OTP verification.
+                login(request, user)
+                return redirect('accounts:otp_verify')
 
     return render(request, 'login/login.html', context)
 
@@ -101,7 +105,7 @@ def otp_verify(request):
             otp_code = form.cleaned_data.get("otp_code")
             # Use the form's verification method
             if form.verify_otp(request.user, otp_code):
-                # On successful OTP, update the last login IP.
+                # On successful OTP, update the last login IP to the new, trusted IP.
                 request.user.last_login_ip = get_client_ip(request)
                 request.user.save()
                 return redirect('emp_management:employees')
