@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('phone_number', models.CharField(max_length=20)),
                 ('date_hired', models.DateField(auto_now_add=True)),
                 ('emergency_contact', models.CharField(max_length=20)),
-                ('photo', models.ImageField(blank=True, null=True, upload_to='employee_photos')),
+                ('photo', models.ImageField(blank=True, null=True, upload_to='employee-photos')),
                 ('address', models.CharField(default='Unknown Address', max_length=255)),
                 ('vacation_days', models.IntegerField(default=0)),
                 ('working_hours', models.IntegerField(default=0)),

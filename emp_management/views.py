@@ -72,14 +72,14 @@ class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('emp_management:employee_detail', kwargs={'slug': self.object.slug})
 
 
-class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class EmpDeleteView(LoginRequiredMixin, DeleteView):
     model = Employee
     context_object_name = 'employee'
     template_name = 'emp_management/employee_delete.html'
     success_url = reverse_lazy('emp_management:employees')
-
-    def test_func(self):
-        return self.request.user.is_staff or self.request.user.is_superuser
+    #
+    # def test_func(self):
+    #     return self.request.user.is_staff or self.request.user.is_superuser
 
 
 

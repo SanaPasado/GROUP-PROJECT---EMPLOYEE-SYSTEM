@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='employee',
             name='photo',
-            field=models.ImageField(blank=True, null=True, upload_to='employee_photos', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])]),
+            field=models.ImageField(blank=True, null=True, upload_to='employee-photos', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])]),
         ),
     ]
