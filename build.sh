@@ -2,17 +2,16 @@
 # exit on error
 set -o errexit
 
-# Add execute permissions to the start script
-chmod +x start.sh
-
 # Install dependencies
 pip install -r requirements.txt
 
 # Collect static files
 python manage.py collectstatic --noinput
 
+# DEBUGGING: List the contents of the staticfiles directory
+echo "--- Contents of staticfiles directory ---"
+ls -R staticfiles
+echo "-------------------------------------"
+
 # Run database migrations
 python manage.py migrate
-
-# Create superuser if it doesn't exist (optional)
-# python manage.py shell -c "from accounts.models import Employee; Employee.objects.filter(email='admin@example.com').exists() or Employee.objects.create_superuser('admin@example.com', 'admin123', first_name='Admin', last_name='User')"
