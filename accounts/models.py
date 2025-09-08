@@ -54,7 +54,8 @@ class UserManager(BaseUserManager):
 
 
 class Employee(AbstractBaseUser, PermissionsMixin):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    # This self-referencing field was causing the deletion error and has been removed.
+    # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
