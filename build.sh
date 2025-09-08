@@ -2,6 +2,9 @@
 # exit on error
 set -o errexit
 
+# Add execute permissions to the start script
+chmod +x start.sh
+
 # Install dependencies
 pip install -r requirements.txt
 
