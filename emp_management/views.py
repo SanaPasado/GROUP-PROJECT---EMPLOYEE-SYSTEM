@@ -40,11 +40,17 @@ class EmpDetailView(LoginRequiredMixin, DetailView):
     def get_object(self):
         return Employee.objects.get(slug=self.kwargs["slug"])
 
-class EmpUpdateView(LoginRequiredMixin, UpdateView):
+class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Employee
     form_class = EmployeeUpdateForm
     context_object_name = 'employee'   # <--- we rename object → employee
     template_name = 'emp_management/employee_update.html'
+
+    def test_func(self):
+        # Get the employee object that the user is trying to update
+        employee_to_update = self.get_object()
+        # Allow access if the current user is a staff member OR if they are updating their own profile
+        return self.request.user.is_staff or self.request.user == employee_to_update
 
     def get_object(self, queryset=None):
         return get_object_or_404(Employee, slug=self.kwargs["slug"])
