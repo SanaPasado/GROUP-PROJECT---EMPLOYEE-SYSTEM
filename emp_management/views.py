@@ -79,8 +79,8 @@ class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('emp_management:employees')
 
     def test_func(self):
-        # Only allow staff members (admins, superusers) to delete profiles.
-        return self.request.user.is_superuser
+        return self.request.user.is_staff or self.request.user.is_superuser
+
 
 
 #function for polling
