@@ -73,15 +73,14 @@ class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-
-
     model = Employee
     context_object_name = 'employee'
     template_name = 'emp_management/employee_delete.html'
     success_url = reverse_lazy('emp_management:employees')
-    #im not sure if it bases on employees in urls.py
-    #or what u put on the context object name of list view
 
+    def test_func(self):
+        # Only allow staff members (admins, superusers) to delete profiles.
+        return self.request.user.is_staff
 
 
 #function for polling
