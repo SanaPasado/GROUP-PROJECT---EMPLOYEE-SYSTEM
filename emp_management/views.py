@@ -80,7 +80,7 @@ class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         # Only allow staff members (admins, superusers) to delete profiles.
-        return self.request.user.is_staff
+        return self.request.user.is_superuser
 
 
 #function for polling
