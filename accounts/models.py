@@ -9,7 +9,7 @@ from Employee_System import settings
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False, **extra_fields):
+    def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False, is_superuser=False, **extra_fields):
         if not email:
             raise ValueError('Users must have an email address')
         if not password:
@@ -23,6 +23,7 @@ class UserManager(BaseUserManager):
         user_obj.active = is_active
         user_obj.staff = is_staff
         user_obj.admin = is_admin
+        user_obj.is_superuser = is_superuser # Correctly handle the is_superuser field
         user_obj.save(using=self._db)
 
         return user_obj
@@ -45,6 +46,7 @@ class UserManager(BaseUserManager):
             is_active=True,
             is_staff=True,
             is_admin=True,
+            is_superuser=True, # Ensure superusers are created with is_superuser=True
             **extra_fields
         )
         return user

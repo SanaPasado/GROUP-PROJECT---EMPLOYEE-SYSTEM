@@ -15,6 +15,6 @@ class HistoryListView(UserPassesTestMixin, ListView):
 
     def test_func(self):
         # This function must return True or False.
-        # It checks if the logged-in user is a superuser.
-        return self.request.user.is_superuser
+        # It should check if the logged-in user is a staff member (which includes superusers).
+        return self.request.user.is_staff
 
