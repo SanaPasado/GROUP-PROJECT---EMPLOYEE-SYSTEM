@@ -1,6 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
-from django.shortcuts import redirect
 
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
@@ -73,17 +72,15 @@ class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('emp_management:employee_detail', kwargs={'slug': self.object.slug})
 
 
-class EmpDeleteView(LoginRequiredMixin, DeleteView):
+class EmpDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Employee
     context_object_name = 'employee'
     template_name = 'emp_management/employee_delete.html'
     success_url = reverse_lazy('emp_management:employees')
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            return redirect('emp_management:employees')
-        return super().dispatch(request, *args, **kwargs)
-
+    def test_func(self):
+        # Only allow staff members (admins, superusers) to delete profiles.
+        return self.request.user.is_superuser
 
 
 #function for polling
