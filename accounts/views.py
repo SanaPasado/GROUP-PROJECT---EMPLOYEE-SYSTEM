@@ -88,7 +88,7 @@ def otp_setup(request):
         return render(request, 'login/otp_setup.html', context)
     else:
         # If they have already set up a device, just redirect them.
-        return redirect('emp_management:employees')
+        return redirect('login/otp-verify.html')
 
 @login_required
 def otp_verify(request):
