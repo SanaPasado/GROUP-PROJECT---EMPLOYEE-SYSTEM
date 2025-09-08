@@ -64,7 +64,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=20)
     date_hired = models.DateField(default=timezone.now)
     emergency_contact = models.CharField(max_length=20)
-    photo = models.ImageField(upload_to="employee_photos", blank=True, null=True,
+    photo = models.ImageField(upload_to="employee-photos", blank=True, null=True,
         validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
     address = models.CharField(max_length=255, null=True, blank=True)
     vacation_days = models.IntegerField(null=True, blank=True)
