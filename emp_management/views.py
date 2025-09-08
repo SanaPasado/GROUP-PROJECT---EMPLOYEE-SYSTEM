@@ -1,7 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
-from django.shortcuts import redirect
-from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
@@ -19,14 +17,6 @@ class EmpListView(LoginRequiredMixin, ListView):
     model = Employee
     context_object_name = 'employees'
     template_name = 'emp_management/employee_list.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        # Check if the user has a 2FA device set up.
-        # This runs before the view is displayed.
-        if not TOTPDevice.objects.filter(user=self.request.user).exists():
-            # If they don't have a 2FA device, force them to the setup page.
-            return redirect('accounts:otp_setup')
-        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         # kase nakikita yung admins sa list view i don wan dat
