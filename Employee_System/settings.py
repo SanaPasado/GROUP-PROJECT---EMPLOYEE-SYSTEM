@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY WARNING: keep the secret key used in production production!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -183,8 +183,8 @@ if 'RENDER' in os.environ:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
     # Get Supabase credentials from environment variables
-    SUPABASE_URL = os.environ.get('SUPABASE_URL')
-    SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME')
+    SUPABASE_URL = os.environ.get('SUPABASE_URL') # e.g., https://xyz.supabase.co
+    SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME') # e.g., employee-photos
     SUPABASE_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
     SUPABASE_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
 
@@ -193,16 +193,17 @@ if 'RENDER' in os.environ:
     AWS_SECRET_ACCESS_KEY = SUPABASE_SECRET_ACCESS_KEY
     AWS_STORAGE_BUCKET_NAME = SUPABASE_BUCKET_NAME
 
-    # This is the public URL used to serve media files
-    AWS_S3_CUSTOM_DOMAIN = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
-
-    # This is the backend endpoint for file uploads
+    # Supabase specific S3 endpoint and custom domain
+    # This is the API endpoint for boto3 to talk to Supabase
     AWS_S3_ENDPOINT_URL = f'{SUPABASE_URL}/storage/v1/s3'
+
+    # This is the public URL where the files are served from
+    AWS_S3_CUSTOM_DOMAIN = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
 
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
-    AWS_LOCATION = ''
+    AWS_LOCATION = 'employee_photos' # This should match your upload_to path
 
     # This MEDIA_URL setting is for production only.
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
