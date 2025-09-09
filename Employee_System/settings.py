@@ -178,36 +178,38 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (User-uploaded content)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-# Supabase Storage settings for production
-# Supabase Storage settings for production
-# Supabase Storage settings for production
 if 'RENDER' in os.environ:
     # Set default file storage to use S3 compatible service
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
     # Get Supabase credentials from environment variables
-    SUPABASE_URL = 'https://begjbatawqwohcjfvuwa.supabase.co'  # Your project base URL
-    SUPABASE_BUCKET_NAME = 'employee-photos'  # The name of your bucket
+    SUPABASE_URL = os.environ.get('SUPABASE_URL')
+    SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME')
+    SUPABASE_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
+    SUPABASE_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
 
-    # These should be stored as environment variables on Render for security
-    AWS_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
+    # Configure boto3 for Supabase
+    AWS_ACCESS_KEY_ID = SUPABASE_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY = SUPABASE_SECRET_ACCESS_KEY
     AWS_STORAGE_BUCKET_NAME = SUPABASE_BUCKET_NAME
 
-    # The key to resolving the issue: use the custom domain
-    # This URL is for public access to files in the bucket
+    # This is the public URL used to serve media files
     AWS_S3_CUSTOM_DOMAIN = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
 
-    # The endpoint URL is for the backend connection (from your screenshot)
-    AWS_S3_ENDPOINT_URL = 'https://begjbatawqwohcjfvuwa.supabase.co/storage/v1/s3'
+    # This is the backend endpoint for file uploads
+    AWS_S3_ENDPOINT_URL = f'{SUPABASE_URL}/storage/v1/s3'
 
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_LOCATION = ''
+
+    # This MEDIA_URL setting is for production only.
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+else:
+    # Media files for local development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
