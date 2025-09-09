@@ -183,7 +183,7 @@ if 'RENDER' in os.environ:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
     # Get Supabase credentials from environment variables
-    SUPABASE_URL = os.environ.get('SUPABASE_URL') # e.g., https://xyz.supabase.co
+    SUPABASE_URL = os.environ.get('SUPABASE_URL') # e.g., begjbatawqwohcjfvuwa.supabase.co (no https://)
     SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME') # e.g., employee-photos
     SUPABASE_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
     SUPABASE_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
@@ -195,18 +195,24 @@ if 'RENDER' in os.environ:
 
     # Supabase specific S3 endpoint and custom domain
     # This is the API endpoint for boto3 to talk to Supabase
-    AWS_S3_ENDPOINT_URL = f'{SUPABASE_URL}/storage/v1/s3'
+    # It needs the full https:// URL
+    AWS_S3_ENDPOINT_URL = f'https://{SUPABASE_URL}/storage/v1/s3'
 
     # This is the public URL where the files are served from
-    AWS_S3_CUSTOM_DOMAIN = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
+    # It needs the full https:// URL
+    AWS_S3_CUSTOM_DOMAIN = f'https://{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
 
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
-    AWS_LOCATION = 'employee_photos' # This should match your upload_to path
+
+    # AWS_LOCATION should be empty if upload_to in model already specifies the subfolder
+    # This prevents path duplication like employee-photos/employee-photos/
+    AWS_LOCATION = ''
 
     # This MEDIA_URL setting is for production only.
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    # It should use the AWS_S3_CUSTOM_DOMAIN which already includes https://
+    MEDIA_URL = f'{AWS_S3_CUSTOM_DOMAIN}/'
 else:
     # Media files for local development
     MEDIA_URL = '/media/'
