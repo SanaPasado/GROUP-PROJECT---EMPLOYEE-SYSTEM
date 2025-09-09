@@ -69,7 +69,6 @@
         <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
           {% if user.is_staff %}
             <form action="{% url 'emp_management:employee_delete' employee.slug %}" method="post" style="display: inline;">
-    {% csrf_token %}
     <button type="submit" class="btn btn-danger">Delete</button>
 </form>
       {% endif %}
