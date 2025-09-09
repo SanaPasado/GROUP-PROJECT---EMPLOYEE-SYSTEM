@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'attendance',
     'history',
 
+
 ]
 AUTH_USER_MODEL = "accounts.Employee"
 ASGI_APPLICATION = 'Employee_System.asgi.application'
@@ -181,24 +182,32 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Supabase Storage settings for production
+# Supabase Storage settings for production
+# Supabase Storage settings for production
 if 'RENDER' in os.environ:
-    # Get Supabase credentials from environment variables
-    SUPABASE_ENDPOINT_URL = os.environ.get('SUPABASE_ENDPOINT_URL')
-    SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME')
-
-    # Configure django-storages for S3 compatible storage
+    # Set default file storage to use S3 compatible service
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    # Get Supabase credentials from environment variables
+    SUPABASE_URL = 'https://begjbatawqwohcjfvuwa.supabase.co'  # Your project base URL
+    SUPABASE_BUCKET_NAME = 'employee-photos'  # The name of your bucket
+
+    # These should be stored as environment variables on Render for security
     AWS_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = SUPABASE_BUCKET_NAME
-    AWS_S3_ENDPOINT_URL = f'https://{SUPABASE_ENDPOINT_URL}'
+
+    # The key to resolving the issue: use the custom domain
+    # This URL is for public access to files in the bucket
+    AWS_S3_CUSTOM_DOMAIN = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
+
+    # The endpoint URL is for the backend connection (from your screenshot)
+    AWS_S3_ENDPOINT_URL = 'https://begjbatawqwohcjfvuwa.supabase.co/storage/v1/s3'
+
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'public-read'
-    AWS_LOCATION = 'media' # Optional: Store files in a 'media' subdirectory in the bucket
-
-    # Construct the public URL for media files
-    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/'
-
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_LOCATION = ''
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
