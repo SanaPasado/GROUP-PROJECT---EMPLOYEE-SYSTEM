@@ -17,7 +17,7 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger btn-lg me-md-2">Confirm Delete</button>
                             </form>
-                            <a href="{% url 'employee_detail' employee.slug %}" class="btn btn-secondary btn-lg">Cancel</a>
+                            <a href="{% url 'emp management:employee_detail' employee.slug %}" class="btn btn-secondary btn-lg">Cancel</a>
                         </div>
                     </div>
                 </div>
