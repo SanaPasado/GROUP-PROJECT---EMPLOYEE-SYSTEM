@@ -7,7 +7,11 @@
         <h2 class="mb-0">Employees </h2>
         <div class="d-flex align-items-center gap-2">
              <a href="{% url 'reports:report_create' %}" class="btn btn-warning">Make a Report</a>
-            {# The admin-specific buttons have been removed. They are now in the Admin Panel. #}
+            
+            {% if user.is_staff %}
+                <a href="{% url 'emp_management:admin_panel' %}" class="btn btn-dark">Admin Panel</a>
+            {% endif %}
+
             {% if not user.is_staff %}
                 <!-- Button for individual attendance page -->
                 <a href="{% url 'attendance:my-attendance' %}" class="btn btn-success">
