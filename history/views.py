@@ -12,6 +12,7 @@ class HistoryListView(UserPassesTestMixin, ListView):
     template_name = 'history.html'
     context_object_name = 'histories'
     model = EmployeeHistory
+    ordering = ['-updated_at']  # Order by most recent updates first
 
     def test_func(self):
         # This function must return True or False.
