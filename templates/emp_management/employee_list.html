@@ -7,12 +7,7 @@
         <h2 class="mb-0">Employees </h2>
         <div class="d-flex align-items-center gap-2">
              <a href="{% url 'reports:report_create' %}" class="btn btn-warning">Make a Report</a>
-            {% if user.is_staff %}
-                <a href="{% url 'reports:report_list' %}" class="btn btn-info">Reports</a>
-                <a href="{% url 'accounts:register_page' %}" class="btn btn-success">Create Account +</a>
-                <a href="{% url 'attendance:my-attendance' %}" class="btn btn-primary">Attendance</a>
-                  <a href="{% url 'history:history_list'  %} " class="btn btn-sm btn-dark">History Logs</a>
-            {% endif %}
+            {# The admin-specific buttons have been removed. They are now in the Admin Panel. #}
             {% if not user.is_staff %}
                 <!-- Button for individual attendance page -->
                 <a href="{% url 'attendance:my-attendance' %}" class="btn btn-success">
@@ -62,11 +57,10 @@
                     <span id="status-{{ employee.slug }}"></span>
                 </td>
                 <td>
-                    {% if user.is_staff %}
+                    {# This button is now visible to all users #}
                     <a href="{% url 'emp_management:employee_detail' employee.slug %}" class="btn btn-sm btn-secondary">
                         View Details
                     </a>
-                    {%  endif %}
                 </td>
             </tr>
         {% empty %}

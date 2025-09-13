@@ -3,11 +3,20 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from emp_management.views import EmpListView, EmpDetailView, EmpUpdateView, EmpDeleteView, get_employee_statuses
+from emp_management.views import (
+    EmpListView, 
+    EmpDetailView, 
+    EmpUpdateView, 
+    EmpDeleteView, 
+    get_employee_statuses,
+    admin_panel
+)
 
 app_name = 'emp_management'
 urlpatterns = [
     path('', EmpListView.as_view(), name='employees'),
+
+    path('admin-panel/', admin_panel, name='admin_panel'),
 
     path("employees/<slug:slug>/", EmpDetailView.as_view(), name="employee_detail"),
 

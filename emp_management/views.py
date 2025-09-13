@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView, DetailView, ListView, DeleteView
 from django.urls import reverse_lazy, reverse
@@ -92,4 +93,10 @@ def get_employee_statuses(request):
     }
     return JsonResponse(statuses)
 
+@staff_member_required
+def admin_panel(request):
+    """
+    A view for the admin panel, accessible only to staff members.
+    """
+    return render(request, 'emp_management/admin_panel.html')
 
