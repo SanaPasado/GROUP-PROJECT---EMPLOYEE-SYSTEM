@@ -1,7 +1,8 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 
+from accounts.models import Employee
 from .forms import ReportForm
 from .models import Report
 
@@ -12,15 +13,15 @@ def report_create(request):
         form = ReportForm(request.POST)
         if form.is_valid():
             report = form.save(commit=False)
-            report.reported_by = request.user  # use request.user, not user
+            report.reported_by = request.user
             report.save()
             messages.success(request, 'Report submitted successfully!')
-            return redirect('reports:my_reports')  # redirect to user's reports
+            # Redirect to the current user's own employee detail page
+            return redirect('reports:employee_reports', slug=request.user.slug)
     else:
         form = ReportForm()
 
     return render(request, 'reports/report_form.html', {'form': form})
-
 
 
 
@@ -33,8 +34,17 @@ def report_list(request):
     reports = Report.objects.all()
     return render(request, 'reports/report_list.html', {'reports': reports})
 
+# The my_reports view has been removed as it is now redundant.
+
 @login_required
-def my_reports(request):
-    """View for employees to see their own reports"""
-    reports = Report.objects.filter(reported_by=request.user)
-    return render(request, 'reports/my_reports.html', {'reports': reports})
+@user_passes_test(is_staff_or_superuser)
+def employee_reports(request, slug):
+    """View for admins to see reports by a specific employee."""
+    employee = get_object_or_404(Employee, slug=slug)
+    reports = Report.objects.filter(reported_by=employee)
+    context = {
+        'reports': reports,
+        'employee': employee
+    }
+    # This view now uses the my_reports.html template for a consistent design.
+    return render(request, 'reports/my_reports.html', context)

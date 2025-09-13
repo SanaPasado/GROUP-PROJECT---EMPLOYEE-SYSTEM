@@ -64,16 +64,17 @@
           </tr>
         </table>
 
-        <!-- Edit Button (only for self or admin) -->
+        <!-- Action Buttons -->
+        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
+
         {% if request.user == employee_detail or request.user.is_staff %}
           <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
         {% endif %}
-{#      replaced employee_slug with employee_detail.slug #}
 
-        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
-          {% if user.is_staff %}
-              <a href="{% url 'emp_management:employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
-      {% endif %}
+        {% if user.is_staff %}
+            <a href="{% url 'reports:employee_reports' employee_detail.slug %}" class="btn btn-info">View Reports</a>
+            <a href="{% url 'emp_management:employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
+        {% endif %}
       </div>
     </div>
   </div>
