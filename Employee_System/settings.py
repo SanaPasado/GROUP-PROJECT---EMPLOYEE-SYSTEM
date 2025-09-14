@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
-from doctest import debug
 from pathlib import Path
 import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production production!
-SECRET_KEY = 'django-insecure-91x0n(%1qz&&5^s+%-sc3!l8@^nano*#%pux=o$1v(z@e)d-wj'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG') != 'False'
@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage', # For Cloudinary media storage
+    'cloudinary',
     'django_otp',
     'django_otp.plugins.otp_totp',
     'accounts',
@@ -117,17 +119,18 @@ WSGI_APPLICATION = 'Employee_System.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-
-# Check if we are in the Render production environment
-DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://employee_system_9is9_user:NCEbLNhVNy6FKzAZjT4TaHt7L3TgQjyE@dpg-d331nsjuibrs73a8i0ig-a.singapore-postgres.render.com/employee_system_9is9',
-        conn_max_age=600
-    )
-}
-
-# Check if we are on the Render production environment
-
+if 'RENDER' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600)
+    }
+else:
+    # Local development database (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -168,18 +171,16 @@ STATICFILES_DIRS = [BASE_DIR / "static_my_project", ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# This production code might break development mode, so we check whether we're in DEBUG mode
-if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Media files configuration for Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+#here my settings
