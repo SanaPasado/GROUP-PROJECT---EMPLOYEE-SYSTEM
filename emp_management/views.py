@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -56,6 +56,15 @@ class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_object(self, queryset=None):
         return get_object_or_404(Employee, slug=self.kwargs["slug"])
 
+    def form_valid(self, form):
+        try:
+            self.object = form.save()
+            return redirect(self.get_success_url())
+        except Exception as e:
+            print(f"Error uploading to Cloudinary: {e}")
+            form.add_error('photo', 'There was an error uploading the photo. Please try again.')
+            return self.form_invalid(form)
+
     def form_invalid(self, form):
         print("Form errors:", form.errors)
         return super().form_invalid(form)
@@ -99,4 +108,3 @@ def admin_panel(request):
     A view for the admin panel, accessible only to staff members.
     """
     return render(request, 'emp_management/admin_panel.html')
-
