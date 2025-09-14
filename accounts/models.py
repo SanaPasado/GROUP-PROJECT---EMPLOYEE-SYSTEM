@@ -5,7 +5,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-
+from cloudinary.models import CloudinaryField
 from Employee_System import settings
 
 
