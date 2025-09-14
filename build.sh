@@ -7,7 +7,7 @@ python manage.py collectstatic --no-input
 python manage.py migrate
 
 # Create superuser if it doesn't exist
-python manage.py createsuperuser \
-  --noinput \
-
-  --email $DJANGO_SUPERUSER_EMAIL || true
+#python manage.py createsuperuser \
+#  --noinput \
+#
+#  --email $DJANGO_SUPERUSER_EMAIL || true
