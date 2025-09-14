@@ -82,6 +82,7 @@ class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('emp_management:employee_detail', kwargs={'slug': self.object.slug})
 
 
+
 class EmpDeleteView(LoginRequiredMixin, DeleteView):
     model = Employee
     context_object_name = 'employee'
