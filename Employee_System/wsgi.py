@@ -17,8 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Employee_System.settings')
 # Get the standard Django application
 application = get_wsgi_application()
 
-# Wrap the application with WhiteNoise to serve static files
-# and add media files for the quick fix.
+# Wrap the application with WhiteNoise to serve static files.
+# The line for serving media files has been removed to allow Cloudinary to handle it.
 if not settings.DEBUG:
     application = WhiteNoise(application, root=settings.STATIC_ROOT)
-    application.add_files(settings.MEDIA_ROOT, prefix=settings.MEDIA_URL)
