@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
+from doctest import debug
 from pathlib import Path
-
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -48,7 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages', # Add storages for Supabase
     'django_otp',
     'django_otp.plugins.otp_totp',
     'accounts',
@@ -117,26 +117,17 @@ WSGI_APPLICATION = 'Employee_System.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
 # Check if we are in the Render production environment
-if 'RENDER' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': os.environ.get('DB_USER'),
-            'PASSWORD': os.environ.get('DB_PASSWORD'),
-            'HOST': os.environ.get('DB_HOST'),
-            'PORT': os.environ.get('DB_PORT'),
-        }
-    }
-else:
-    # Local development database (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://employee_system_9is9_user:NCEbLNhVNy6FKzAZjT4TaHt7L3TgQjyE@dpg-d331nsjuibrs73a8i0ig-a.singapore-postgres.render.com/employee_system_9is9',
+        conn_max_age=600
+    )
+}
+
+# Check if we are on the Render production environment
+
 
 
 # Password validation
@@ -177,49 +168,18 @@ STATICFILES_DIRS = [BASE_DIR / "static_my_project", ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (User-uploaded content)
-if 'RENDER' in os.environ:
-    # Set default file storage to use S3 compatible service
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# This production code might break development mode, so we check whether we're in DEBUG mode
+if not DEBUG:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-    # Get Supabase credentials from environment variables
-    SUPABASE_URL = os.environ.get('SUPABASE_URL') # e.g., begjbatawqwohcjfvuwa.supabase.co (no https://)
-    SUPABASE_BUCKET_NAME = os.environ.get('SUPABASE_BUCKET_NAME') # e.g., employee-photos
-    SUPABASE_ACCESS_KEY_ID = os.environ.get('SUPABASE_ACCESS_KEY_ID')
-    SUPABASE_SECRET_ACCESS_KEY = os.environ.get('SUPABASE_SECRET_ACCESS_KEY')
-
-    # Configure boto3 for Supabase
-    AWS_ACCESS_KEY_ID = SUPABASE_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY = SUPABASE_SECRET_ACCESS_KEY
-    AWS_STORAGE_BUCKET_NAME = SUPABASE_BUCKET_NAME
-
-    # Supabase specific S3 endpoint and custom domain
-    # This is the API endpoint for boto3 to talk to Supabase
-    # It needs the full https:// URL
-    AWS_S3_ENDPOINT_URL = f'https://{SUPABASE_URL}/storage/v1/s3'
-
-    # This is the public URL where the files are served from
-    # It needs the full https:// URL
-    AWS_S3_CUSTOM_DOMAIN = f'https://{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET_NAME}'
-
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_SIGNATURE_VERSION = 's3v4'
-
-    # AWS_LOCATION should be empty if upload_to in model already specifies the subfolder
-    # This prevents path duplication like employee-photos/employee-photos/
-    AWS_LOCATION = ''
-
-    # This MEDIA_URL setting is for production only.
-    # It should use the AWS_S3_CUSTOM_DOMAIN which already includes https://
-    MEDIA_URL = f'{AWS_S3_CUSTOM_DOMAIN}/'
-else:
-    # Media files for local development
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+    # and renames the files with unique names for each version to support long-term caching
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-#here my settings
