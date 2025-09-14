@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage', # For Cloudinary media storage
+    'cloudinary_storage',
     'cloudinary',
     'django_otp',
     'django_otp.plugins.otp_totp',
