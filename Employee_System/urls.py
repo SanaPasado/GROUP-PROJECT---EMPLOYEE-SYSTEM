@@ -34,6 +34,8 @@ urlpatterns = [
 
     path('history/', include('history.urls', namespace='history')),
 
+    path('notifications/', include('notifications.urls', namespace='notifications')),
+
 
 
 

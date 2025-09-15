@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'reports',
     'attendance',
     'history',
-
+    'notifications',
 
 ]
 AUTH_USER_MODEL = "accounts.Employee"

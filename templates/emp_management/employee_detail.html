@@ -67,6 +67,12 @@
         <!-- Action Buttons -->
         <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
 
+        {% if request.user == employee_detail %}
+          <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-success">
+            <i class="bi bi-bell"></i> Paychecks
+          </a>
+        {% endif %}
+
         {% if request.user == employee_detail or request.user.is_staff %}
           <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
         {% endif %}
