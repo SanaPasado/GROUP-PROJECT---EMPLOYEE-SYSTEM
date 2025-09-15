@@ -35,6 +35,17 @@ def philippine_phone_validator(value):
             'Enter a valid Philippine phone number (e.g., +639XXXXXXXXX, 09XXXXXXXXX, or landline)'
         )
 
+def image_file_validator(value):
+    """Validate image file extensions for Cloudinary uploads"""
+    if hasattr(value, 'name') and value.name:
+        allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
+        file_extension = value.name.lower().split('.')[-1]
+        if file_extension not in allowed_extensions:
+            raise ValidationError(
+                f'Only {", ".join(allowed_extensions).upper()} files are allowed. '
+                f'You uploaded a {file_extension.upper()} file.'
+            )
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False, is_superuser=False, **extra_fields):
@@ -92,7 +103,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=20, validators=[philippine_phone_validator])
     date_hired = models.DateField(default=timezone.now)
     emergency_contact = models.CharField(max_length=20, validators=[philippine_phone_validator])
-    photo = CloudinaryField('image', default='blank-profile-picture')
+    photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
         # validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
     address = models.CharField(max_length=255, null=True, blank=True)
     vacation_days = models.IntegerField(null=True, blank=True)
