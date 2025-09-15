@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'phonenumber_field',
     'accounts',
     'emp_management',
     'two_factor',

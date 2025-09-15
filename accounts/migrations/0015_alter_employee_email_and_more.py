@@ -2,6 +2,7 @@
 
 import accounts.models
 from django.db import migrations, models
+import phonenumber_field.modelfields
 
 
 class Migration(migrations.Migration):
@@ -19,11 +20,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='employee',
             name='emergency_contact',
-            field=models.CharField(max_length=20, validators=[accounts.models.philippine_phone_validator]),
+            field=phonenumber_field.modelfields.PhoneNumberField(help_text='Enter a Philippine phone number for emergency contact', max_length=128, region='PH'),
         ),
         migrations.AlterField(
             model_name='employee',
             name='phone_number',
-            field=models.CharField(max_length=20, validators=[accounts.models.philippine_phone_validator]),
+            field=phonenumber_field.modelfields.PhoneNumberField(help_text='Enter a Philippine phone number', max_length=128, region='PH'),
         ),
     ]

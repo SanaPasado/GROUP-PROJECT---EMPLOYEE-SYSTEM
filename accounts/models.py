@@ -7,33 +7,13 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from cloudinary.models import CloudinaryField
 from Employee_System import settings
-import re
+from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
 
 
 def gmail_only_validator(value):
     if not value.lower().endswith('@gmail.com'):
         raise ValidationError('Email must end with @gmail.com')
-
-def philippine_phone_validator(value):
-    # Remove any spaces, dashes, or parentheses
-    cleaned = re.sub(r'[\s\-\(\)]', '', value)
-
-    # Check for valid Philippine phone number formats
-    # +63XXXXXXXXXX (country code format)
-    # 09XXXXXXXXX (mobile format)
-    # 02XXXXXXX or 032XXXXXXX etc. (landline format)
-
-    patterns = [
-        r'^\+639\d{9}$',  # +639XXXXXXXXX (mobile with country code)
-        r'^09\d{9}$',     # 09XXXXXXXXX (mobile)
-        r'^0\d{1,2}\d{7,8}$'  # landline formats (02XXXXXXX, 032XXXXXXXX, etc.)
-    ]
-
-    if not any(re.match(pattern, cleaned) for pattern in patterns):
-        raise ValidationError(
-            'Enter a valid Philippine phone number (e.g., +639XXXXXXXXX, 09XXXXXXXXX, or landline)'
-        )
 
 def image_file_validator(value):
     """Validate image file extensions for Cloudinary uploads"""
@@ -100,9 +80,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     position = models.CharField(max_length=255)
     department = models.CharField(max_length=255)
     salary = models.FloatField(null=True, blank=True)
-    phone_number = models.CharField(max_length=20, validators=[philippine_phone_validator])
+    phone_number = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number')
     date_hired = models.DateField(default=timezone.now)
-    emergency_contact = models.CharField(max_length=20, validators=[philippine_phone_validator])
+    emergency_contact = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number for emergency contact')
     photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
         # validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
     address = models.CharField(max_length=255, null=True, blank=True)
