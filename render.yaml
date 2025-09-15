@@ -10,6 +10,8 @@ services:
         generateValue: true
       - key: DEBUG
         value: "False"
+      - key: TZ
+        value: "Asia/Manila"
       - key: ALLOWED_HOSTS
         value: "employee-system.onrender.com"
       - key: DATABASE_URL
