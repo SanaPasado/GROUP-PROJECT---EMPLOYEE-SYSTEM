@@ -15,6 +15,12 @@ class PaycheckNotificationAdmin(admin.ModelAdmin):
     search_fields = ['employee__first_name', 'employee__last_name', 'employee__email']
     readonly_fields = ['sent_at', 'sent_by']
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'employee':
+            # Exclude staff and admin users from being selected as recipients
+            kwargs["queryset"] = Employee.objects.filter(staff=False, admin=False, active=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def save_model(self, request, obj, form, change):
         if not change:  # Only set sent_by for new notifications
             obj.sent_by = request.user
@@ -113,4 +119,3 @@ class EmployeeNotificationAdmin(admin.ModelAdmin):
             f"{reverse('admin:send_paycheck_notification')}?ids={','.join(map(str, selected_ids))}"
         )
     send_bulk_paycheck_notification.short_description = "Send paycheck notifications to selected employees"
-

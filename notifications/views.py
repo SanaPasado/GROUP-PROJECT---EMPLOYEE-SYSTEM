@@ -7,20 +7,19 @@ from .models import PaycheckNotification
 
 @login_required
 def employee_notifications(request):
-    """Display paycheck notifications for the logged-in employee"""
+    """Display paycheck notifications for the logged-in employee (paycheck only)"""
     try:
-        # Since your Employee model is the user model, request.user should work directly
         notifications = PaycheckNotification.objects.filter(
-            employee=request.user
-        ).order_by('-sent_at')[:20]  # Get latest 20 notifications
+            employee=request.user,
+            notification_type='paycheck'  # Only paycheck notifications
+        ).order_by('-sent_at')[:20]
 
-        # Count unread notifications BEFORE marking them as read
         unread_count = PaycheckNotification.objects.filter(
             employee=request.user,
-            is_read=False
+            is_read=False,
+            notification_type='paycheck'  # Only paycheck notifications
         ).count()
 
-        # Mark notifications as read when viewed (only if there are unread ones)
         if unread_count > 0:
             unread_notifications = notifications.filter(is_read=False)
             unread_notifications.update(is_read=True)
