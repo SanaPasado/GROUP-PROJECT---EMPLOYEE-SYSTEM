@@ -1,11 +1,9 @@
-from cloudinary.models import CloudinaryField
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-from cloudinary.models import CloudinaryField
 from Employee_System import settings
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
@@ -83,8 +81,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     phone_number = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number')
     date_hired = models.DateField(default=timezone.now)
     emergency_contact = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number for emergency contact')
-    photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
-        # validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
+    photo = models.ImageField(upload_to='employee-photos/', default='blank-profile-picture', validators=[image_file_validator])
+    # validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
     address = models.CharField(max_length=255, null=True, blank=True)
     vacation_days = models.IntegerField(null=True, blank=True)
     work_schedule = models.CharField(null=True, blank=True)
