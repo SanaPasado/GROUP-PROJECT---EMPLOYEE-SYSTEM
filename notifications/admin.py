@@ -1,4 +1,2 @@
-from django.contrib import admin
-from accounts.models import Employee
-
+# This file intentionally left blank. No admin registration for notifications.
 
