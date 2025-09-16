@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -75,3 +75,22 @@ class PaycheckDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
         context = super().get_context_data(**kwargs)
         context['notifications'] = PaycheckNotification.objects.all().order_by('-sent_at')[:20]
         return context
+
+
+def is_staff_or_admin(user):
+    return user.is_staff or user.is_superuser or getattr(user, 'admin', False)
+
+@login_required
+@user_passes_test(is_staff_or_admin)
+def old_paycheck_dashboard(request):
+    notifications = PaycheckNotification.objects.all().order_by('-sent_at')[:20]
+    form = PaycheckNotificationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        notification = form.save(commit=False)
+        notification.sent_by = request.user
+        notification.save()
+        return redirect('notifications:paycheck_dashboard')
+    return render(request, 'notifications/paycheck_dashboard.html', {
+        'notifications': notifications,
+        'form': form
+    })
