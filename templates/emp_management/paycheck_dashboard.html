@@ -82,15 +82,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="notification_type" class="form-label" style="font-weight: 600;">Notification Type</label>
-                            <select name="notification_type" id="notification_type" class="form-select" style="font-family: 'Inter', sans-serif;">
-                                {% for value, label in notification_types %}
-                                    <option value="{{ value }}">{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
                             <label for="amount" class="form-label" style="font-weight: 600;">Amount</label>
                             <div class="input-group">
                                 <span class="input-group-text">₱</span>

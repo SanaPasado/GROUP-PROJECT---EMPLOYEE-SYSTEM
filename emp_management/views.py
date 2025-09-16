@@ -109,13 +109,12 @@ def send_individual_paycheck(request, slug):
     if request.method == 'POST':
         amount = request.POST.get('amount', '')
         message = request.POST.get('message', 'Your paycheck has been sent!')
-        notification_type = request.POST.get('notification_type', 'paycheck')
 
         # Use the employee model method to send notification
         employee.send_paycheck_notification(
             amount=float(amount) if amount else None,
             message=message,
-            notification_type=notification_type,
+            notification_type="paycheck",  # Always set to paycheck
             sent_by=request.user
         )
 
@@ -126,11 +125,6 @@ def send_individual_paycheck(request, slug):
 
     context = {
         'employee': employee,
-        'notification_types': [
-            ('paycheck', 'Paycheck Sent'),
-            ('bonus', 'Bonus Payment'),
-            ('salary_adjustment', 'Salary Adjustment'),
-        ]
     }
     return render(request, 'emp_management/send_paycheck_notification.html', context)
 

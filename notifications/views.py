@@ -14,21 +14,25 @@ def employee_notifications(request):
             employee=request.user
         ).order_by('-sent_at')[:20]  # Get latest 20 notifications
 
-        # Mark notifications as read when viewed
-        unread_notifications = notifications.filter(is_read=False)
-        unread_notifications.update(is_read=True)
+        # Count unread notifications BEFORE marking them as read
+        unread_count = PaycheckNotification.objects.filter(
+            employee=request.user,
+            is_read=False
+        ).count()
+
+        # Mark notifications as read when viewed (only if there are unread ones)
+        if unread_count > 0:
+            unread_notifications = notifications.filter(is_read=False)
+            unread_notifications.update(is_read=True)
 
         context = {
             'notifications': notifications,
-            'unread_count': PaycheckNotification.objects.filter(
-                employee=request.user,
-                is_read=False
-            ).count()
+            'unread_count': unread_count
         }
         return render(request, 'notifications/employee_notifications.html', context)
 
     except Exception as e:
-        messages.error(request, 'An error occurred while loading notifications.')
+        messages.error(request, f'An error occurred while loading notifications: {str(e)}')
         return render(request, 'notifications/employee_notifications.html', {
             'notifications': [],
             'unread_count': 0
