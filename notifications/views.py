@@ -49,7 +49,7 @@ class PaycheckNotificationCreateView(LoginRequiredMixin, UserPassesTestMixin, Cr
     model = PaycheckNotification
     form_class = PaycheckNotificationForm
     template_name = 'notifications/notification_form.html'
-    success_url = reverse_lazy('notifications:employee_notifications')
+    success_url = reverse_lazy('notifications:paycheck_dashboard')
 
     def test_func(self):
         # Only staff/admin can send notifications
@@ -58,6 +58,10 @@ class PaycheckNotificationCreateView(LoginRequiredMixin, UserPassesTestMixin, Cr
     def form_valid(self, form):
         form.instance.sent_by = self.request.user
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Render the form with errors
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class PaycheckDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
