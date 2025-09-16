@@ -2,58 +2,72 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.urls import reverse_lazy
 from .models import PaycheckNotification
+from accounts.models import Employee
+from django import forms
 
 
-@login_required
-def employee_notifications(request):
-    """Display paycheck notifications for the logged-in employee (paycheck only)"""
-    try:
-        notifications = PaycheckNotification.objects.filter(
-            employee=request.user,
-            notification_type='paycheck'  # Only paycheck notifications
-        ).order_by('-sent_at')[:20]
-
-        unread_count = PaycheckNotification.objects.filter(
-            employee=request.user,
-            is_read=False,
-            notification_type='paycheck'  # Only paycheck notifications
-        ).count()
-
-        if unread_count > 0:
-            unread_notifications = notifications.filter(is_read=False)
-            unread_notifications.update(is_read=True)
-
-        context = {
-            'notifications': notifications,
-            'unread_count': unread_count
+class PaycheckNotificationForm(forms.ModelForm):
+    class Meta:
+        model = PaycheckNotification
+        fields = ['employee', 'amount', 'message']
+        widgets = {
+            'message': forms.Textarea(attrs={'rows': 3}),
         }
-        return render(request, 'notifications/employee_notifications.html', context)
 
-    except Exception as e:
-        messages.error(request, f'An error occurred while loading notifications: {str(e)}')
-        return render(request, 'notifications/employee_notifications.html', {
-            'notifications': [],
-            'unread_count': 0
-        })
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only allow non-staff, non-admin, active employees as recipients
+        self.fields['employee'].queryset = Employee.objects.filter(staff=False, admin=False, active=True)
 
 
-@login_required
-def mark_notification_read(request, notification_id):
-    """Mark a specific notification as read"""
-    if request.method == 'POST':
-        try:
-            notification = get_object_or_404(
-                PaycheckNotification,
-                id=notification_id,
-                employee=request.user
-            )
-            notification.is_read = True
-            notification.save()
-            return JsonResponse({'status': 'success'})
-        except PaycheckNotification.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Notification not found'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': 'An error occurred'})
+class PaycheckNotificationListView(LoginRequiredMixin, ListView):
+    model = PaycheckNotification
+    template_name = 'notifications/employee_notifications.html'
+    context_object_name = 'notifications'
+    paginate_by = 20
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+    def get_queryset(self):
+        # Employees only see their own notifications
+        return PaycheckNotification.objects.filter(employee=self.request.user).order_by('-sent_at')
+
+
+class PaycheckNotificationDetailView(LoginRequiredMixin, DetailView):
+    model = PaycheckNotification
+    template_name = 'notifications/notification_detail.html'
+    context_object_name = 'notification'
+
+    def get_queryset(self):
+        # Employees can only see their own notifications
+        return PaycheckNotification.objects.filter(employee=self.request.user)
+
+
+class PaycheckNotificationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = PaycheckNotification
+    form_class = PaycheckNotificationForm
+    template_name = 'notifications/notification_form.html'
+    success_url = reverse_lazy('notifications:employee_notifications')
+
+    def test_func(self):
+        # Only staff/admin can send notifications
+        return self.request.user.is_staff or self.request.user.is_superuser or self.request.user.admin
+
+    def form_valid(self, form):
+        form.instance.sent_by = self.request.user
+        return super().form_valid(form)
+
+
+class PaycheckDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'notifications/paycheck_dashboard.html'
+
+    def test_func(self):
+        # Only staff/admin can access the dashboard
+        return self.request.user.is_staff or self.request.user.is_superuser or self.request.user.admin
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notifications'] = PaycheckNotification.objects.all().order_by('-sent_at')[:20]
+        return context

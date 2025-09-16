@@ -16,8 +16,11 @@ def report_create(request):
             report.reported_by = request.user
             report.save()
             messages.success(request, 'Report submitted successfully!')
-            # Redirect to the current user's own employee detail page
-            return redirect('reports:employee_reports', slug=request.user.slug)
+            # Redirect based on user type
+            if request.user.is_staff or request.user.is_superuser:
+                return redirect('reports:employee_reports', slug=request.user.slug)
+            else:
+                return redirect('emp_management:employee_detail', slug=request.user.slug)
     else:
         form = ReportForm()
 

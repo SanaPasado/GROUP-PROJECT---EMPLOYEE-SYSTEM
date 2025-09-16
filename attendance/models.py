@@ -6,8 +6,8 @@ from django.db import models
 class Attendance(models.Model):
     employee = models.ForeignKey('accounts.Employee', on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
-    time_in = models.TimeField(default=timezone.now)
-    time_out = models.TimeField(null=True, blank=True)
+    time_in = models.DateTimeField(default=timezone.now)
+    time_out = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ('employee', 'date')

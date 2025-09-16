@@ -1,3 +1,4 @@
+{% load tz %}
 {% extends 'base.html' %}
 
 {% block content %}
@@ -29,8 +30,8 @@
             <tr>
                 <td>{{ record.date }}</td>
                 <td>{{ record.employee.get_full_name }}</td>
-                <td>{{ record.time_in|default:"N/A" }}</td>
-                <td>{{ record.time_out|default:"N/A" }}</td>
+                <td>{{ record.time_in|localtime|default:"N/A" }}</td>
+                <td>{{ record.time_out|localtime|default:"N/A" }}</td>
                 <td><a href="{% url 'attendance:attendance_detail' record.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
             </tr>
             {% empty %}

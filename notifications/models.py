@@ -4,14 +4,7 @@ from accounts.models import Employee
 from django.apps import AppConfig
 
 class PaycheckNotification(models.Model):
-    NOTIFICATION_TYPES = [
-        ('paycheck', 'Paycheck Sent'),
-        ('bonus', 'Bonus Payment'),
-        ('salary_adjustment', 'Salary Adjustment'),
-    ]
-
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='paycheck_notifications')
-    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='paycheck')
     message = models.TextField(default="Your paycheck has been sent!")
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     sent_at = models.DateTimeField(default=timezone.now)
