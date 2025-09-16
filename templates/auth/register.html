@@ -2,30 +2,59 @@
 {% load static %}
 
 {% block title %}
+<title>Register Employee</title>
 {% endblock %}
 
 {% block content %}
     <div class="text-center mt-4">
-        <h1 class="mb-4">Create an Employee Account</h1>
+        <h1 class="mb-4" style="font-family: 'Inter', sans-serif; font-weight: 700;">Create an Employee Account</h1>
     </div>
 
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-sm-6 col-12">
-                <form method="post">
-                {% csrf_token %}
+            <div class="col-sm-8 col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            {{ field.errors }}
-                            {{ field }}
-                        </div>
-                    {% endfor %}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label" style="font-weight: 600;">
+                                        {{ field.label }}
+                                    </label>
 
-                    {{ form.non_field_errors }}
+                                    {% if field.name == 'salary' %}
+                                        <div class="input-group">
+                                            <span class="input-group-text">₱</span>
+                                            {{ field }}
+                                        </div>
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
 
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+                                    {% if field.errors %}
+                                        <div class="text-danger small">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            {% endif %}
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" style="font-family: 'Inter', sans-serif; font-weight: 600;">
+                                    <i class="bi bi-person-plus"></i> Create Employee Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

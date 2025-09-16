@@ -1,4 +1,3 @@
-
 # This form is for the regular user, with restricted editable fields
 from django import forms
 from accounts.models import Employee
@@ -12,7 +11,7 @@ class EmployeeUpdateForm(forms.ModelForm):
     email = forms.EmailField(disabled=True)
     department = forms.CharField(disabled=True)
     position = forms.CharField(disabled=True)
-    salary = forms.FloatField(disabled=True)
+    salary = forms.FloatField(disabled=True, widget=forms.NumberInput(attrs={'step': '0.01'}))
     address = forms.CharField(disabled=True)
     sick_leaves = forms.IntegerField(disabled=True)
     vacation_days = forms.IntegerField(disabled=True)
@@ -44,32 +43,25 @@ class EmployeeUpdateForm(forms.ModelForm):
 
 # This form is for the admin, with all fields editable except readonly
 class AdminEmployeeUpdateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make specific fields readonly for admin form
+        self.fields['first_name'].widget.attrs['readonly'] = True
+        self.fields['last_name'].widget.attrs['readonly'] = True
+        self.fields['email'].widget.attrs['readonly'] = True
+        self.fields['address'].widget.attrs['readonly'] = True
+        self.fields['sick_leaves'].widget.attrs['readonly'] = True
+        self.fields['vacation_days'].widget.attrs['readonly'] = True
+        self.fields['date_hired'].widget.attrs['readonly'] = True
+        self.fields['work_schedule'].widget.attrs['readonly'] = True
+
+        # Add step attribute to salary field for decimal precision
+        self.fields['salary'].widget.attrs['step'] = '0.01'
+        self.fields['salary'].widget.attrs['placeholder'] = '0.00'
+
     class Meta:
         model = Employee
-        first_name = forms.CharField(
-            widget=forms.TextInput(attrs={'readonly': 'readonly'})
-        )
-        last_name = forms.CharField(
-            widget=forms.TextInput(attrs={'readonly': 'readonly'})
-        )
-        email = forms.EmailField(
-            widget=forms.EmailInput(attrs={'readonly': 'readonly'})
-        )
-        address = forms.CharField(
-            widget=forms.TextInput(attrs={'readonly': 'readonly'})
-        )
-        sick_leaves = forms.IntegerField(
-            widget=forms.NumberInput(attrs={'readonly': 'readonly'})
-        )
-        vacation_days = forms.IntegerField(
-            widget=forms.NumberInput(attrs={'readonly': 'readonly'})
-        )
-        date_hired = forms.DateField(
-            widget=forms.DateInput(attrs={'readonly': 'readonly'})
-        )
-        work_schedule = forms.IntegerField(
-            widget=forms.NumberInput(attrs={'readonly': 'readonly'})
-        )
         fields = [
             'first_name',
             'last_name',
@@ -84,7 +76,4 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
             'sick_leaves',
             'vacation_days',
             'work_schedule',
-
         ]
-
-

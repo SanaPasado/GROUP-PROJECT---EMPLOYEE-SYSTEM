@@ -104,7 +104,7 @@ class RegisterForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', "placeholder": "Email"}),
             'position': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Position"}),
             'department': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Department"}),
-            'salary': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Salary"}),
+            'salary': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "0.00", 'step': '0.01'}),
             'phone_number': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Phone Number"}),
             'emergency_contact': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Emergency Contact"}),
             'photo': forms.FileInput(attrs={'class': 'form-control'}),

@@ -139,8 +139,46 @@ def paycheck_dashboard(request):
     """Dashboard for managing paycheck notifications"""
     from notifications.models import PaycheckNotification
 
+    if request.method == 'POST':
+        # Handle form submission for sending paycheck notification
+        employee_id = request.POST.get('employee_id')
+        amount = request.POST.get('amount', '')
+        message = request.POST.get('message', 'Your paycheck has been sent!')
+        notification_type = request.POST.get('notification_type', 'paycheck')
+
+        try:
+            employee = Employee.objects.get(id=employee_id)
+
+            # Send the notification using the employee model method
+            employee.send_paycheck_notification(
+                amount=float(amount) if amount else None,
+                message=message,
+                notification_type=notification_type,
+                sent_by=request.user
+            )
+
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Paycheck notification sent to {employee.get_full_name()}'
+            })
+
+        except Employee.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Employee not found'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An error occurred while sending the notification'
+            })
+
+    # GET request - display the dashboard
     # Get recent notifications
     recent_notifications = PaycheckNotification.objects.select_related('employee', 'sent_by').order_by('-sent_at')[:10]
+
+    # Get all active employees for the form
+    active_employees = Employee.objects.filter(active=True).order_by('first_name', 'last_name')
 
     # Get statistics
     total_employees = Employee.objects.filter(active=True).count()
@@ -149,9 +187,15 @@ def paycheck_dashboard(request):
 
     context = {
         'recent_notifications': recent_notifications,
+        'active_employees': active_employees,
         'total_employees': total_employees,
         'total_notifications': total_notifications,
         'unread_notifications': unread_notifications,
+        'notification_types': [
+            ('paycheck', 'Paycheck Sent'),
+            ('bonus', 'Bonus Payment'),
+            ('salary_adjustment', 'Salary Adjustment'),
+        ]
     }
     return render(request, 'emp_management/paycheck_dashboard.html', context)
 
