@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>My Reports</title>
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -35,7 +40,7 @@
                                 </td>
                                 <td>{{ report.description|truncatewords:20 }}</td>
                                 <td class="text-muted small">
-                                    {{ report.created_at|date:"M d, Y H:i" }}
+                                    {{ report.created_at|localtime|date:"M d, Y H:i" }}
                                 </td>
                                 <td>
                                     <span class="badge bg-secondary">

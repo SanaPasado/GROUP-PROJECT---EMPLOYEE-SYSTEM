@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>History</title>
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -30,7 +35,7 @@
                                     <span class="fw-semibold">{{ log.employee.first_name }} {{ log.employee.last_name }}</span>
                                 </td>
                                 <td class="text-muted small">
-                                    {{ log.updated_at|date:"M d, Y H:i" }}
+                                    {{ log.updated_at|localtime|date:"M d, Y H:i" }}
                                 </td>
                                 <td>
                                     <span class="badge bg-primary">{{ log.field_name }}</span>

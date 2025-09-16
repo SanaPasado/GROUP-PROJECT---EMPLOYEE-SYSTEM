@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 
 {% block title %}
 <title>Paycheck Notifications</title>
@@ -13,7 +14,7 @@
                 <span class="badge bg-danger">{{ unread_count }}</span>
             {% endif %}
         </h1>
-        <a href="{% url 'emp_management:employee_detail' user.slug %}" class="btn btn-secondary">
+        <a href="{% url 'emp_management:employee_detail' request.user.slug %}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back to Profile
         </a>
     </div>
@@ -47,7 +48,7 @@
                                 <div class="text-muted">
                                     <small>
                                         <i class="bi bi-clock"></i>
-                                        Sent on {{ notification.sent_at|date:"F d, Y g:i A" }}
+                                        Sent on {{ notification.sent_at|localtime|date:"F d, Y g:i A" }}
                                         {% if notification.sent_by %}
                                             by {{ notification.sent_by.get_full_name }}
                                         {% endif %}

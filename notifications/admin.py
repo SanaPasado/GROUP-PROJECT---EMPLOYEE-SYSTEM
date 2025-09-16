@@ -114,7 +114,3 @@ class EmployeeNotificationAdmin(admin.ModelAdmin):
         )
     send_bulk_paycheck_notification.short_description = "Send paycheck notifications to selected employees"
 
-
-# Unregister the default Employee admin and register our custom one
-admin.site.unregister(Employee)
-admin.site.register(Employee, EmployeeNotificationAdmin)
