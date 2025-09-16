@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block title %}
+<title>Paycheck Dashboard</title>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0" style="font-family: 'Inter', sans-serif; font-weight: 700;">
+            <i class="bi bi-graph-up"></i> Paycheck Dashboard
+        </h1>
+        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Employees
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-0 bg-primary text-white">
+                <div class="card-body">
+                    <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2" style="font-family: 'Inter', sans-serif; font-weight: 700;">{{ total_employees }}</h3>
+                    <p class="mb-0">Active Employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 bg-success text-white">
+                <div class="card-body">
+                    <i class="bi bi-bell-fill" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2" style="font-family: 'Inter', sans-serif; font-weight: 700;">{{ total_notifications }}</h3>
+                    <p class="mb-0">Total Notifications</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 bg-warning text-white">
+                <div class="card-body">
+                    <i class="bi bi-envelope-fill" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2" style="font-family: 'Inter', sans-serif; font-weight: 700;">{{ unread_notifications }}</h3>
+                    <p class="mb-0">Unread Notifications</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 bg-info text-white">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2" style="font-family: 'Inter', sans-serif; font-weight: 700;">Today</h3>
+                    <p class="mb-0">{{ recent_notifications|length }} Sent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Notifications -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h4 class="mb-0" style="font-family: 'Inter', sans-serif; font-weight: 600;">
+                <i class="bi bi-clock-history"></i> Recent Notifications
+            </h4>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_notifications %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Employee</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Message</th>
+                                <th>Sent At</th>
+                                <th>Sent By</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notification in recent_notifications %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if notification.employee.photo %}
+                                                <img src="{{ notification.employee.photo.url }}" alt="{{ notification.employee.get_full_name }}"
+                                                     class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-person-fill text-white" style="font-size: 0.8rem;"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ notification.employee.get_full_name }}</strong><br>
+                                                <small class="text-muted">{{ notification.employee.department }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if notification.notification_type == 'paycheck' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-currency-dollar"></i> Paycheck
+                                            </span>
+                                        {% elif notification.notification_type == 'bonus' %}
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-gift"></i> Bonus
+                                            </span>
+                                        {% elif notification.notification_type == 'salary_adjustment' %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-graph-up"></i> Salary Adj.
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if notification.amount %}
+                                            <strong>₱{{ notification.amount|floatformat:2 }}</strong>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ notification.message }}">
+                                            {{ notification.message }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>{{ notification.sent_at|localtime|date:"M d, Y H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        {% if notification.sent_by %}
+                                            <small>{{ notification.sent_by.get_full_name }}</small>
+                                        {% else %}
+                                            <small class="text-muted">System</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if notification.is_read %}
+                                            <span class="badge bg-secondary">Read</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">Unread</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-bell-slash" style="font-size: 3rem; color: #6c757d;"></i>
+                    <h4 class="text-muted mt-3" style="font-family: 'Inter', sans-serif; font-weight: 600;">No Notifications Yet</h4>
+                    <p class="text-muted">No paycheck notifications have been sent yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

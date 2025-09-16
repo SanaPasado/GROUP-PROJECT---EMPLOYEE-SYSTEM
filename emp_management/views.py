@@ -98,10 +98,62 @@ class EmpDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def get_employee_statuses(request):
     employees = Employee.objects.all().values('slug', 'is_online')
-    statuses = {
-        emp['slug']: emp['is_online'] for emp in employees
-    }
+    statuses = {emp['slug']: emp['is_online'] for emp in employees}
     return JsonResponse(statuses)
+
+@staff_member_required
+def send_individual_paycheck(request, slug):
+    """Send paycheck notification to individual employee"""
+    employee = get_object_or_404(Employee, slug=slug)
+
+    if request.method == 'POST':
+        amount = request.POST.get('amount', '')
+        message = request.POST.get('message', 'Your paycheck has been sent!')
+        notification_type = request.POST.get('notification_type', 'paycheck')
+
+        # Use the employee model method to send notification
+        employee.send_paycheck_notification(
+            amount=float(amount) if amount else None,
+            message=message,
+            notification_type=notification_type,
+            sent_by=request.user
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Paycheck notification sent to {employee.get_full_name()}'
+        })
+
+    context = {
+        'employee': employee,
+        'notification_types': [
+            ('paycheck', 'Paycheck Sent'),
+            ('bonus', 'Bonus Payment'),
+            ('salary_adjustment', 'Salary Adjustment'),
+        ]
+    }
+    return render(request, 'emp_management/send_paycheck_notification.html', context)
+
+@staff_member_required
+def paycheck_dashboard(request):
+    """Dashboard for managing paycheck notifications"""
+    from notifications.models import PaycheckNotification
+
+    # Get recent notifications
+    recent_notifications = PaycheckNotification.objects.select_related('employee', 'sent_by').order_by('-sent_at')[:10]
+
+    # Get statistics
+    total_employees = Employee.objects.filter(active=True).count()
+    total_notifications = PaycheckNotification.objects.count()
+    unread_notifications = PaycheckNotification.objects.filter(is_read=False).count()
+
+    context = {
+        'recent_notifications': recent_notifications,
+        'total_employees': total_employees,
+        'total_notifications': total_notifications,
+        'unread_notifications': unread_notifications,
+    }
+    return render(request, 'emp_management/paycheck_dashboard.html', context)
 
 @staff_member_required
 def admin_panel(request):

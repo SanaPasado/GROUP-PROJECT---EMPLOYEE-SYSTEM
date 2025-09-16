@@ -11,6 +11,8 @@
     body { font-family: 'Inter', sans-serif; }
     h1, h2 { font-weight: 700; }
     .form-row label { font-weight: 600; }
+    .employee-checkbox { margin-bottom: 8px; }
+    .select-all-btn { margin-bottom: 15px; }
 </style>
 {% endblock %}
 
@@ -18,7 +20,7 @@
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:accounts_employee_changelist' %}">Employees</a>
-&rsaquo; Bulk Send Paycheck Notifications
+&rsaquo; Send Bulk Paycheck Notifications
 </div>
 {% endblock %}
 
@@ -31,16 +33,26 @@
 
         <fieldset class="module aligned">
             <h2 style="font-family: 'Inter', sans-serif; font-weight: 600;">Select Employees</h2>
+
             <div class="form-row">
-                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; font-family: 'Inter', sans-serif;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">
-                        <input type="checkbox" id="select-all"> Select All
-                    </label>
+                <button type="button" id="selectAll" class="button select-all-btn">
+                    <i class="bi bi-check-all"></i> Select All
+                </button>
+                <button type="button" id="deselectAll" class="button select-all-btn">
+                    <i class="bi bi-x-square"></i> Deselect All
+                </button>
+            </div>
+
+            <div class="form-row">
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
                     {% for employee in employees %}
-                    <label style="display: block; margin-bottom: 5px; font-family: 'Inter', sans-serif;">
-                        <input type="checkbox" name="employee_ids" value="{{ employee.id }}" class="employee-checkbox">
-                        {{ employee.get_full_name }} - {{ employee.department }} ({{ employee.email }})
-                    </label>
+                        <div class="employee-checkbox">
+                            <label>
+                                <input type="checkbox" name="employee_ids" value="{{ employee.id }}" class="employee-check">
+                                <strong>{{ employee.get_full_name }}</strong>
+                                ({{ employee.email }}) - {{ employee.department }}
+                            </label>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
@@ -70,7 +82,7 @@
                 <textarea name="message" id="message" rows="4" cols="40"
                           placeholder="Your paycheck has been sent!"
                           style="font-family: 'Inter', sans-serif;">Your paycheck has been sent!</textarea>
-                <p class="help">This message will be displayed to all selected employees</p>
+                <p class="help">This message will be displayed to the employees</p>
             </div>
         </fieldset>
 
@@ -84,11 +96,22 @@
 </div>
 
 <script>
-document.getElementById('select-all').addEventListener('change', function() {
-    var checkboxes = document.querySelectorAll('.employee-checkbox');
-    for (var checkbox of checkboxes) {
-        checkbox.checked = this.checked;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllBtn = document.getElementById('selectAll');
+    const deselectAllBtn = document.getElementById('deselectAll');
+    const checkboxes = document.querySelectorAll('.employee-check');
+
+    selectAllBtn.addEventListener('click', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+    });
+
+    deselectAllBtn.addEventListener('click', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    });
 });
 </script>
 

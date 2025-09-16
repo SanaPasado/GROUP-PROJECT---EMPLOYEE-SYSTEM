@@ -9,7 +9,9 @@ from emp_management.views import (
     EmpUpdateView, 
     EmpDeleteView, 
     get_employee_statuses,
-    admin_panel
+    admin_panel,
+    send_individual_paycheck,
+    paycheck_dashboard
 )
 
 app_name = 'emp_management'
@@ -17,6 +19,10 @@ urlpatterns = [
     path('', EmpListView.as_view(), name='employees'),
 
     path('admin-panel/', admin_panel, name='admin_panel'),
+
+    # Paycheck notification URLs
+    path('paycheck-dashboard/', paycheck_dashboard, name='paycheck_dashboard'),
+    path('employees/<slug:slug>/send-paycheck/', send_individual_paycheck, name='send_individual_paycheck'),
 
     path("employees/<slug:slug>/", EmpDetailView.as_view(), name="employee_detail"),
 
