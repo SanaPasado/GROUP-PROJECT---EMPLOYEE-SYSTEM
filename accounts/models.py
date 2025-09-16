@@ -137,3 +137,59 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     @property
     def is_active(self):
         return self.active
+
+    def send_paycheck_notification(self, amount=None, message="Your paycheck has been sent!", notification_type="paycheck", sent_by=None):
+        """Send a paycheck notification to this employee"""
+        from notifications.models import PaycheckNotification
+
+        notification = PaycheckNotification.objects.create(
+            employee=self,
+            notification_type=notification_type,
+            message=message,
+            amount=amount,
+            sent_by=sent_by
+        )
+        return notification
+
+    def get_paycheck_notifications(self, limit=20):
+        """Get paycheck notifications for this employee"""
+        from notifications.models import PaycheckNotification
+        return PaycheckNotification.objects.filter(
+            employee=self
+        ).order_by('-sent_at')[:limit]
+
+    def get_unread_notifications_count(self):
+        """Get count of unread paycheck notifications"""
+        from notifications.models import PaycheckNotification
+        return PaycheckNotification.objects.filter(
+            employee=self,
+            is_read=False
+        ).count()
+
+    def mark_all_notifications_read(self):
+        """Mark all paycheck notifications as read for this employee"""
+        from notifications.models import PaycheckNotification
+        return PaycheckNotification.objects.filter(
+            employee=self,
+            is_read=False
+        ).update(is_read=True)
+
+    @classmethod
+    def send_bulk_paycheck_notifications(cls, employee_ids, amount=None, message="Your paycheck has been sent!", notification_type="paycheck", sent_by=None):
+        """Class method to send paycheck notifications to multiple employees"""
+        from notifications.models import PaycheckNotification
+
+        employees = cls.objects.filter(id__in=employee_ids, active=True)
+        notifications = []
+
+        for employee in employees:
+            notifications.append(PaycheckNotification(
+                employee=employee,
+                notification_type=notification_type,
+                message=message,
+                amount=amount,
+                sent_by=sent_by
+            ))
+
+        PaycheckNotification.objects.bulk_create(notifications)
+        return len(notifications)
