@@ -20,6 +20,7 @@ urlpatterns = [
 
     path('admin-panel/', admin_panel, name='admin_panel'),
 
+    path('employees/<slug:slug>/send-paycheck/', send_individual_paycheck, name='send_individual_paycheck'),
 
     path("employees/<slug:slug>/", EmpDetailView.as_view(), name="employee_detail"),
 
