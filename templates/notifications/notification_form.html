@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}<title>Send Paycheck Notification</title>{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Send Paycheck Notification</h1>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="mb-3">
+                    <label class="form-label">Employee</label>
+                    {{ form.employee }}
+                    {% for error in form.employee.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Amount (₱)</label>
+                    {{ form.amount }}
+                    {% for error in form.amount.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    {{ form.message }}
+                    {% for error in form.message.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-success">Send Notification</button>
+                <a href="{% url 'notifications:paycheck_dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

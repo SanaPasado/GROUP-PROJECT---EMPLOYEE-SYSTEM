@@ -34,7 +34,8 @@
     {% else %}
         <div class="alert alert-info">No paycheck notifications have been sent yet.</div>
     {% endif %}
+    {% if not request.user.is_staff and not request.user.is_superuser and not request.user.admin %}
     <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-secondary mt-3">View My Paycheck Notifications</a>
+    {% endif %}
 </div>
 {% endblock %}
-
