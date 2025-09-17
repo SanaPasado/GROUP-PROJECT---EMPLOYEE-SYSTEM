@@ -102,9 +102,6 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(f"{self.first_name}-{self.last_name}")
