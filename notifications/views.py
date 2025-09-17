@@ -77,20 +77,3 @@ class PaycheckDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
         return context
 
 
-def is_staff_or_admin(user):
-    return user.is_staff or user.is_superuser or getattr(user, 'admin', False)
-
-@login_required
-@user_passes_test(is_staff_or_admin)
-def old_paycheck_dashboard(request):
-    notifications = PaycheckNotification.objects.all().order_by('-sent_at')[:20]
-    form = PaycheckNotificationForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        notification = form.save(commit=False)
-        notification.sent_by = request.user
-        notification.save()
-        return redirect('notifications:paycheck_dashboard')
-    return render(request, 'notifications/paycheck_dashboard.html', {
-        'notifications': notifications,
-        'form': form
-    })
