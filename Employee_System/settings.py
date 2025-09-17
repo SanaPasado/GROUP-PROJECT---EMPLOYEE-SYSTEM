@@ -29,7 +29,7 @@ DEBUG = True
 # Set allowed hosts based on environment
 if DEBUG:
     # For local development
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'group-project-employee-system.onrender.com']
 else:
     # For production on Render
     ALLOWED_HOSTS = []
