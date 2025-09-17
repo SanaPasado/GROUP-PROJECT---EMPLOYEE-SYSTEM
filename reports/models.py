@@ -14,4 +14,4 @@ class Report(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'Report from {self.reported_by.user}: {self.subject[:50]}...'
+        return f'Report from {self.reported_by.first_name} {self.reported_by.last_name}: {self.subject[:50]}...'
