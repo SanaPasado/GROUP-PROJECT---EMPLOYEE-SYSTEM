@@ -3,7 +3,7 @@ from .views import (
     PaycheckNotificationListView,
     PaycheckNotificationDetailView,
     PaycheckNotificationCreateView,
-    old_paycheck_dashboard, PaycheckDashboardView,  # Use the function-based dashboard view
+    PaycheckDashboardView,
 )
 
 app_name = 'notifications'
