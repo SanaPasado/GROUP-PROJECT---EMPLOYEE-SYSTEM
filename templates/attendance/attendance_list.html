@@ -29,9 +29,9 @@
             {% for record in attendance_records %}
             <tr>
                 <td>{{ record.date }}</td>
-                <td>{{ record.employee.get_full_name }}</td>
-                <td>{{ record.time_in|localtime|default:"N/A" }}</td>
-                <td>{{ record.time_out|localtime|default:"N/A" }}</td>
+                <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
+                <td>{{ record.time_in }}</td>
+                <td>{{ record.time_out }}</td>
                 <td><a href="{% url 'attendance:attendance_detail' record.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
             </tr>
             {% empty %}
