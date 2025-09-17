@@ -21,7 +21,7 @@
                     <td>{{ notification.message }}</td>
                     <td>₱{{ notification.amount|floatformat:2 }}</td>
                     <td>{{ notification.sent_at|localtime|date:'F d, Y g:i A' }}</td>
-                    <td>{{ notification.sent_by.get_full_name }}</td>
+                    <td>{% if notification.sent_by %}{{ notification.sent_by.first_name }} {{ notification.sent_by.last_name }}{% else %}System{% endif %}</td>
                     <td><a href="{% url 'notifications:notification_detail' notification.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
                 </tr>
                 {% endfor %}

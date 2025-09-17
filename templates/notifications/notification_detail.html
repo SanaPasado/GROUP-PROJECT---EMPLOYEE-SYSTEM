@@ -12,7 +12,7 @@
             <h6>Sent At: <span class="fw-normal">{{ notification.sent_at|localtime|date:'F d, Y g:i A' }}</span></h6>
             <h6>Sender: <span class="fw-normal">
               {% if notification.sent_by %}
-                {{ notification.sent_by.get_full_name }}
+                {{ notification.sent_by.first_name }} {{ notification.sent_by.last_name }}
               {% else %}
                 System
               {% endif %}

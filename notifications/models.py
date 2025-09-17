@@ -15,8 +15,9 @@ class PaycheckNotification(models.Model):
         ordering = ['-sent_at']
 
     def __str__(self):
-        return f"Paycheck notification for {self.employee.get_full_name()} - {self.sent_at}"
-
+        if self.employee:
+            return f"Paycheck notification for {self.employee.first_name} {self.employee.last_name} - {self.sent_at}"
+        return f"Paycheck notification for Unknown - {self.sent_at}"
 
 class NotificationsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
