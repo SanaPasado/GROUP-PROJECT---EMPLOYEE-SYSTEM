@@ -83,8 +83,15 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     phone_number = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number')
     date_hired = models.DateField(default=timezone.now)
     emergency_contact = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number for emergency contact')
-    photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
+    #photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
         # validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
+    photo = models.ImageField(
+        upload_to='employee-photos/',
+        default='employee-photos/blank-profile-picture.png',
+        validators=[image_file_validator],
+        blank=True,
+        null=True
+    )
     address = models.CharField(max_length=255, null=True, blank=True)
     vacation_days = models.IntegerField(null=True, blank=True)
     work_schedule = models.CharField(null=True, blank=True)

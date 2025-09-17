@@ -50,7 +50,7 @@ def record_time(request):
             if Attendance.objects.filter(employee=user, date=today).exists():
                 messages.error(request, "You have already timed in today.")
             else:
-                Attendance.objects.create(employee=user, date=today, time_in=timezone.now())
+                Attendance.objects.create(employee=user, date=today, time_in=timezone.now().time())
                 messages.success(request, "Time In recorded successfully.")
 
         elif action == 'out':
@@ -59,7 +59,7 @@ def record_time(request):
                 if attendance.time_out:
                     messages.error(request, "You have already timed out today.")
                 else:
-                    attendance.time_out = timezone.now()
+                    attendance.time_out = timezone.now().time()
                     attendance.save()
                     messages.success(request, "Time Out recorded successfully.")
             except Attendance.DoesNotExist:
