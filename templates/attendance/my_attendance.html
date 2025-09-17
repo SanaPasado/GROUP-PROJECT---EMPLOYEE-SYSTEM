@@ -71,8 +71,20 @@
                     {% for record in records %}
                         <tr>
                             <td>{{ record.date }}</td>
-                            <td>{{ record.time_in|localtime|default:"N/A" }}</td>
-                            <td>{{ record.time_out|localtime|default:"N/A" }}</td>
+                            <td>
+                              {% if record.time_in %}
+                                {{ record.time_in|localtime }}
+                              {% else %}
+                                N/A
+                              {% endif %}
+                            </td>
+                            <td>
+                              {% if record.time_out %}
+                                {{ record.time_out|localtime }}
+                              {% else %}
+                                N/A
+                              {% endif %}
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>

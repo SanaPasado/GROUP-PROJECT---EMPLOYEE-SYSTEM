@@ -10,7 +10,6 @@ from emp_management.views import (
     EmpDeleteView, 
     get_employee_statuses,
     admin_panel,
-    send_individual_paycheck,
     paycheck_dashboard
 )
 
