@@ -10,6 +10,7 @@ class PaycheckNotification(models.Model):
     sent_at = models.DateTimeField(default=timezone.now)
     is_read = models.BooleanField(default=False)
     sent_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
+    notification_type = models.CharField(max_length=50, default="paycheck")
 
     class Meta:
         ordering = ['-sent_at']
