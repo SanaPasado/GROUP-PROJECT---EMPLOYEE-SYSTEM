@@ -74,14 +74,14 @@
                             <td>{{ record.date }}</td>
                             <td>
                                 {% if record.time_in %}
-                                    {{ record.time_in|localtime|date:"H:i" }}
+                                    {{ record.time_in|date:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}
                             </td>
                             <td>
                                 {% if record.time_out %}
-                                    {{ record.time_out|localtime|date:"H:i" }}
+                                    {{ record.time_out|date:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}
