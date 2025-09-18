@@ -1,3 +1,4 @@
+{% load tz %}
 {% extends 'base.html' %}
 
 {% block content %}
@@ -29,8 +30,20 @@
             <tr>
                 <td>{{ record.date }}</td>
                 <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
-                <td>{{ record.time_in|default:"--" }}</td>
-                <td>{{ record.time_out|default:"--" }}</td>
+                <td>
+                    {% if record.time_in %}
+                        {{ record.time_in|localtime|date:"H:i" }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.time_out %}
+                        {{ record.time_out|localtime|date:"H:i" }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
                 <td><a href="{% url 'attendance:attendance_detail' record.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
             </tr>
             {% empty %}

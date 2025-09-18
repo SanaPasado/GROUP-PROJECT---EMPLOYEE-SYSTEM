@@ -1,3 +1,4 @@
+{% load tz %}
 {% extends 'base.html' %}
 
 {% block content %}
@@ -70,8 +71,20 @@
                     {% for record in records %}
                         <tr>
                             <td>{{ record.date }}</td>
-                            <td>{{ record.time_in|default:"N/A" }}</td>
-                            <td>{{ record.time_out|default:"N/A" }}</td>
+                            <td>
+                                {% if record.time_in %}
+                                    {{ record.time_in|localtime|date:"H:i" }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if record.time_out %}
+                                    {{ record.time_out|localtime|date:"H:i" }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
