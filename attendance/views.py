@@ -16,19 +16,20 @@ def is_staff(user):
 
 @login_required
 def my_attendance(request):
-    today = date.today()
+    today = timezone.now().date()
     user = request.user
 
     try:
         record = Attendance.objects.get(employee=user, date=today)
-        has_timed_in = True
+        has_timed_in = bool(record.time_in)
         has_timed_out = bool(record.time_out)
     except Attendance.DoesNotExist:
         record = None
         has_timed_in = False
         has_timed_out = False
 
-    records = Attendance.objects.filter(employee=user).order_by('-date')[:10]
+    # The ordering is defined in the model's Meta
+    records = Attendance.objects.filter(employee=user)[:10]
     if request.user.is_staff:
         return redirect('attendance:attendance_list')
     else:
@@ -43,14 +44,15 @@ def my_attendance(request):
 def record_time(request):
     if request.method == 'POST':
         action = request.POST.get('action')
-        today = date.today()
+        now = timezone.now()
         user = request.user
+        today = now.date()
 
         if action == 'in':
             if Attendance.objects.filter(employee=user, date=today).exists():
                 messages.error(request, "You have already timed in today.")
             else:
-                Attendance.objects.create(employee=user, date=today, time_in=timezone.now().time())
+                Attendance.objects.create(employee=user, date=today, time_in=now)
                 messages.success(request, "Time In recorded successfully.")
 
         elif action == 'out':
@@ -58,8 +60,10 @@ def record_time(request):
                 attendance = Attendance.objects.get(employee=user, date=today)
                 if attendance.time_out:
                     messages.error(request, "You have already timed out today.")
+                elif not attendance.time_in:
+                    messages.error(request, "You must time in before timing out.")
                 else:
-                    attendance.time_out = timezone.now().time()
+                    attendance.time_out = now
                     attendance.save()
                     messages.success(request, "Time Out recorded successfully.")
             except Attendance.DoesNotExist:
@@ -77,7 +81,8 @@ class AttendanceListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Attendance.objects.select_related('employee').order_by('-date')
+        # The ordering is now handled in the model's Meta class
+        queryset = Attendance.objects.select_related('employee')
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.filter(
