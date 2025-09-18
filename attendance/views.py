@@ -46,16 +46,17 @@ def record_time(request):
         action = request.POST.get('action')
         user = request.user
         today = timezone.now().date()
+        current_time = timezone.now()  # Get current timezone-aware datetime
 
         if action == 'in':
             if Attendance.objects.filter(employee=user, date=today).exists():
                 messages.error(request, "You have already timed in today.")
             else:
-                # Use timezone.now() directly in create
+                # Create with timezone-aware datetime
                 Attendance.objects.create(
                     employee=user,
                     date=today,
-                    time_in=timezone.now()
+                    time_in=current_time
                 )
                 messages.success(request, "Time In recorded successfully.")
 
@@ -67,10 +68,9 @@ def record_time(request):
                 elif not attendance.time_in:
                     messages.error(request, "You must time in before timing out.")
                 else:
-                    # Use update instead of save to avoid potential issues
-                    Attendance.objects.filter(employee=user, date=today).update(
-                        time_out=timezone.now()
-                    )
+                    # Update with timezone-aware datetime
+                    attendance.time_out = current_time
+                    attendance.save()  # Use save() instead of update()
                     messages.success(request, "Time Out recorded successfully.")
             except Attendance.DoesNotExist:
                 messages.error(request, "You haven't timed in yet.")
