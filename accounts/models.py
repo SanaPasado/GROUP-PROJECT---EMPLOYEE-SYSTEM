@@ -26,6 +26,11 @@ def image_file_validator(value):
             )
 
 
+def get_current_date():
+    """Return current date for default value"""
+    return timezone.now().date()
+
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False, is_superuser=False, **extra_fields):
         if not email:
@@ -80,7 +85,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     department = models.CharField(max_length=255)
     salary = models.FloatField(null=True, blank=True)
     phone_number = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number')
-    date_hired = models.DateField(default=timezone.now)
+    date_hired = models.DateField(default=get_current_date)
     emergency_contact = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number for emergency contact')
     photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
     # validators = [FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
