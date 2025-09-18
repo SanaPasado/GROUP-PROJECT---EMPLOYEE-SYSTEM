@@ -74,18 +74,14 @@
                             <td>{{ record.date }}</td>
                             <td>
                                 {% if record.time_in %}
-                                    {% timezone "Asia/Manila" %}
-                                        {{ record.time_in|date:"H:i" }}
-                                    {% endtimezone %}
+                                    {{ record.time_in|timezone:"Asia/Manila"|date:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}
                             </td>
                             <td>
                                 {% if record.time_out %}
-                                    {% timezone "Asia/Manila" %}
-                                        {{ record.time_out|date:"H:i" }}
-                                    {% endtimezone %}
+                                    {{ record.time_out|timezone:"Asia/Manila"|date:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}

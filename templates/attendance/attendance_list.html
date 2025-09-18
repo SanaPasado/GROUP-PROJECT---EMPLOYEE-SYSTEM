@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
 {% load tz %}
-
+{% extends 'base.html' %}
 
 {% block content %}
 <div class="container my-5">
@@ -33,18 +32,14 @@
                 <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
                 <td>
                     {% if record.time_in %}
-                        {% timezone "Asia/Manila" %}
-                            {{ record.time_in|date:"H:i" }}
-                        {% endtimezone %}
+                        {{ record.time_in|timezone:"Asia/Manila"|date:"H:i" }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
                 <td>
                     {% if record.time_out %}
-                        {% timezone "Asia/Manila" %}
-                            {{ record.time_out|date:"H:i" }}
-                        {% endtimezone %}
+                        {{ record.time_out|timezone:"Asia/Manila"|date:"H:i" }}
                     {% else %}
                         --
                     {% endif %}
