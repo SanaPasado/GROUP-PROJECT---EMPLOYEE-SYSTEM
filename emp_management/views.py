@@ -1,23 +1,24 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
-
-from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView, DetailView, ListView, DeleteView
 from django.urls import reverse_lazy, reverse
-from accounts.models import Employee  # import your custom model
+from accounts.models import Employee
 from emp_management.forms import EmployeeUpdateForm, AdminEmployeeUpdateForm
 
 
-class EmpListView(LoginRequiredMixin, ListView):
+class EmpListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Employee
     context_object_name = 'employees'
     template_name = 'emp_management/employee_list.html'
+
+    def test_func(self):
+        # Only allow staff members to view the employee list
+        return self.request.user.is_staff
 
     def get_queryset(self):
         # kase nakikita yung admins sa list view i don wan dat
@@ -100,98 +101,6 @@ def get_employee_statuses(request):
     employees = Employee.objects.all().values('slug', 'is_online')
     statuses = {emp['slug']: emp['is_online'] for emp in employees}
     return JsonResponse(statuses)
-
-@staff_member_required
-def send_individual_paycheck(request, slug):
-    """Send paycheck notification to individual employee"""
-    employee = get_object_or_404(Employee, slug=slug)
-
-    if request.method == 'POST':
-        amount = request.POST.get('amount', '')
-        message = request.POST.get('message', 'Your paycheck has been sent!')
-
-        # Use the employee model method to send notification
-        employee.send_paycheck_notification(
-            amount=float(amount) if amount else None,
-            message=message,
-            notification_type="paycheck",  # Always set to paycheck
-            sent_by=request.user
-        )
-
-        return JsonResponse({
-            'status': 'success',
-            'message': f'Paycheck notification sent to {employee.get_full_name()}'
-        })
-
-    context = {
-        'employee': employee,
-    }
-    return render(request, 'emp_management/send_paycheck_notification.html', context)
-
-@staff_member_required
-def paycheck_dashboard(request):
-    """Dashboard for managing paycheck notifications"""
-    from notifications.models import PaycheckNotification
-
-    if request.method == 'POST':
-        # Handle form submission for sending paycheck notification
-        employee_id = request.POST.get('employee_id')
-        amount = request.POST.get('amount', '')
-        message = request.POST.get('message', 'Your paycheck has been sent!')
-        notification_type = request.POST.get('notification_type', 'paycheck')
-
-        try:
-            employee = Employee.objects.get(id=employee_id)
-
-            # Send the notification using the employee model method
-            employee.send_paycheck_notification(
-                amount=float(amount) if amount else None,
-                message=message,
-                notification_type=notification_type,
-                sent_by=request.user
-            )
-
-            return JsonResponse({
-                'status': 'success',
-                'message': f'Paycheck notification sent to {employee.get_full_name()}'
-            })
-
-        except Employee.DoesNotExist:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Employee not found'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'An error occurred while sending the notification'
-            })
-
-    # GET request - display the dashboard
-    # Get recent notifications
-    recent_notifications = PaycheckNotification.objects.select_related('employee', 'sent_by').order_by('-sent_at')[:10]
-
-    # Get all active employees for the form
-    active_employees = Employee.objects.filter(active=True).order_by('first_name', 'last_name')
-
-    # Get statistics
-    total_employees = Employee.objects.filter(active=True).count()
-    total_notifications = PaycheckNotification.objects.count()
-    unread_notifications = PaycheckNotification.objects.filter(is_read=False).count()
-
-    context = {
-        'recent_notifications': recent_notifications,
-        'active_employees': active_employees,
-        'total_employees': total_employees,
-        'total_notifications': total_notifications,
-        'unread_notifications': unread_notifications,
-        'notification_types': [
-            ('paycheck', 'Paycheck Sent'),
-            ('bonus', 'Bonus Payment'),
-            ('salary_adjustment', 'Salary Adjustment'),
-        ]
-    }
-    return render(request, 'emp_management/paycheck_dashboard.html', context)
 
 @staff_member_required
 def admin_panel(request):

@@ -10,12 +10,15 @@ from emp_management.views import (
     EmpDeleteView, 
     get_employee_statuses,
     admin_panel,
-    paycheck_dashboard
+    paycheck_dashboard,
+    profile_view
 )
 
 app_name = 'emp_management'
 urlpatterns = [
-    path('', EmpListView.as_view(), name='employees'),
+    path('', profile_view, name='home'),
+
+    path('employees/', EmpListView.as_view(), name='employees'),
 
     path('admin-panel/', admin_panel, name='admin_panel'),
 

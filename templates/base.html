@@ -13,6 +13,7 @@
     <style>
         body {
             background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
         }
         .card {
             border: none;
@@ -22,17 +23,43 @@
         .card:hover {
             background-color: rgba(0, 0, 0, 0.02);
         }
+        .main-content {
+            padding-top: 20px;
+            min-height: calc(100vh - 76px);
+        }
+        .navbar-brand {
+            font-weight: 700;
+        }
+        .server-time {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            font-size: 0.9rem;
+            color: #666;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
-<body style="background-image: ">
-<div style="position: absolute; top: 10px; right: 20px; font-size: 1rem; color: #333; z-index: 1000;">
-    Server time: {{ current_time|date:'Y-m-d H:i:s T' }}
-</div>
-{#{% include 'header.html' %}#}
-{% block content %}
+<body>
+    <!-- Server time display -->
+    <div class="server-time">
+        Server time: {{ current_time|date:'Y-m-d H:i:s T' }}
+    </div>
 
-{% endblock %}
-{#{% include 'footer.html' %}#}
+    <!-- Navigation -->
+    {% include 'navigation.html' %}
+
+    <!-- Main content -->
+    <div class="main-content">
+        {% block content %}
+
+        {% endblock %}
+    </div>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
 </body>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
 </html>
