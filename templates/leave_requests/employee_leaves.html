@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>My Leave Requests - Employee System</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-x"></i> My Leave Requests</h2>
+        <a href="{% url 'leave_requests:create_leave' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Request Leave
+        </a>
+    </div>
+
+    <!-- Status Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h5>Pending</h5>
+                    <h3>{{ leave_requests|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h5>Approved</h5>
+                    <h3>{{ leave_requests|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h5>Rejected</h5>
+                    <h3>{{ leave_requests|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Requests List -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="bi bi-list"></i> Leave Request History</h5>
+        </div>
+        <div class="card-body">
+            {% if leave_requests %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Leave Type</th>
+                                <th>Duration</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Requested</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in leave_requests %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-info">{{ leave.get_leave_type_display }}</span>
+                                </td>
+                                <td>
+                                    <strong>{% timezone "Asia/Manila" %}{{ leave.start_date|date:"M d, Y" }}{% endtimezone %}</strong>
+                                    <br>
+                                    <small class="text-muted">to {% timezone "Asia/Manila" %}{{ leave.end_date|date:"M d, Y" }}{% endtimezone %}</small>
+                                    <br>
+                                    <small><strong>{{ leave.duration_days }} day{{ leave.duration_days|pluralize }}</strong></small>
+                                </td>
+                                <td>
+                                    <span class="text-truncate" style="max-width: 200px; display: inline-block;" title="{{ leave.reason }}">
+                                        {{ leave.reason|truncatechars:50 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if leave.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif leave.status == 'approved' %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif leave.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{% timezone "Asia/Manila" %}{{ leave.created_at|date:"M d, Y H:i" }}{% endtimezone %}</small>
+                                </td>
+                                <td>
+                                    <a href="{% url 'leave_requests:leave_detail' leave.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="Leave requests pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-calendar-x display-1 text-muted"></i>
+                    <h4 class="text-muted">No Leave Requests</h4>
+                    <p>You haven't submitted any leave requests yet.</p>
+                    <a href="{% url 'leave_requests:create_leave' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Submit Your First Request
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

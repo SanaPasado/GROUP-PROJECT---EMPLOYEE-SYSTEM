@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>Manage Leave Requests - Employee System</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-check"></i> Manage Leave Requests</h2>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock fs-1"></i>
+                    <h5>Pending</h5>
+                    <h3>{{ pending_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <h5>Approved</h5>
+                    <h3>{{ approved_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-x-circle fs-1"></i>
+                    <h5>Rejected</h5>
+                    <h3>{{ rejected_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-list fs-1"></i>
+                    <h5>Total</h5>
+                    <h3>{{ leave_requests.count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Filter by Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-6 d-flex align-items-end justify-content-end">
+                    <a href="{% url 'leave_requests:admin_leaves' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leave Requests Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="bi bi-table"></i> Leave Requests</h5>
+        </div>
+        <div class="card-body">
+            {% if leave_requests %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Employee</th>
+                                <th>Leave Type</th>
+                                <th>Duration</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in leave_requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ leave.employee.first_name }} {{ leave.employee.last_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ leave.employee.department }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ leave.get_leave_type_display }}</span>
+                                </td>
+                                <td>
+                                    <strong>{% timezone "Asia/Manila" %}{{ leave.start_date|date:"M d" }}{% endtimezone %} - {% timezone "Asia/Manila" %}{{ leave.end_date|date:"M d, Y" }}{% endtimezone %}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ leave.duration_days }} day{{ leave.duration_days|pluralize }}</small>
+                                </td>
+                                <td>
+                                    <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ leave.reason }}">
+                                        {{ leave.reason|truncatechars:40 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if leave.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif leave.status == 'approved' %}
+                                        <span class="badge bg-success">Approved</span>
+                                        {% if leave.reviewed_by %}
+                                            <br><small class="text-muted">by {{ leave.reviewed_by.first_name }}</small>
+                                        {% endif %}
+                                    {% elif leave.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                        {% if leave.reviewed_by %}
+                                            <br><small class="text-muted">by {{ leave.reviewed_by.first_name }}</small>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{% timezone "Asia/Manila" %}{{ leave.created_at|date:"M d, Y" }}{% endtimezone %}</small>
+                                    <br>
+                                    <small class="text-muted">{% timezone "Asia/Manila" %}{{ leave.created_at|date:"H:i" }}{% endtimezone %}</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group-vertical btn-group-sm">
+                                        <a href="{% url 'leave_requests:leave_detail' leave.pk %}" class="btn btn-outline-info btn-sm">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        {% if leave.status == 'pending' %}
+                                            <a href="{% url 'leave_requests:review_leave' leave.pk %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-pencil"></i> Review
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="Leave requests pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="text-muted">No Leave Requests Found</h4>
+                    <p>{% if status_filter %}No {{ status_filter }} leave requests at the moment.{% else %}No leave requests have been submitted yet.{% endif %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

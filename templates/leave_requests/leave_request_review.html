@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>Review Leave Request - Employee System</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'leave_requests:admin_leaves' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to All Requests
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Leave Request Details -->
+                <div class="col-md-7">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-info-circle"></i> Leave Request Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-person"></i> Employee</h6>
+                                    <p><strong>{{ object.employee.first_name }} {{ object.employee.last_name }}</strong></p>
+                                    <small class="text-muted">{{ object.employee.department }} - {{ object.employee.position }}</small>
+
+                                    <h6 class="mt-3"><i class="bi bi-tag"></i> Leave Type</h6>
+                                    <p><span class="badge bg-info">{{ object.get_leave_type_display }}</span></p>
+
+                                    <h6><i class="bi bi-clock"></i> Duration</h6>
+                                    <p><strong>{{ object.duration_days }} day{{ object.duration_days|pluralize }}</strong></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-calendar"></i> Start Date</h6>
+                                    <p>{% timezone "Asia/Manila" %}{{ object.start_date|date:"l, F d, Y" }}{% endtimezone %}</p>
+
+                                    <h6><i class="bi bi-calendar-check"></i> End Date</h6>
+                                    <p>{% timezone "Asia/Manila" %}{{ object.end_date|date:"l, F d, Y" }}{% endtimezone %}</p>
+
+                                    <h6><i class="bi bi-calendar-plus"></i> Submitted</h6>
+                                    <p>{% timezone "Asia/Manila" %}{{ object.created_at|date:"F d, Y \a\t H:i" }}{% endtimezone %}</p>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6><i class="bi bi-chat-text"></i> Reason for Leave</h6>
+                            <div class="border rounded p-3 bg-light">
+                                <p class="mb-0">{{ object.reason|linebreaks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Form -->
+                <div class="col-md-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-clipboard-check"></i> Review Request</h5>
+                            <small class="text-muted">Current Status:
+                                {% if object.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif object.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif object.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <!-- Status Selection -->
+                                <div class="mb-3">
+                                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                                        <i class="bi bi-check2-square"></i> Decision *
+                                    </label>
+                                    {{ form.status }}
+                                    {% if form.status.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.status.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Admin Comment -->
+                                <div class="mb-3">
+                                    <label for="{{ form.admin_comment.id_for_label }}" class="form-label">
+                                        <i class="bi bi-chat-square-text"></i> Comment (Optional)
+                                    </label>
+                                    {{ form.admin_comment }}
+                                    {% if form.admin_comment.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.admin_comment.errors }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Add any comments or feedback for the employee.
+                                    </small>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-send"></i> Submit Review
+                                    </button>
+                                    <a href="{% url 'leave_requests:admin_leaves' %}" class="btn btn-secondary">
+                                        <i class="bi bi-x"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="bi bi-lightning"></i> Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success btn-sm quick-approve" data-status="approved">
+                                    <i class="bi bi-check-lg"></i> Quick Approve
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm quick-reject" data-status="rejected">
+                                    <i class="bi bi-x-lg"></i> Quick Reject
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block">
+                                Quick actions will submit without additional comments.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('{{ form.status.id_for_label }}');
+    const commentTextarea = document.getElementById('{{ form.admin_comment.id_for_label }}');
+    const form = document.querySelector('form');
+
+    // Quick action buttons
+    document.querySelectorAll('.btn[data-status]').forEach(button => {
+        button.addEventListener('click', function() {
+            const status = this.getAttribute('data-status');
+            statusSelect.value = status;
+
+            // Auto-fill comment based on status
+            if (status === 'approved' && !commentTextarea.value.trim()) {
+                commentTextarea.value = 'Your leave request has been approved.';
+            } else if (status === 'rejected' && !commentTextarea.value.trim()) {
+                commentTextarea.value = 'Your leave request has been reviewed and cannot be approved at this time.';
+            }
+
+            // Highlight the selected action
+            document.querySelectorAll('.btn[data-status]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            // Focus on comment field
+            commentTextarea.focus();
+        });
+    });
+
+    // Update button colors based on status selection
+    statusSelect.addEventListener('change', function() {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.classList.remove('btn-primary', 'btn-success', 'btn-danger');
+
+        if (this.value === 'approved') {
+            submitBtn.classList.add('btn-success');
+            submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Approve Request';
+        } else if (this.value === 'rejected') {
+            submitBtn.classList.add('btn-danger');
+            submitBtn.innerHTML = '<i class="bi bi-x-lg"></i> Reject Request';
+        } else {
+            submitBtn.classList.add('btn-primary');
+            submitBtn.innerHTML = '<i class="bi bi-send"></i> Submit Review';
+        }
+    });
+
+    // Initialize button color if status is already selected
+    if (statusSelect.value) {
+        statusSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

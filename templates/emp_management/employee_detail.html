@@ -50,18 +50,58 @@
             <th>Emergency Contact</th>
             <td>{{ employee_detail.emergency_contact }}</td>
           </tr>
-             <tr>
-            <th>Vacation Days</th>
-            <td>{{ employee_detail.vacation_days}}</td>
+          <tr>
+            <th>Working Hours</th>
+            <td>{{ employee_detail.get_working_hours_display }}</td>
           </tr>
-             <tr>
-            <th>Work Schedule</th>
-            <td>{{ employee_detail.work_schedule }}</td>
+          <tr>
+            <th>Expected Weekly Hours</th>
+            <td>{{ employee_detail.weekly_hours }} hours</td>
           </tr>
-             <tr>
-            <th>Sick Leaves</th>
-            <td>{{ employee_detail.sick_leaves }}</td>
+          <tr>
+            <th>Current Status</th>
+            <td>
+              {% if employee_detail.is_currently_working %}
+                <span class="badge bg-success">
+                  <i class="bi bi-circle-fill"></i> Currently Working
+                </span>
+                <small class="text-muted d-block">Duration: {{ employee_detail.get_current_work_duration }}</small>
+              {% else %}
+                <span class="badge bg-secondary">
+                  <i class="bi bi-circle"></i> Not Working
+                </span>
+              {% endif %}
+            </td>
           </tr>
+          <tr>
+            <th>Today's Work Hours</th>
+            <td>{{ employee_detail.get_daily_working_hours }}</td>
+          </tr>
+          <tr>
+            <th>This Week's Hours</th>
+            <td>{{ employee_detail.get_weekly_working_hours }} hours</td>
+          </tr>
+        </table>
+
+        <!-- Action Buttons -->
+        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
+
+        {% if request.user == employee_detail %}
+          <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-success">
+            <i class="bi bi-bell"></i> Paychecks
+          </tr>
+          <tr>
+            <th>Weekly Earnings</th>
+            <td><strong>₱{{ employee_detail.calculate_weekly_earnings }}</strong></td>
+          </tr>
+
+        {% if request.user == employee_detail or request.user.is_staff %}
+          <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
+        {% endif %}
+
+        {% if user.is_staff %}
+            <a href="{% url 'reports:employee_reports' employee_detail.slug %}" class="btn btn-info">View Reports</a>
+            <a href="{% url 'emp_management:employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
         </table>
 
         <!-- Action Buttons -->
@@ -72,14 +112,6 @@
             <i class="bi bi-bell"></i> Paychecks
           </a>
         {% endif %}
-
-        {% if request.user == employee_detail or request.user.is_staff %}
-          <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
-        {% endif %}
-
-        {% if user.is_staff %}
-            <a href="{% url 'reports:employee_reports' employee_detail.slug %}" class="btn btn-info">View Reports</a>
-            <a href="{% url 'emp_management:employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
         {% endif %}
       </div>
     </div>

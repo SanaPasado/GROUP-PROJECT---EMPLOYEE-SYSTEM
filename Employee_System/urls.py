@@ -36,8 +36,7 @@ urlpatterns = [
 
     path('notifications/', include('notifications.urls', namespace='notifications')),
 
-
-
+    path('leaves/', include('leave_requests.urls', namespace='leave_requests')),
 
 ]
 

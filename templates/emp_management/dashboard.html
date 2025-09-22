@@ -140,7 +140,7 @@
     {% else %}
         <!-- EMPLOYEE DASHBOARD -->
         <div class="row mb-4">
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <div class="card bg-info text-white">
                     <div class="card-body text-center">
                         <i class="bi bi-person-circle fs-1 mb-2"></i>
@@ -149,7 +149,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <div class="card bg-success text-white">
                     <div class="card-body text-center">
                         <i class="bi bi-clock fs-1 mb-2"></i>
@@ -158,8 +158,17 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar-x fs-1 mb-2"></i>
+                        <h5>Leave Requests</h5>
+                        <a href="{% url 'leave_requests:my_leaves' %}" class="btn btn-light btn-sm">View Leaves</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-danger text-white">
                     <div class="card-body text-center">
                         <i class="bi bi-exclamation-triangle fs-1 mb-2"></i>
                         <h5>Submit Report</h5>

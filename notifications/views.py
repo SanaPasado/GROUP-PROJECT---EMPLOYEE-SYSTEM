@@ -73,7 +73,24 @@ class PaycheckDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['notifications'] = PaycheckNotification.objects.all().order_by('-sent_at')[:20]
+        from accounts.models import Employee
+
+        # Get all active employees with their payroll breakdown
+        active_employees = Employee.objects.filter(active=True).order_by('first_name', 'last_name')
+
+        # Calculate payroll breakdown for each employee
+        employees_with_payroll = []
+        for employee in active_employees:
+            payroll_breakdown = employee.calculate_payroll_breakdown()
+            employees_with_payroll.append({
+                'employee': employee,
+                'breakdown': payroll_breakdown,
+                'suggested_amount': employee.get_suggested_paycheck_amount()
+            })
+
+        context.update({
+            'notifications': PaycheckNotification.objects.all().order_by('-sent_at')[:20],
+            'active_employees': active_employees,
+            'employees_with_payroll': employees_with_payroll,
+        })
         return context
-
-

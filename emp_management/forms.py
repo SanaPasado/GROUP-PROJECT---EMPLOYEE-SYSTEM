@@ -12,11 +12,15 @@ class EmployeeUpdateForm(forms.ModelForm):
     department = forms.CharField(disabled=True)
     position = forms.CharField(disabled=True)
     salary = forms.FloatField(disabled=True, widget=forms.NumberInput(attrs={'step': '0.01'}))
+    hourly_rate = forms.DecimalField(disabled=True, widget=forms.NumberInput(attrs={'step': '0.01'}))
+    salary_type = forms.CharField(disabled=True)
     address = forms.CharField(disabled=True)
     sick_leaves = forms.IntegerField(disabled=True)
     vacation_days = forms.IntegerField(disabled=True)
     date_hired = forms.DateField(disabled=True)
-    work_schedule = forms.IntegerField(disabled=True)
+    work_start_time = forms.TimeField(disabled=True, widget=forms.TimeInput(attrs={'type': 'time'}))
+    work_end_time = forms.TimeField(disabled=True, widget=forms.TimeInput(attrs={'type': 'time'}))
+    weekly_hours = forms.DecimalField(disabled=True, widget=forms.NumberInput(attrs={'step': '0.01'}))
 
 
     class Meta:
@@ -31,12 +35,16 @@ class EmployeeUpdateForm(forms.ModelForm):
             'department',
             'position',
             'salary',
+            'hourly_rate',
+            'salary_type',
             'photo',
             'address',
             'sick_leaves',
             'vacation_days',
             'date_hired',
-            'work_schedule',
+            'work_start_time',
+            'work_end_time',
+            'weekly_hours',
 
         ]
 
@@ -54,11 +62,19 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
         self.fields['sick_leaves'].widget.attrs['readonly'] = True
         self.fields['vacation_days'].widget.attrs['readonly'] = True
         self.fields['date_hired'].widget.attrs['readonly'] = True
-        self.fields['work_schedule'].widget.attrs['readonly'] = True
 
         # Add step attribute to salary field for decimal precision
         self.fields['salary'].widget.attrs['step'] = '0.01'
         self.fields['salary'].widget.attrs['placeholder'] = '0.00'
+        self.fields['hourly_rate'].widget.attrs['step'] = '0.01'
+        self.fields['hourly_rate'].widget.attrs['placeholder'] = '0.00'
+        self.fields['overtime_rate'].widget.attrs['step'] = '0.01'
+        self.fields['overtime_rate'].widget.attrs['readonly'] = True  # Auto-calculated
+
+        # Add time input widgets for working hours
+        self.fields['work_start_time'].widget = forms.TimeInput(attrs={'type': 'time'})
+        self.fields['work_end_time'].widget = forms.TimeInput(attrs={'type': 'time'})
+        self.fields['weekly_hours'].widget.attrs['step'] = '0.01'
 
     class Meta:
         model = Employee
@@ -71,9 +87,13 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
             'department',
             'position',
             'salary',
+            'hourly_rate',
+            'overtime_rate',
             'photo',
             'address',
             'sick_leaves',
             'vacation_days',
-            'work_schedule',
+            'work_start_time',
+            'work_end_time',
+            'weekly_hours',
         ]
