@@ -49,8 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage', # For Cloudinary media storage
-    'cloudinary',
     'django_otp',
     'django_otp.plugins.otp_totp',
     'phonenumber_field',
@@ -169,13 +167,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / "static_my_project", ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files configuration - Using local file storage
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    # }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -183,7 +181,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #here my settings
 # Temporarily add this to debug
-print("Cloudinary Cloud Name:", os.environ.get('CLOUDINARY_CLOUD_NAME'))
-print("Cloudinary API Key:", os.environ.get('CLOUDINARY_API_KEY'))
-print("Cloudinary API Secret:", os.environ.get('CLOUDINARY_API_SECRET'))
 print("DEBUG:", DEBUG)
