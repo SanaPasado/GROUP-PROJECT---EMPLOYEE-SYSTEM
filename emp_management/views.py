@@ -108,3 +108,53 @@ def admin_panel(request):
     A view for the admin panel, accessible only to staff members.
     """
     return render(request, 'emp_management/admin_panel.html')
+
+@login_required
+def dashboard_view(request):
+    """
+    Dashboard home page for all users after login
+    Shows different content based on user role
+    """
+    if request.user.is_staff:
+        # Staff dashboard with admin statistics
+        from notifications.models import PaycheckNotification
+        from reports.models import Report
+        from attendance.models import Attendance
+        from datetime import date, timedelta
+
+        context = {
+            'total_employees': Employee.objects.filter(active=True).count(),
+            'total_reports': Report.objects.count(),
+            'recent_reports': Report.objects.select_related('employee').order_by('-created_at')[:5],
+            'pending_reports': Report.objects.filter(status='pending').count(),
+            'recent_notifications': PaycheckNotification.objects.select_related('employee').order_by('-sent_at')[:5],
+            'today_attendance': Attendance.objects.filter(date=date.today()).count(),
+        }
+    else:
+        # Employee dashboard with personal information
+        from notifications.models import PaycheckNotification
+        from reports.models import Report
+        from attendance.models import Attendance
+        from datetime import date, timedelta
+
+        # Get user's recent data
+        recent_attendance = Attendance.objects.filter(
+            employee=request.user
+        ).order_by('-date')[:7]
+
+        my_reports = Report.objects.filter(
+            employee=request.user
+        ).order_by('-created_at')[:5]
+
+        my_notifications = PaycheckNotification.objects.filter(
+            employee=request.user
+        ).order_by('-sent_at')[:5]
+
+        context = {
+            'recent_attendance': recent_attendance,
+            'my_reports': my_reports,
+            'my_notifications': my_notifications,
+            'pending_reports_count': my_reports.filter(status='pending').count(),
+        }
+
+    return render(request, 'emp_management/dashboard.html', context)
