@@ -92,12 +92,12 @@
                         {% for report in recent_reports %}
                             <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                                 <div>
-                                    <strong>{{ report.employee.first_name }} {{ report.employee.last_name }}</strong>
+                                    <strong>{{ report.reported_by.first_name }} {{ report.reported_by.last_name }}</strong>
                                     <br>
-                                    <small class="text-muted">{{ report.issue_type }} - {% timezone "Asia/Manila" %}{{ report.created_at|date:"M d, Y H:i" }}{% endtimezone %}</small>
+                                    <small class="text-muted">{{ report.subject }} - {% timezone "Asia/Manila" %}{{ report.created_at|date:"M d, Y H:i" }}{% endtimezone %}</small>
                                 </div>
-                                <span class="badge bg-{% if report.status == 'pending' %}warning{% elif report.status == 'resolved' %}success{% else %}secondary{% endif %}">
-                                    {{ report.status|title }}
+                                <span class="badge bg-info">
+                                    Report
                                 </span>
                             </div>
                         {% empty %}
@@ -163,7 +163,6 @@
                     <div class="card-body text-center">
                         <i class="bi bi-exclamation-triangle fs-1 mb-2"></i>
                         <h5>Submit Report</h5>
-                        <p class="small">Pending: {{ pending_reports_count }}</p>
                         <a href="{% url 'reports:report_create' %}" class="btn btn-light btn-sm">Create Report</a>
                     </div>
                 </div>
@@ -250,12 +249,12 @@
                         {% for report in my_reports %}
                             <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                                 <div>
-                                    <strong>{{ report.issue_type }}</strong>
+                                    <strong>{{ report.subject }}</strong>
                                     <br>
                                     <small class="text-muted">{% timezone "Asia/Manila" %}{{ report.created_at|date:"M d, Y H:i" }}{% endtimezone %}</small>
                                 </div>
-                                <span class="badge bg-{% if report.status == 'pending' %}warning{% elif report.status == 'resolved' %}success{% else %}secondary{% endif %}">
-                                    {{ report.status|title }}
+                                <span class="badge bg-info">
+                                    Report
                                 </span>
                             </div>
                         {% empty %}

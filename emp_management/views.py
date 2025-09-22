@@ -62,7 +62,7 @@ class EmpUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             self.object = form.save()
             return redirect(self.get_success_url())
         except Exception as e:
-            print(f"Error uploading to Cloudinary: {e}")
+            print(f"Error uploading photo: {e}")
             form.add_error('photo', 'There was an error uploading the photo. Please try again.')
             return self.form_invalid(form)
 
@@ -125,8 +125,7 @@ def dashboard_view(request):
         context = {
             'total_employees': Employee.objects.filter(active=True).count(),
             'total_reports': Report.objects.count(),
-            'recent_reports': Report.objects.select_related('employee').order_by('-created_at')[:5],
-            'pending_reports': Report.objects.filter(status='pending').count(),
+            'recent_reports': Report.objects.select_related('reported_by').order_by('-created_at')[:5],
             'recent_notifications': PaycheckNotification.objects.select_related('employee').order_by('-sent_at')[:5],
             'today_attendance': Attendance.objects.filter(date=date.today()).count(),
         }
@@ -143,7 +142,7 @@ def dashboard_view(request):
         ).order_by('-date')[:7]
 
         my_reports = Report.objects.filter(
-            employee=request.user
+            reported_by=request.user
         ).order_by('-created_at')[:5]
 
         my_notifications = PaycheckNotification.objects.filter(
@@ -154,7 +153,6 @@ def dashboard_view(request):
             'recent_attendance': recent_attendance,
             'my_reports': my_reports,
             'my_notifications': my_notifications,
-            'pending_reports_count': my_reports.filter(status='pending').count(),
         }
 
     return render(request, 'emp_management/dashboard.html', context)
