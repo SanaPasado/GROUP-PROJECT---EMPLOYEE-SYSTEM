@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>Leave Request Details - Employee System</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Navigation -->
+    <div class="mb-3">
+        {% if user.is_staff %}
+            <a href="{% url 'leave_requests:admin_leaves' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to All Requests
+            </a>
+        {% else %}
+            <a href="{% url 'leave_requests:my_leaves' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to My Requests
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Main Request Details -->
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-event"></i> Leave Request Details
+                    </h4>
+                    <div>
+                        {% if leave_request.status == 'pending' %}
+                            <span class="badge bg-warning fs-6">
+                                <i class="bi bi-clock"></i> Pending Review
+                            </span>
+                        {% elif leave_request.status == 'approved' %}
+                            <span class="badge bg-success fs-6">
+                                <i class="bi bi-check-circle"></i> Approved
+                            </span>
+                        {% elif leave_request.status == 'rejected' %}
+                            <span class="badge bg-danger fs-6">
+                                <i class="bi bi-x-circle"></i> Rejected
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Employee Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">
+                                <i class="bi bi-person"></i> Employee Information
+                            </h6>
+                            <div class="border rounded p-3 bg-light">
+                                <div class="mb-2">
+                                    <strong>Name:</strong> {{ leave_request.employee.get_full_name }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Employee ID:</strong> {{ leave_request.employee.employee_id|default:"N/A" }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Department:</strong> {{ leave_request.employee.department|default:"N/A" }}
+                                </div>
+                                <div class="mb-0">
+                                    <strong>Position:</strong> {{ leave_request.employee.position|default:"N/A" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">
+                                <i class="bi bi-calendar-range"></i> Leave Details
+                            </h6>
+                            <div class="border rounded p-3 bg-light">
+                                <div class="mb-2">
+                                    <strong>Leave Type:</strong>
+                                    <span class="badge bg-info ms-1">{{ leave_request.get_leave_type_display }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Duration:</strong> {{ leave_request.duration_days }} day{{ leave_request.duration_days|pluralize }}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Start Date:</strong>
+                                    {% timezone "Asia/Manila" %}{{ leave_request.start_date|date:"F d, Y (l)" }}{% endtimezone %}
+                                </div>
+                                <div class="mb-0">
+                                    <strong>End Date:</strong>
+                                    {% timezone "Asia/Manila" %}{{ leave_request.end_date|date:"F d, Y (l)" }}{% endtimezone %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason Section -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-chat-text"></i> Reason for Leave
+                        </h6>
+                        <div class="border rounded p-3 bg-light">
+                            <p class="mb-0">{{ leave_request.reason }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Request Timeline -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-clock-history"></i> Request Timeline
+                        </h6>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Request Submitted</strong>
+                                        <small class="text-muted">
+                                            {% timezone "Asia/Manila" %}{{ leave_request.created_at|date:"M d, Y \a\t H:i" }}{% endtimezone %}
+                                        </small>
+                                    </div>
+                                    <small class="text-muted">Leave request was submitted by {{ leave_request.employee.get_full_name }}</small>
+                                </div>
+                            </div>
+
+                            {% if leave_request.reviewed_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker {% if leave_request.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Request {{ leave_request.status|capfirst }}</strong>
+                                        <small class="text-muted">
+                                            {% timezone "Asia/Manila" %}{{ leave_request.reviewed_at|date:"M d, Y \a\t H:i" }}{% endtimezone %}
+                                        </small>
+                                    </div>
+                                    <small class="text-muted">
+                                        Reviewed by {{ leave_request.reviewed_by.get_full_name }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Admin Comment (if exists) -->
+                    {% if leave_request.admin_comment %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-chat-square-text"></i> Administrator's Comment
+                        </h6>
+                        <div class="border rounded p-3 {% if leave_request.status == 'approved' %}bg-success-light{% elif leave_request.status == 'rejected' %}bg-danger-light{% else %}bg-light{% endif %}">
+                            <p class="mb-2">{{ leave_request.admin_comment }}</p>
+                            <small class="text-muted">
+                                - {{ leave_request.reviewed_by.get_full_name }},
+                                {% timezone "Asia/Manila" %}{{ leave_request.reviewed_at|date:"M d, Y" }}{% endtimezone %}
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Admin Review Form (for pending requests only) -->
+                    {% if user.is_staff and leave_request.status == 'pending' %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-gear"></i> Review Leave Request
+                        </h6>
+                        <div class="border rounded p-3 bg-warning-light">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="id_status" class="form-label">
+                                            <strong>Decision</strong>
+                                        </label>
+                                        <select name="status" class="form-select" id="id_status" required>
+                                            <option value="">Select your decision...</option>
+                                            <option value="approved">Approve Request</option>
+                                            <option value="rejected">Reject Request</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            <strong>Review Actions</strong>
+                                        </label>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle"></i> Submit Review
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_admin_comment" class="form-label">
+                                        <strong>Comment (Optional)</strong>
+                                    </label>
+                                    <textarea name="admin_comment" class="form-control" id="id_admin_comment" rows="3" placeholder="Add your review comment here..."></textarea>
+                                    <div class="form-text">This comment will be visible to the employee.</div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.bg-success-light {
+    background-color: #d1e7dd !important;
+}
+
+.bg-danger-light {
+    background-color: #f8d7da !important;
+}
+
+.bg-warning-light {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffeaa7 !important;
+}
+</style>
+{% endblock %}

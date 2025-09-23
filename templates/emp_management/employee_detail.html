@@ -5,114 +5,226 @@
     <div class="row g-0">
 
       <!-- Profile Photo -->
-      <div class="col-md-4 text-center p-4">
-        {% if employee_detail.photo %}
-          <img src="{{ employee_detail.photo.url }}" class="img-fluid rounded-3 shadow-sm" alt="{{ employee.first_name }}'s Photo">
-        {% else %}
-          <!-- Default Placeholder -->
-          <img src="https://via.placeholder.com/250x250.png?text=No+Photo"
-               class="img-fluid rounded-3 shadow-sm"
-               alt="No Photo Available">
-        {% endif %}
-        <h4 class="mt-3">{{ employee_detail.first_name }} {{ employee_detail.last_name }}</h4>
-        <p class="text-muted">{{ employee_detail.position }}</p>
+      <div class="col-md-4 text-center p-4 bg-light rounded-start">
+        <div class="position-relative">
+          {% if employee_detail.photo %}
+            <img src="{{ employee_detail.photo.url }}" class="img-fluid rounded-circle shadow-sm" alt="{{ employee.first_name }}'s Photo" style="width: 200px; height: 200px; object-fit: cover;">
+          {% else %}
+            <!-- Default Placeholder -->
+            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 200px; height: 200px; margin: 0 auto;">
+              <i class="bi bi-person-fill text-white" style="font-size: 4rem;"></i>
+            </div>
+          {% endif %}
+        </div>
+        <h4 class="mt-4 mb-2 fw-bold">{{ employee_detail.first_name }} {{ employee_detail.last_name }}</h4>
+
+        <!-- Job Information -->
+        <div class="mt-3">
+          <h6 class="text-primary border-bottom pb-1 mb-2">
+            <i class="bi bi-briefcase-fill"></i> Job Information
+          </h6>
+          <p class="text-muted mb-1 fs-5 fw-semibold">{{ employee_detail.position }}</p>
+          <p class="text-muted small">{{ employee_detail.department }}</p>
+        </div>
+
+        <!-- Current Status -->
+        <div class="mt-3">
+          {% if employee_detail.is_currently_working %}
+            <span class="badge bg-success">
+              <i class="bi bi-circle-fill"></i> Currently Working
+            </span>
+            <div class="small text-muted mt-1">{{ employee_detail.get_current_work_duration }}</div>
+          {% else %}
+            <span class="badge bg-secondary">
+              <i class="bi bi-circle"></i> Offline
+            </span>
+          {% endif %}
+        </div>
       </div>
 
       <!-- Profile Info -->
       <div class="col-md-8 p-4">
-        <h5 class="mb-3">Employee Details</h5>
-        <table class="table table-striped">
-          <tr>
-            <th>Department</th>
-            <td>{{ employee_detail.department }}</td>
-          </tr>
-          <tr>
-            <th>Phone Number</th>
-            <td>{{ employee_detail.phone_number }}</td>
-          </tr>
-          <tr>
-            <th>Email</th>
-            <td>{{ employee_detail.email }}</td>
-          </tr>
-               <tr>
-            <th>Home Address</th>
-            <td>{{ employee_detail.address }}</td>
-          </tr>
-          <tr>
-            <th>Date Hired</th>
-            <td>{{ employee_detail.date_hired }}</td>
-          </tr>
-          <tr>
-            <th>Salary</th>
-            <td>₱{{ employee_detail.salary }}</td>
-          </tr>
-          <tr>
-            <th>Emergency Contact</th>
-            <td>{{ employee_detail.emergency_contact }}</td>
-          </tr>
-          <tr>
-            <th>Working Hours</th>
-            <td>{{ employee_detail.get_working_hours_display }}</td>
-          </tr>
-          <tr>
-            <th>Expected Weekly Hours</th>
-            <td>{{ employee_detail.weekly_hours }} hours</td>
-          </tr>
-          <tr>
-            <th>Current Status</th>
-            <td>
-              {% if employee_detail.is_currently_working %}
-                <span class="badge bg-success">
-                  <i class="bi bi-circle-fill"></i> Currently Working
-                </span>
-                <small class="text-muted d-block">Duration: {{ employee_detail.get_current_work_duration }}</small>
-              {% else %}
-                <span class="badge bg-secondary">
-                  <i class="bi bi-circle"></i> Not Working
-                </span>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th>Today's Work Hours</th>
-            <td>{{ employee_detail.get_daily_working_hours }}</td>
-          </tr>
-          <tr>
-            <th>This Week's Hours</th>
-            <td>{{ employee_detail.get_weekly_working_hours }} hours</td>
-          </tr>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="mb-0 fw-bold text-dark">Employee Profile</h3>
+          <div class="d-flex gap-2">
+            {% if request.user == employee_detail or request.user.is_staff %}
+              <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-pencil"></i> Edit
+              </a>
+            {% endif %}
+          </div>
+        </div>
 
-        <!-- Action Buttons -->
-        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
+        <div class="row">
+          <!-- Left Column -->
+          <div class="col-md-6">
+            <table class="table table-borderless">
+              <!-- Personal Details -->
+              <tr>
+                <td colspan="2">
+                  <h6 class="text-primary border-bottom pb-2 mb-3">
+                    <i class="bi bi-person-circle"></i> Personal Information
+                  </h6>
+                </td>
+              </tr>
+              <tr>
+                <th width="45%" class="fw-normal text-muted">Email:</th>
+                <td>{{ employee_detail.email }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Phone:</th>
+                <td>{{ employee_detail.phone_number }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Emergency Contact:</th>
+                <td>{{ employee_detail.emergency_contact }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Address:</th>
+                <td>{{ employee_detail.address|default:"Not provided" }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Date Hired:</th>
+                <td>{{ employee_detail.date_hired|date:"F d, Y" }}</td>
+              </tr>
 
-        {% if request.user == employee_detail %}
-          <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-success">
-            <i class="bi bi-bell"></i> Paychecks
-          </tr>
-          <tr>
-            <th>Weekly Earnings</th>
-            <td><strong>₱{{ employee_detail.calculate_weekly_earnings }}</strong></td>
-          </tr>
+              <!-- Spacing -->
+              <tr><td colspan="2" class="py-3"></td></tr>
 
-        {% if request.user == employee_detail or request.user.is_staff %}
-          <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-warning">Edit Profile</a>
-        {% endif %}
+              <!-- Work Schedule -->
+              <tr>
+                <td colspan="2">
+                  <h6 class="text-info border-bottom pb-2 mb-3">
+                    <i class="bi bi-clock"></i> Work Schedule
+                  </h6>
+                </td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Working Hours:</th>
+                <td>{{ employee_detail.get_working_hours_display }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Weekly Hours:</th>
+                <td>{{ employee_detail.weekly_hours }} hours</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Today's Hours:</th>
+                <td>{{ employee_detail.get_daily_working_hours }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Hours this Week:</th>
+                <td>{{ employee_detail.get_weekly_working_hours }} hours</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Current Status:</th>
+                <td>
+                  {% if employee_detail.is_currently_working %}
+                    <span class="badge bg-success">
+                      <i class="bi bi-circle-fill"></i> Working
+                    </span>
+                    <div class="small text-muted">{{ employee_detail.get_current_work_duration }}</div>
+                  {% else %}
+                    <span class="badge bg-secondary">
+                      <i class="bi bi-circle"></i> Offline
+                    </span>
+                  {% endif %}
+                </td>
+              </tr>
+            </table>
+          </div>
 
-        {% if user.is_staff %}
-            <a href="{% url 'reports:employee_reports' employee_detail.slug %}" class="btn btn-info">View Reports</a>
-            <a href="{% url 'emp_management:employee_delete' employee_detail.slug %}" class="btn btn-danger">Delete</a>
-        </table>
+          <!-- Right Column -->
+          <div class="col-md-6">
+            <table class="table table-borderless">
+              <!-- Salary & Earnings -->
+              <tr>
+                <td colspan="2">
+                  <h6 class="text-success border-bottom pb-2 mb-3">
+                    <i class="bi bi-currency-dollar"></i> Salary & Earnings
+                  </h6>
+                </td>
+              </tr>
+              <tr>
+                <th width="45%" class="fw-normal text-muted">Annual Salary:</th>
+                <td class="fw-bold">₱{{ employee_detail.salary|floatformat:2|default:"Not set" }}</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Hourly Rate:</th>
+                <td>₱{{ employee_detail.hourly_rate|default:"Not set" }}/hr</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Overtime Rate:</th>
+                <td>₱{{ employee_detail.overtime_rate|default:"Not set" }}/hr</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Weekly Earnings:</th>
+                <td class="fw-bold text-success">₱{{ employee_detail.calculate_weekly_earnings }}</td>
+              </tr>
 
-        <!-- Action Buttons -->
-        <a href="{% url 'emp_management:employees' %}" class="btn btn-secondary">Back to List</a>
+              <!-- Spacing -->
+              <tr><td colspan="2" class="py-3"></td></tr>
 
-        {% if request.user == employee_detail %}
-          <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-success">
-            <i class="bi bi-bell"></i> Paychecks
-          </a>
-        {% endif %}
-        {% endif %}
+              <!-- Leave Balance -->
+              <tr>
+                <td colspan="2">
+                  <h6 class="text-warning border-bottom pb-2 mb-3">
+                    <i class="bi bi-calendar-x"></i> Leave Balance
+                  </h6>
+                </td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Vacation Days:</th>
+                <td>{{ employee_detail.vacation_days|default:0 }} remaining</td>
+              </tr>
+              <tr>
+                <th class="fw-normal text-muted">Sick Days:</th>
+                <td>{{ employee_detail.sick_leaves|default:0 }} remaining</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Buttons Section -->
+        <div class="border-top pt-4 mt-4">
+          <div class="row">
+            {% if request.user == employee_detail %}
+              <!-- Employee Actions -->
+              <div class="col-md-12">
+                <h6 class="text-muted mb-3">
+                  <i class="bi bi-gear-fill"></i> My Actions
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                  <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-success">
+                    <i class="bi bi-bell"></i> View Paychecks
+                  </a>
+                  <a href="{% url 'leave_requests:my_leaves' %}" class="btn btn-info">
+                    <i class="bi bi-calendar-check"></i> My Leave History
+                  </a>
+                  <a href="{% url 'leave_requests:leave_request_create' %}" class="btn btn-primary">
+                    <i class="bi bi-calendar-plus"></i> Request New Leave
+                  </a>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if request.user.is_staff and request.user != employee_detail %}
+              <!-- Administrative Actions -->
+              <div class="col-md-12">
+                <h6 class="text-muted mb-3">
+                  <i class="bi bi-shield-check"></i> Administrative Actions
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                  <a href="{% url 'leave_requests:admin_leaves' %}" class="btn btn-outline-warning">
+                    <i class="bi bi-calendar-check"></i> Manage Employee Leaves
+                  </a>
+                  <a href="{% url 'emp_management:employee_update' employee_detail.slug %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil-square"></i> Edit Employee Profile
+                  </a>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
   </div>

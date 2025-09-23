@@ -1,23 +1,15 @@
 from django.urls import path
-from .views import (
-    LeaveRequestListView,
-    LeaveRequestCreateView,
-    LeaveRequestDetailView,
-    AdminLeaveRequestsView,
-    LeaveRequestReviewView,
-    leave_request_stats,
-)
+from . import views
 
 app_name = 'leave_requests'
 
 urlpatterns = [
     # Employee URLs
-    path('', LeaveRequestListView.as_view(), name='my_leaves'),
-    path('create/', LeaveRequestCreateView.as_view(), name='create_leave'),
-    path('<int:pk>/', LeaveRequestDetailView.as_view(), name='leave_detail'),
+    path('request/', views.LeaveRequestCreateView.as_view(), name='leave_request_create'),
+    path('my-leaves/', views.MyLeavesListView.as_view(), name='my_leaves'),
+    path('<int:pk>/', views.LeaveRequestDetailView.as_view(), name='leave_request_detail'),
 
     # Admin URLs
-    path('admin/', AdminLeaveRequestsView.as_view(), name='admin_leaves'),
-    path('admin/<int:pk>/review/', LeaveRequestReviewView.as_view(), name='review_leave'),
-    path('api/stats/', leave_request_stats, name='leave_stats'),
+    path('admin/', views.AdminLeavesListView.as_view(), name='admin_leaves'),
+    path('admin/quick-review/<int:pk>/', views.quick_review_leave, name='quick_review_leave'),
 ]

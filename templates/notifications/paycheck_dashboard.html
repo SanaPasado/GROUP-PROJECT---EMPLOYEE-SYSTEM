@@ -3,278 +3,39 @@
 {% block title %}<title>Paycheck Dashboard</title>{% endblock %}
 {% block content %}
 <div class="container my-5">
-    <h1 class="mb-4"><i class="bi bi-cash-stack"></i> Paycheck Dashboard</h1>
-
-    <div class="row">
-        <!-- Left Side: Employee List with Quick Send -->
-        <div class="col-md-7">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="bi bi-people"></i> Send Paycheck to Employees</h5>
-                </div>
-                <div class="card-body">
-                    {% if employees_with_payroll %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Hours This Week</th>
-                                        <th>Suggested Amount</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for emp_data in employees_with_payroll %}
-                                    <tr>
-                                        <td>
-                                            <strong>{{ emp_data.employee.first_name }} {{ emp_data.employee.last_name }}</strong>
-                                            <br>
-                                            <small class="text-muted">{{ emp_data.employee.department }}</small>
-                                        </td>
-                                        <td>
-                                            <strong>{{ emp_data.breakdown.total_hours }}h</strong>
-                                            <br>
-                                            <small class="text-muted">
-                                                Regular: {{ emp_data.breakdown.regular_hours }}h
-                                                {% if emp_data.breakdown.overtime_hours > 0 %}
-                                                    | OT: {{ emp_data.breakdown.overtime_hours }}h
-                                                {% endif %}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <strong class="text-success">₱{{ emp_data.suggested_amount }}</strong>
-                                            {% if emp_data.breakdown.overtime_pay > 0 %}
-                                                <br>
-                                                <small class="text-warning">+₱{{ emp_data.breakdown.overtime_pay }} OT</small>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-primary btn-sm send-paycheck-btn"
-                                                    data-employee-id="{{ emp_data.employee.id }}"
-                                                    data-employee-name="{{ emp_data.employee.first_name }} {{ emp_data.employee.last_name }}"
-                                                    data-suggested-amount="{{ emp_data.suggested_amount }}"
-                                                    data-breakdown='{{ emp_data.breakdown|safe }}'>
-                                                <i class="bi bi-send"></i> Send
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">No active employees found.</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Recent Notifications -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5><i class="bi bi-clock-history"></i> Recent Paycheck Notifications</h5>
-                </div>
-                <div class="card-body">
-                    {% if notifications %}
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Amount</th>
-                                        <th>Sent At</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for notification in notifications %}
-                                    <tr>
-                                        <td>{{ notification.employee.first_name }} {{ notification.employee.last_name }}</td>
-                                        <td>₱{{ notification.amount|floatformat:2 }}</td>
-                                        <td>{% timezone "Asia/Manila" %}{{ notification.sent_at|date:'M d, H:i' }}{% endtimezone %}</td>
-                                        <td>
-                                            <span class="badge bg-{% if notification.is_read %}secondary{% else %}primary{% endif %}">
-                                                {% if notification.is_read %}Read{% else %}Unread{% endif %}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">No paycheck notifications have been sent yet.</div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Side: Payroll Breakdown Panel -->
-        <div class="col-md-5">
-            <div class="card" id="payroll-breakdown-panel" style="display: none;">
-                <div class="card-header">
-                    <h5><i class="bi bi-calculator"></i> Payroll Breakdown</h5>
-                    <small class="text-muted">Week of <span id="breakdown-dates"></span></small>
-                </div>
-                <div class="card-body">
-                    <h6 id="selected-employee-name"></h6>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <small class="text-muted">Regular Hours</small>
-                            <div><strong id="regular-hours">0</strong></div>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">Overtime Hours</small>
-                            <div><strong id="overtime-hours">0</strong></div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <small class="text-muted">Days Worked</small>
-                            <div><strong id="days-worked">0</strong></div>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">Total Hours</small>
-                            <div><strong id="total-hours">0</strong></div>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <small class="text-muted">Hourly Rate</small>
-                            <div>₱<span id="hourly-rate">0</span></div>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">Overtime Rate</small>
-                            <div>₱<span id="overtime-rate">0</span></div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <small class="text-muted">Regular Pay</small>
-                            <div class="text-success">₱<span id="regular-pay">0</span></div>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">Overtime Pay</small>
-                            <div class="text-warning">₱<span id="overtime-pay">0</span></div>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="mb-3">
-                        <strong>Total Suggested Pay: <span class="text-primary">₱<span id="total-pay">0</span></strong>
-                    </div>
-
-                    <!-- Send Paycheck Form -->
-                    <form id="send-paycheck-form" method="post" action="{% url 'emp_management:paycheck_dashboard' %}">
-                        {% csrf_token %}
-                        <input type="hidden" id="selected-employee-id" name="employee_id" value="">
-
-                        <div class="mb-3">
-                            <label for="paycheck-amount" class="form-label">
-                                <i class="bi bi-currency-dollar"></i> Paycheck Amount *
-                            </label>
-                            <input type="number"
-                                   class="form-control"
-                                   id="paycheck-amount"
-                                   name="amount"
-                                   step="0.01"
-                                   placeholder="0.00"
-                                   required>
-                            <small class="form-text text-muted">Amount is pre-filled based on worked hours</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="paycheck-message" class="form-label">
-                                <i class="bi bi-chat-text"></i> Message
-                            </label>
-                            <textarea class="form-control"
-                                      id="paycheck-message"
-                                      name="message"
-                                      rows="3"
-                                      placeholder="Your paycheck has been sent!">Your paycheck has been sent!</textarea>
-                        </div>
-
-                        <input type="hidden" name="notification_type" value="paycheck">
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-send"></i> Send Paycheck
-                            </button>
-                            <button type="button" class="btn btn-secondary" id="cancel-send">
-                                <i class="bi bi-x"></i> Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Instructions Card -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h6><i class="bi bi-info-circle"></i> How It Works</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li><i class="bi bi-check-circle text-success"></i> Hours are calculated from attendance time in/out</li>
-                        <li><i class="bi bi-check-circle text-success"></i> Overtime = hours beyond daily expected hours</li>
-                        <li><i class="bi bi-check-circle text-success"></i> Overtime rate = hourly rate + ₱0.50</li>
-                        <li><i class="bi bi-check-circle text-success"></i> Suggested amounts are auto-calculated but customizable</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+    <h1 class="mb-4">Paycheck Dashboard</h1>
+    <div class="mb-4">
+        <a href="{% url 'notifications:create_notification' %}" class="btn btn-success">Send Paycheck Notification</a>
     </div>
+    <h2 class="h5 mb-3">Recent Paycheck Notifications</h2>
+    {% if notifications %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Amount</th>
+                    <th>Message</th>
+                    <th>Sent At</th>
+                    <th>Sender</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in notifications %}
+                <tr>
+                    <td>{{ notification.employee.first_name }} {{ notification.employee.last_name }}</td>
+                    <td>₱{{ notification.amount|floatformat:2 }}</td>
+                    <td>{{ notification.message }}</td>
+                    <td>{{ notification.sent_at|localtime|date:'F d, Y g:i A' }}</td>
+                    <td>{% if notification.sent_by %}{{ notification.sent_by.first_name }} {{ notification.sent_by.last_name }}{% else %}System{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No paycheck notifications have been sent yet.</div>
+    {% endif %}
+    {% if not request.user.is_staff and not request.user.is_superuser and not request.user.admin %}
+    <a href="{% url 'notifications:employee_notifications' %}" class="btn btn-secondary mt-3">View My Paycheck Notifications</a>
+    {% endif %}
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sendButtons = document.querySelectorAll('.send-paycheck-btn');
-    const breakdownPanel = document.getElementById('payroll-breakdown-panel');
-    const cancelBtn = document.getElementById('cancel-send');
-    const form = document.getElementById('send-paycheck-form');
-
-    sendButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const employeeId = this.getAttribute('data-employee-id');
-            const employeeName = this.getAttribute('data-employee-name');
-            const suggestedAmount = this.getAttribute('data-suggested-amount');
-            const breakdown = JSON.parse(this.getAttribute('data-breakdown'));
-
-            // Update form fields
-            document.getElementById('selected-employee-id').value = employeeId;
-            document.getElementById('selected-employee-name').textContent = employeeName;
-            document.getElementById('paycheck-amount').value = suggestedAmount;
-
-            // Update breakdown display
-            document.getElementById('breakdown-dates').textContent =
-                `${breakdown.start_date} to ${breakdown.end_date}`;
-            document.getElementById('regular-hours').textContent = breakdown.regular_hours;
-            document.getElementById('overtime-hours').textContent = breakdown.overtime_hours;
-            document.getElementById('days-worked').textContent = breakdown.total_days_worked;
-            document.getElementById('total-hours').textContent = breakdown.total_hours;
-            document.getElementById('hourly-rate').textContent = breakdown.hourly_rate;
-            document.getElementById('overtime-rate').textContent = breakdown.overtime_rate;
-            document.getElementById('regular-pay').textContent = breakdown.regular_pay;
-            document.getElementById('overtime-pay').textContent = breakdown.overtime_pay;
-            document.getElementById('total-pay').textContent = breakdown.total_pay;
-
-            // Show breakdown panel
-            breakdownPanel.style.display = 'block';
-            breakdownPanel.scrollIntoView({ behavior: 'smooth' });
-        });
-    });
-
-    cancelBtn.addEventListener('click', function() {
-        breakdownPanel.style.display = 'none';
-        form.reset();
-    });
-});
-</script>
 {% endblock %}

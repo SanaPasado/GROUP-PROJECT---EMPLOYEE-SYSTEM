@@ -14,30 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from django.conf.urls.static import static
-from django.conf import settings
+from django.urls import path
 
 from accounts.views import register_page, login_page, otp_verify, logout_view, user_manual, otp_setup
 
 app_name = 'accounts'
 urlpatterns = [
-
-
     path('register/', register_page, name='register_page'),
-
-
     path('login/', login_page, name='login_page'),
-
     path('logout/', logout_view, name='logout'),
-
-
     path('otp-verify/', otp_verify, name='otp_verify'),
-
     path('otp-setup/', otp_setup, name='otp_setup'),
-
     path('user-manual/', user_manual, name='user_manual'),
 ]
-
-

@@ -116,7 +116,7 @@
                                 </td>
                                 <td>
                                     <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ leave.reason }}">
-                                        {{ leave.reason|truncatechars:40 }}
+                                        {{ leave.reason }}
                                     </span>
                                 </td>
                                 <td>
@@ -141,14 +141,9 @@
                                 </td>
                                 <td>
                                     <div class="btn-group-vertical btn-group-sm">
-                                        <a href="{% url 'leave_requests:leave_detail' leave.pk %}" class="btn btn-outline-info btn-sm">
+                                        <a href="{% url 'leave_requests:leave_request_detail' leave.pk %}" class="btn btn-outline-info btn-sm">
                                             <i class="bi bi-eye"></i> View
                                         </a>
-                                        {% if leave.status == 'pending' %}
-                                            <a href="{% url 'leave_requests:review_leave' leave.pk %}" class="btn btn-outline-primary btn-sm">
-                                                <i class="bi bi-pencil"></i> Review
-                                            </a>
-                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>

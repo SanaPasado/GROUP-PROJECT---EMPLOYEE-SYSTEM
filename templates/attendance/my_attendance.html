@@ -13,11 +13,6 @@
             <!-- Attendance Detail button (only for staff and if today's record exists) -->
 
         </div>
-
-        <!-- Back button -->
-        <a href="{% url 'emp_management:employees' %}" class="btn btn-outline-secondary">
-            ← Back
-        </a>
     </div>
 {% if not request.user.is_staff %}
     <!-- Page header -->

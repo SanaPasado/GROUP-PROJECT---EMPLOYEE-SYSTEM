@@ -13,7 +13,6 @@ class EmployeeUpdateForm(forms.ModelForm):
     position = forms.CharField(disabled=True)
     salary = forms.FloatField(disabled=True, widget=forms.NumberInput(attrs={'step': '0.01'}))
     hourly_rate = forms.DecimalField(disabled=True, widget=forms.NumberInput(attrs={'step': '0.01'}))
-    salary_type = forms.CharField(disabled=True)
     address = forms.CharField(disabled=True)
     sick_leaves = forms.IntegerField(disabled=True)
     vacation_days = forms.IntegerField(disabled=True)
@@ -36,7 +35,6 @@ class EmployeeUpdateForm(forms.ModelForm):
             'position',
             'salary',
             'hourly_rate',
-            'salary_type',
             'photo',
             'address',
             'sick_leaves',
@@ -93,6 +91,7 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
             'address',
             'sick_leaves',
             'vacation_days',
+            'date_hired',
             'work_start_time',
             'work_end_time',
             'weekly_hours',

@@ -30,6 +30,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'leave_requests:leave_request_create' %}">
+                                <i class="bi bi-calendar-plus"></i> Request for Leave
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'reports:report_create' %}">
                                 <i class="bi bi-exclamation-triangle"></i> Submit Report
                             </a>
@@ -43,7 +48,7 @@
                         <!-- Staff/Admin navigation -->
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'emp_management:employees' %}">
-                                <i class="bi bi-people"></i> Employee List
+                                <i class="bi bi-people"></i> Employees
                             </a>
                         </li>
                         <li class="nav-item">
@@ -52,28 +57,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'leave_requests:admin_leaves' %}">
-                                <i class="bi bi-calendar-check"></i> Leave Requests
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'reports:report_list' %}">
-                                <i class="bi bi-file-text"></i> Reports
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'notifications:paycheck_dashboard' %}">
-                                <i class="bi bi-bell"></i> Notifications
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'history:history_list' %}">
-                                <i class="bi bi-archive"></i> History
+                                <i class="bi bi-cash-stack"></i> Payroll
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'emp_management:admin_panel' %}">
                                 <i class="bi bi-gear"></i> Admin Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'leave_requests:admin_leaves' %}">
+                                <i class="bi bi-calendar-check"></i> Leave Requests
                             </a>
                         </li>
                     {% endif %}
@@ -86,7 +81,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle"></i> {{ user.first_name }} {{ user.last_name }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li>
                                 <a class="dropdown-item" href="{% url 'emp_management:employee_detail' user.slug %}">
                                     <i class="bi bi-person"></i> My Profile
@@ -110,3 +105,13 @@
         </div>
     </div>
 </nav>
+
+<!-- Server Time Display -->
+<div class="position-fixed bottom-0 start-0 p-3" style="z-index: 1000;">
+    <div class="bg-dark text-white px-3 py-2 rounded shadow-sm">
+        <small>
+            <i class="bi bi-clock"></i>
+            Server Time: {% load tz %}{% timezone "Asia/Manila" %}{% now "M d, Y H:i" %}{% endtimezone %}
+        </small>
+    </div>
+</div>

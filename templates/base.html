@@ -4,12 +4,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block title %}
-
+    <title>Employee System</title>
     {% endblock %}
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
     <style>
         body {
             background-color: #f8f9fa;
@@ -30,26 +31,9 @@
         .navbar-brand {
             font-weight: 700;
         }
-        .server-time {
-            position: fixed;
-            top: 10px;
-            right: 20px;
-            font-size: 0.9rem;
-            color: #666;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
     </style>
 </head>
 <body>
-    <!-- Server time display -->
-    <div class="server-time">
-        Server time: {{ current_time|date:'Y-m-d H:i:s T' }}
-    </div>
-
     <!-- Navigation -->
     {% include 'navigation.html' %}
 
@@ -60,6 +44,6 @@
         {% endblock %}
     </div>
 
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>

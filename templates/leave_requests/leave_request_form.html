@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block title %}
+<title>Request Leave - Employee System</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'leave_requests:my_leaves' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to My Leaves
+                </a>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Request Leave</h4>
+                    <small>Submit a new leave request for approval</small>
+                </div>
+                <div class="card-body">
+                    <!-- Employee Information -->
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Employee:</strong> {{ user.get_full_name }}
+                        <br>
+                        <strong>Department:</strong> {{ user.department|default:"N/A" }}
+                        <strong>Position:</strong> {{ user.position|default:"N/A" }}
+                    </div>
+
+                    <form method="post" id="leaveRequestForm">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <!-- Leave Type -->
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.leave_type.id_for_label }}" class="form-label">
+                                    <i class="bi bi-tag"></i> Leave Type *
+                                </label>
+                                {{ form.leave_type }}
+                                {% if form.leave_type.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.leave_type.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Select the type of leave you are requesting.</small>
+                            </div>
+
+                            <!-- Start Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                    <i class="bi bi-calendar"></i> Start Date *
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.start_date.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">When does your leave start?</small>
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                    <i class="bi bi-calendar-check"></i> End Date *
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.end_date.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">When does your leave end?</small>
+                            </div>
+
+                            <!-- Duration Display -->
+                            <div class="col-md-12 mb-3">
+                                <div class="alert alert-light border" id="durationDisplay" style="display: none;">
+                                    <i class="bi bi-clock"></i>
+                                    <strong>Duration:</strong> <span id="durationText">0 days</span>
+                                </div>
+                            </div>
+
+                            <!-- Reason -->
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.reason.id_for_label }}" class="form-label">
+                                    <i class="bi bi-chat-text"></i> Reason for Leave *
+                                </label>
+                                {{ form.reason }}
+                                {% if form.reason.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.reason.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Please provide a detailed reason for your leave request.
+                                </small>
+                                <div class="mt-1">
+                                    <small class="text-muted">
+                                        Characters: <span id="charCount">0</span>/500
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Important Notes -->
+                        <div class="alert alert-warning">
+                            <h6><i class="bi bi-exclamation-circle"></i> Important Notes:</h6>
+                            <ul class="mb-0">
+                                <li>Leave requests must be submitted at least 24 hours in advance</li>
+                                <li>Emergency leave requests should be followed up with proper documentation</li>
+                                <li>All leave requests are subject to management approval</li>
+                                <li>You will be notified via email once your request is reviewed</li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'leave_requests:my_leaves' %}" class="btn btn-secondary">
+                                        <i class="bi bi-x"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <i class="bi bi-send"></i> Submit Request
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Leave Balance Card (if available) -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-calendar-range"></i> Leave Balance Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border rounded p-2">
+                                <strong class="text-primary">Sick Leave</strong>
+                                <br>
+                                <span class="h5">15</span>
+                                <small class="text-muted d-block">days remaining</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border rounded p-2">
+                                <strong class="text-success">Vacation</strong>
+                                <br>
+                                <span class="h5">12</span>
+                                <small class="text-muted d-block">days remaining</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border rounded p-2">
+                                <strong class="text-info">Personal</strong>
+                                <br>
+                                <span class="h5">5</span>
+                                <small class="text-muted d-block">days remaining</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border rounded p-2">
+                                <strong class="text-warning">Emergency</strong>
+                                <br>
+                                <span class="h5">3</span>
+                                <small class="text-muted d-block">days remaining</small>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block text-center">
+                        <i class="bi bi-info-circle"></i> Leave balance is updated in real-time
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+    const reasonTextarea = document.getElementById('{{ form.reason.id_for_label }}');
+    const durationDisplay = document.getElementById('durationDisplay');
+    const durationText = document.getElementById('durationText');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Calculate duration when dates change
+    function calculateDuration() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+
+        if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+            const timeDiff = endDate - startDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+
+            if (daysDiff > 0) {
+                durationText.textContent = `${daysDiff} day${daysDiff !== 1 ? 's' : ''}`;
+                durationDisplay.style.display = 'block';
+                durationDisplay.className = 'alert alert-success border';
+            } else {
+                durationDisplay.style.display = 'none';
+            }
+        } else {
+            durationDisplay.style.display = 'none';
+        }
+    }
+
+    // Update end date minimum when start date changes
+    startDateInput.addEventListener('change', function() {
+        endDateInput.min = this.value;
+        if (endDateInput.value && endDateInput.value < this.value) {
+            endDateInput.value = this.value;
+        }
+        calculateDuration();
+    });
+
+    endDateInput.addEventListener('change', calculateDuration);
+
+    // Character counter for reason field
+    function updateCharCount() {
+        const count = reasonTextarea.value.length;
+        charCount.textContent = count;
+
+        if (count > 500) {
+            charCount.parentElement.classList.add('text-danger');
+            charCount.parentElement.classList.remove('text-muted');
+        } else {
+            charCount.parentElement.classList.remove('text-danger');
+            charCount.parentElement.classList.add('text-muted');
+        }
+    }
+
+    reasonTextarea.addEventListener('input', updateCharCount);
+    reasonTextarea.addEventListener('paste', function() {
+        setTimeout(updateCharCount, 10);
+    });
+
+    // Initialize character count
+    updateCharCount();
+
+    // Form validation
+    document.getElementById('leaveRequestForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        let errorMessage = '';
+
+        // Check if all required fields are filled
+        if (!startDateInput.value) {
+            isValid = false;
+            errorMessage += '• Start date is required\n';
+        }
+
+        if (!endDateInput.value) {
+            isValid = false;
+            errorMessage += '• End date is required\n';
+        }
+
+        if (!reasonTextarea.value.trim()) {
+            isValid = false;
+            errorMessage += '• Reason for leave is required\n';
+        }
+
+        if (reasonTextarea.value.length > 500) {
+            isValid = false;
+            errorMessage += '• Reason must be 500 characters or less\n';
+        }
+
+        // Check date validation
+        if (startDateInput.value && endDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (startDate < today) {
+                isValid = false;
+                errorMessage += '• Start date cannot be in the past\n';
+            }
+
+            if (endDate < startDate) {
+                isValid = false;
+                errorMessage += '• End date must be after or equal to start date\n';
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fix the following errors:\n\n' + errorMessage);
+        } else {
+            // Show loading state
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            submitBtn.disabled = true;
+        }
+    });
+
+    // Initialize duration calculation if dates are pre-filled
+    if (startDateInput.value && endDateInput.value) {
+        calculateDuration();
+    }
+});
+</script>
+{% endblock %}

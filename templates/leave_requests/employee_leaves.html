@@ -9,7 +9,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-calendar-x"></i> My Leave Requests</h2>
-        <a href="{% url 'leave_requests:create_leave' %}" class="btn btn-primary">
+        <a href="{% url 'leave_requests:leave_request_create' %}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Request Leave
         </a>
     </div>
@@ -20,7 +20,7 @@
             <div class="card bg-warning text-white">
                 <div class="card-body text-center">
                     <h5>Pending</h5>
-                    <h3>{{ leave_requests|length }}</h3>
+                    <h3>{{ pending_count }}</h3>
                 </div>
             </div>
         </div>
@@ -28,7 +28,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
                     <h5>Approved</h5>
-                    <h3>{{ leave_requests|length }}</h3>
+                    <h3>{{ approved_count }}</h3>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body text-center">
                     <h5>Rejected</h5>
-                    <h3>{{ leave_requests|length }}</h3>
+                    <h3>{{ rejected_count }}</h3>
                 </div>
             </div>
         </div>
@@ -92,7 +92,7 @@
                                     <small>{% timezone "Asia/Manila" %}{{ leave.created_at|date:"M d, Y H:i" }}{% endtimezone %}</small>
                                 </td>
                                 <td>
-                                    <a href="{% url 'leave_requests:leave_detail' leave.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'leave_requests:leave_request_detail' leave.pk %}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye"></i> View
                                     </a>
                                 </td>
@@ -137,7 +137,7 @@
                     <i class="bi bi-calendar-x display-1 text-muted"></i>
                     <h4 class="text-muted">No Leave Requests</h4>
                     <p>You haven't submitted any leave requests yet.</p>
-                    <a href="{% url 'leave_requests:create_leave' %}" class="btn btn-primary">
+                    <a href="{% url 'leave_requests:leave_request_create' %}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Submit Your First Request
                     </a>
                 </div>

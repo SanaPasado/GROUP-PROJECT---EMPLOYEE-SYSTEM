@@ -93,7 +93,9 @@ class RegisterForm(forms.ModelForm):
             'photo',
             'sick_leaves',
             'vacation_days',
-            'work_schedule',
+            'work_start_time',
+            'work_end_time',
+            'weekly_hours',
             'address',
 
 
@@ -111,7 +113,9 @@ class RegisterForm(forms.ModelForm):
             'address': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Address"}),
             'sick_leaves': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Sick Leaves"}),
             'vacation_days': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Vacation Days"}),
-            'work_schedule': forms.TextInput(attrs={'class': 'form-control' , "placeholder": "Work Schedule"}),
+            'work_start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'work_end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'weekly_hours': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "40.00", 'step': '0.01'}),
         }
 
 

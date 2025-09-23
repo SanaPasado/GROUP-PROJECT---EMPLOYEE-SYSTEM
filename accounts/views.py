@@ -60,7 +60,7 @@ def login_page(request):
             if user.last_login_ip == current_ip:
                 # IP is the same, log them in directly.
                 login(request, user)
-                return redirect('emp_management:employees')
+                return redirect('emp_management:home')
             else:
                 # IP has changed, require OTP verification.
                 login(request, user)
@@ -108,7 +108,7 @@ def otp_verify(request):
                 # On successful OTP, update the last login IP to the new, trusted IP.
                 request.user.last_login_ip = get_client_ip(request)
                 request.user.save()
-                return redirect('emp_management:employees')
+                return redirect('emp_management:home')
             else:
                 form.add_error('otp_code', 'Invalid OTP code')
 

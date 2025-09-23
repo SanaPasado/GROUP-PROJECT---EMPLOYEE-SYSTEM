@@ -48,7 +48,7 @@ class PaycheckNotificationDetailView(LoginRequiredMixin, DetailView):
 class PaycheckNotificationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = PaycheckNotification
     form_class = PaycheckNotificationForm
-    template_name = 'notifications/notification_form.html'
+    template_name = 'notifications/send_paycheck.html'
     success_url = reverse_lazy('notifications:paycheck_dashboard')
 
     def test_func(self):

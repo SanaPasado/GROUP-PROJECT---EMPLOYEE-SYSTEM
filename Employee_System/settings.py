@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +55,8 @@ INSTALLED_APPS = [
     'django_otp',
     'django_otp.plugins.otp_totp',
     'phonenumber_field',
+    'cloudinary_storage',
+    'cloudinary',
     'accounts',
     'emp_management',
     'two_factor',
@@ -59,6 +64,7 @@ INSTALLED_APPS = [
     'attendance',
     'history',
     'notifications',
+    'leave_requests',
 
 ]
 AUTH_USER_MODEL = "accounts.Employee"
@@ -92,7 +98,7 @@ TWO_FACTOR_FORMS = {
 }
 
 LOGIN_URL = "accounts:login_page"
-LOGIN_REDIRECT_URL = "emp_management:employees"
+LOGIN_REDIRECT_URL = "emp_management:home"
 LOGOUT_REDIRECT_URL = "accounts:login_page"
 
 ROOT_URLCONF = 'Employee_System.urls'
@@ -171,9 +177,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / "static_my_project", ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files configuration - Using local file storage
+# Media files configuration - Using Cloudinary for cloud storage
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'your-cloud-name'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', 'your-api-key'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'your-api-secret'),
+}
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+    secure=True
+)
+
+# Use Cloudinary for default file storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

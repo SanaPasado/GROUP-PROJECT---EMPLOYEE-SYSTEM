@@ -104,6 +104,18 @@
                             {% endif %}
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 600;">Hourly Rate</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₱</span>
+                                {{ form.hourly_rate }}
+                            </div>
+                            {% if form.hourly_rate.errors %}
+                                <div class="text-danger small">{{ form.hourly_rate.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label" style="font-weight: 600;">Vacation Days</label>
@@ -114,18 +126,36 @@
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label class="form-label" style="font-weight: 600;">Working Hours</label>
-                                {{ form.work_schedule }}
-                                {% if form.work_schedule.errors %}
-                                    <div class="text-danger small">{{ form.work_schedule.errors }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-4 mb-3">
                                 <label class="form-label" style="font-weight: 600;">Sick Leaves</label>
                                 {{ form.sick_leaves }}
                                 {% if form.sick_leaves.errors %}
                                     <div class="text-danger small">{{ form.sick_leaves.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" style="font-weight: 600;">Weekly Hours</label>
+                                {{ form.weekly_hours }}
+                                {% if form.weekly_hours.errors %}
+                                    <div class="text-danger small">{{ form.weekly_hours.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600;">Work Start Time</label>
+                                {{ form.work_start_time }}
+                                {% if form.work_start_time.errors %}
+                                    <div class="text-danger small">{{ form.work_start_time.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600;">Work End Time</label>
+                                {{ form.work_end_time }}
+                                {% if form.work_end_time.errors %}
+                                    <div class="text-danger small">{{ form.work_end_time.errors }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -148,6 +178,15 @@
                                 <div class="text-danger small">{{ form.photo.errors }}</div>
                             {% endif %}
                             <div class="form-text">Accepted formats: JPG, PNG, GIF, WebP</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 600;">Date Hired</label>
+                            {{ form.date_hired }}
+                            {% if form.date_hired.errors %}
+                                <div class="text-danger small">{{ form.date_hired.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">This field is read-only and cannot be modified.</div>
                         </div>
 
                         <div class="d-flex justify-content-between">

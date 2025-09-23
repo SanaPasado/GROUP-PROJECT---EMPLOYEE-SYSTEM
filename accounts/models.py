@@ -199,18 +199,63 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                 pass
         return "Not working"
 
-    def send_paycheck_notification(self, amount=None, message="Your paycheck has been sent!", notification_type="paycheck", sent_by=None):
-        """Send a paycheck notification to this employee"""
+    def send_paycheck_notification(self, amount=None, message="Your paycheck has been sent!", notification_type="paycheck", sent_by=None, start_date=None, end_date=None):
+        """Send a paycheck notification to this employee with duplicate prevention"""
         from notifications.models import PaycheckNotification
+        from datetime import timedelta
+
+        # If no date range provided, use current week
+        if not start_date or not end_date:
+            start_date, end_date = PaycheckNotification.get_current_week_dates()
+
+        # Check if paycheck already sent for this week
+        if PaycheckNotification.has_paycheck_for_week(self, start_date, end_date):
+            return {
+                'success': False,
+                'message': f'Paycheck has already been sent for the week of {start_date} to {end_date}',
+                'existing_paycheck': PaycheckNotification.objects.filter(
+                    employee=self,
+                    week_start_date=start_date,
+                    week_end_date=end_date,
+                    notification_type="paycheck"
+                ).first()
+            }
+
+        # If no amount provided, calculate based on actual hours worked
+        if amount is None:
+            breakdown = self.calculate_payroll_breakdown(start_date, end_date)
+            amount = breakdown['total_pay']
+
+            # Update message to include breakdown info with overtime approval status
+            if breakdown['total_hours'] > 0:
+                overtime_info = ""
+                if breakdown['approved_overtime_hours'] > 0:
+                    overtime_info = f" + {breakdown['approved_overtime_hours']} approved overtime"
+                elif breakdown['pending_overtime_hours'] > 0:
+                    overtime_info = f" (Note: {breakdown['pending_overtime_hours']} overtime hours pending approval)"
+                elif breakdown['rejected_overtime_hours'] > 0:
+                    overtime_info = f" (Note: {breakdown['rejected_overtime_hours']} overtime hours were rejected)"
+
+                message = f"Your paycheck has been sent! Hours worked: {breakdown['total_hours']} ({breakdown['regular_hours']} regular{overtime_info})"
+            else:
+                message = "Your paycheck has been sent! No hours recorded for this period."
 
         notification = PaycheckNotification.objects.create(
             employee=self,
             notification_type=notification_type,
             message=message,
             amount=amount,
-            sent_by=sent_by
+            sent_by=sent_by,
+            week_start_date=start_date,
+            week_end_date=end_date
         )
-        return notification
+
+        return {
+            'success': True,
+            'message': 'Paycheck sent successfully',
+            'notification': notification,
+            'breakdown': self.calculate_payroll_breakdown(start_date, end_date)
+        }
 
     def get_paycheck_notifications(self, limit=20):
         """Get paycheck notifications for this employee"""
@@ -312,8 +357,8 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             pass
         return 0
 
-    def calculate_payroll_breakdown(self, start_date=None, end_date=None):
-        """Calculate detailed payroll breakdown for a date range"""
+    def calculate_payroll_breakdown(self, start_date=None, end_date=None, include_unapproved_overtime=False):
+        """Calculate detailed payroll breakdown for a date range with overtime approval support"""
         from datetime import timedelta
         from attendance.models import Attendance
 
@@ -330,7 +375,9 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         )
 
         regular_hours = 0
-        overtime_hours = 0
+        approved_overtime_hours = 0
+        pending_overtime_hours = 0
+        rejected_overtime_hours = 0
         total_days_worked = 0
 
         expected_daily_hours = float(self.weekly_hours) / 5
@@ -343,25 +390,39 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                     duration = attendance.time_out - attendance.time_in
                     hours_worked = duration.total_seconds() / 3600
 
-                    if hours_worked <= expected_daily_hours:
-                        regular_hours += hours_worked
-                    else:
-                        regular_hours += expected_daily_hours
-                        overtime_hours += (hours_worked - expected_daily_hours)
+                    # Calculate regular hours (capped at expected daily hours)
+                    daily_regular_hours = min(hours_worked, expected_daily_hours)
+                    regular_hours += daily_regular_hours
+
+                    # Calculate overtime hours based on approval status
+                    if attendance.overtime_hours > 0:
+                        if attendance.overtime_approved:
+                            approved_overtime_hours += float(attendance.overtime_hours)
+                        elif attendance.overtime_rejected:
+                            rejected_overtime_hours += float(attendance.overtime_hours)
+                        else:
+                            pending_overtime_hours += float(attendance.overtime_hours)
+
                 elif attendance.date == timezone.now().date():
                     # Currently working today
                     duration = timezone.now() - attendance.time_in
                     hours_worked = duration.total_seconds() / 3600
 
-                    if hours_worked <= expected_daily_hours:
-                        regular_hours += hours_worked
-                    else:
-                        regular_hours += expected_daily_hours
-                        overtime_hours += (hours_worked - expected_daily_hours)
+                    # Only count regular hours for ongoing work, overtime will be calculated when clocked out
+                    daily_regular_hours = min(hours_worked, expected_daily_hours)
+                    regular_hours += daily_regular_hours
+
+        # Decide which overtime hours to include in pay calculation
+        if include_unapproved_overtime:
+            # Include all overtime hours (for preview purposes)
+            total_overtime_hours = approved_overtime_hours + pending_overtime_hours
+        else:
+            # Only include approved overtime hours (for actual paycheck calculation)
+            total_overtime_hours = approved_overtime_hours
 
         # Calculate earnings
         regular_pay = regular_hours * float(self.hourly_rate or 0)
-        overtime_pay = overtime_hours * float(self.overtime_rate or 0)
+        overtime_pay = total_overtime_hours * float(self.overtime_rate or 0)
         total_pay = regular_pay + overtime_pay
 
         return {
@@ -369,13 +430,23 @@ class Employee(AbstractBaseUser, PermissionsMixin):
             'end_date': end_date,
             'total_days_worked': total_days_worked,
             'regular_hours': round(regular_hours, 2),
-            'overtime_hours': round(overtime_hours, 2),
-            'total_hours': round(regular_hours + overtime_hours, 2),
+            'approved_overtime_hours': round(approved_overtime_hours, 2),
+            'pending_overtime_hours': round(pending_overtime_hours, 2),
+            'rejected_overtime_hours': round(rejected_overtime_hours, 2),
+            'total_overtime_hours': round(total_overtime_hours, 2),
+            'total_hours': round(regular_hours + total_overtime_hours, 2),
             'hourly_rate': float(self.hourly_rate or 0),
             'overtime_rate': float(self.overtime_rate or 0),
             'regular_pay': round(regular_pay, 2),
             'overtime_pay': round(overtime_pay, 2),
             'total_pay': round(total_pay, 2),
+            'include_unapproved_overtime': include_unapproved_overtime,
+            # Additional breakdown for admin review
+            'overtime_breakdown': {
+                'approved': round(approved_overtime_hours, 2),
+                'pending': round(pending_overtime_hours, 2),
+                'rejected': round(rejected_overtime_hours, 2),
+            }
         }
 
     def get_suggested_paycheck_amount(self):
