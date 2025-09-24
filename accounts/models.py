@@ -199,257 +199,99 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                 pass
         return "Not working"
 
-    def send_paycheck_notification(self, amount=None, message="Your paycheck has been sent!", notification_type="paycheck", sent_by=None, start_date=None, end_date=None):
-        """Send a paycheck notification to this employee with duplicate prevention"""
-        from notifications.models import PaycheckNotification
-        from datetime import timedelta
+    def calculate_payroll_breakdown(self, start_date=None, end_date=None):
+        """Calculate detailed payroll breakdown including approved overtime"""
+        from attendance.models import Attendance
+        from datetime import datetime, timedelta
 
-        # If no date range provided, use current week
+        # Default to current week if no dates provided
         if not start_date or not end_date:
-            start_date, end_date = PaycheckNotification.get_current_week_dates()
-
-        # Check if paycheck already sent for this week
-        if PaycheckNotification.has_paycheck_for_week(self, start_date, end_date):
-            return {
-                'success': False,
-                'message': f'Paycheck has already been sent for the week of {start_date} to {end_date}',
-                'existing_paycheck': PaycheckNotification.objects.filter(
-                    employee=self,
-                    week_start_date=start_date,
-                    week_end_date=end_date,
-                    notification_type="paycheck"
-                ).first()
-            }
-
-        # If no amount provided, calculate based on actual hours worked
-        if amount is None:
-            breakdown = self.calculate_payroll_breakdown(start_date, end_date)
-            amount = breakdown['total_pay']
-
-            # Update message to include breakdown info with overtime approval status
-            if breakdown['total_hours'] > 0:
-                overtime_info = ""
-                if breakdown['approved_overtime_hours'] > 0:
-                    overtime_info = f" + {breakdown['approved_overtime_hours']} approved overtime"
-                elif breakdown['pending_overtime_hours'] > 0:
-                    overtime_info = f" (Note: {breakdown['pending_overtime_hours']} overtime hours pending approval)"
-                elif breakdown['rejected_overtime_hours'] > 0:
-                    overtime_info = f" (Note: {breakdown['rejected_overtime_hours']} overtime hours were rejected)"
-
-                message = f"Your paycheck has been sent! Hours worked: {breakdown['total_hours']} ({breakdown['regular_hours']} regular{overtime_info})"
-            else:
-                message = "Your paycheck has been sent! No hours recorded for this period."
-
-        notification = PaycheckNotification.objects.create(
-            employee=self,
-            notification_type=notification_type,
-            message=message,
-            amount=amount,
-            sent_by=sent_by,
-            week_start_date=start_date,
-            week_end_date=end_date
-        )
-
-        return {
-            'success': True,
-            'message': 'Paycheck sent successfully',
-            'notification': notification,
-            'breakdown': self.calculate_payroll_breakdown(start_date, end_date)
-        }
-
-    def get_paycheck_notifications(self, limit=20):
-        """Get paycheck notifications for this employee"""
-        from notifications.models import PaycheckNotification
-        return PaycheckNotification.objects.filter(
-            employee=self
-        ).order_by('-sent_at')[:limit]
-
-    def get_unread_notifications_count(self):
-        """Get count of unread paycheck notifications"""
-        from notifications.models import PaycheckNotification
-        return PaycheckNotification.objects.filter(
-            employee=self,
-            is_read=False
-        ).count()
-
-    def mark_all_notifications_read(self):
-        """Mark all paycheck notifications as read for this employee"""
-        from notifications.models import PaycheckNotification
-        return PaycheckNotification.objects.filter(
-            employee=self,
-            is_read=False
-        ).update(is_read=True)
-
-    def get_daily_working_hours(self, date=None):
-        """Get total working hours for a specific date based on attendance"""
-        if date is None:
-            date = timezone.now().date()
-
-        try:
-            from attendance.models import Attendance
-            attendance = Attendance.objects.get(employee=self, date=date)
-
-            if attendance.time_in and attendance.time_out:
-                duration = attendance.time_out - attendance.time_in
-                total_minutes = int(duration.total_seconds() / 60)
-                hours = total_minutes // 60
-                minutes = total_minutes % 60
-                return f"{hours}h {minutes}m"
-            elif attendance.time_in:
-                # Currently working - calculate time since time_in
-                duration = timezone.now() - attendance.time_in
-                total_minutes = int(duration.total_seconds() / 60)
-                hours = total_minutes // 60
-                minutes = total_minutes % 60
-                return f"{hours}h {minutes}m (ongoing)"
-            else:
-                return "0h 0m"
-
-        except:
-            return "No attendance record"
-
-    def get_weekly_working_hours(self):
-        """Get total working hours for current week based on attendance"""
-        from datetime import timedelta
-        from attendance.models import Attendance
-
-        today = timezone.now().date()
-        start_of_week = today - timedelta(days=today.weekday())
-
-        attendances = Attendance.objects.filter(
-            employee=self,
-            date__gte=start_of_week,
-            date__lte=today
-        )
-
-        total_minutes = 0
-
-        for attendance in attendances:
-            if attendance.time_in and attendance.time_out:
-                duration = attendance.time_out - attendance.time_in
-                total_minutes += int(duration.total_seconds() / 60)
-            elif attendance.time_in and attendance.date == today:
-                # Currently working today
-                duration = timezone.now() - attendance.time_in
-                total_minutes += int(duration.total_seconds() / 60)
-
-        hours = total_minutes / 60
-        return round(hours, 2)
-
-    def get_overtime_hours(self, date=None):
-        """Calculate overtime hours for a specific date"""
-        if date is None:
-            date = timezone.now().date()
-
-        try:
-            from attendance.models import Attendance
-            attendance = Attendance.objects.get(employee=self, date=date)
-
-            if attendance.time_in and attendance.time_out:
-                duration = attendance.time_out - attendance.time_in
-                hours_worked = duration.total_seconds() / 3600
-
-                # Calculate expected daily hours (weekly_hours / 5 for 5-day work week)
-                expected_daily_hours = float(self.weekly_hours) / 5
-                overtime_hours = max(0, hours_worked - expected_daily_hours)
-                return round(overtime_hours, 2)
-        except:
-            pass
-        return 0
-
-    def calculate_payroll_breakdown(self, start_date=None, end_date=None, include_unapproved_overtime=False):
-        """Calculate detailed payroll breakdown for a date range with overtime approval support"""
-        from datetime import timedelta
-        from attendance.models import Attendance
-
-        if not start_date:
-            # Default to current week
             today = timezone.now().date()
-            start_date = today - timedelta(days=today.weekday())
-            end_date = today
+            start_date = today - timedelta(days=today.weekday())  # Monday
+            end_date = start_date + timedelta(days=6)  # Sunday
 
-        attendances = Attendance.objects.filter(
+        # Get all attendance records for the period
+        attendance_records = Attendance.objects.filter(
             employee=self,
-            date__gte=start_date,
-            date__lte=end_date
+            date__range=[start_date, end_date],
+            time_in__isnull=False,
+            time_out__isnull=False
         )
 
         regular_hours = 0
         approved_overtime_hours = 0
-        pending_overtime_hours = 0
-        rejected_overtime_hours = 0
-        total_days_worked = 0
+        total_overtime_hours = 0  # For tracking purposes
 
-        expected_daily_hours = float(self.weekly_hours) / 5
+        for record in attendance_records:
+            # Calculate daily hours worked
+            duration = record.time_out - record.time_in
+            daily_hours = duration.total_seconds() / 3600
 
-        for attendance in attendances:
-            if attendance.time_in:
-                total_days_worked += 1
+            # Expected daily hours (weekly_hours / 5 days)
+            expected_daily_hours = float(self.weekly_hours) / 5
 
-                if attendance.time_out:
-                    duration = attendance.time_out - attendance.time_in
-                    hours_worked = duration.total_seconds() / 3600
+            if daily_hours <= expected_daily_hours:
+                # All hours are regular
+                regular_hours += daily_hours
+            else:
+                # Split into regular and overtime
+                regular_hours += expected_daily_hours
+                overtime_for_day = daily_hours - expected_daily_hours
+                total_overtime_hours += overtime_for_day
 
-                    # Calculate regular hours (capped at expected daily hours)
-                    daily_regular_hours = min(hours_worked, expected_daily_hours)
-                    regular_hours += daily_regular_hours
+                # Only count overtime if approved
+                if record.overtime_approved:
+                    approved_overtime_hours += overtime_for_day
 
-                    # Calculate overtime hours based on approval status
-                    if attendance.overtime_hours > 0:
-                        if attendance.overtime_approved:
-                            approved_overtime_hours += float(attendance.overtime_hours)
-                        elif attendance.overtime_rejected:
-                            rejected_overtime_hours += float(attendance.overtime_hours)
-                        else:
-                            pending_overtime_hours += float(attendance.overtime_hours)
-
-                elif attendance.date == timezone.now().date():
-                    # Currently working today
-                    duration = timezone.now() - attendance.time_in
-                    hours_worked = duration.total_seconds() / 3600
-
-                    # Only count regular hours for ongoing work, overtime will be calculated when clocked out
-                    daily_regular_hours = min(hours_worked, expected_daily_hours)
-                    regular_hours += daily_regular_hours
-
-        # Decide which overtime hours to include in pay calculation
-        if include_unapproved_overtime:
-            # Include all overtime hours (for preview purposes)
-            total_overtime_hours = approved_overtime_hours + pending_overtime_hours
-        else:
-            # Only include approved overtime hours (for actual paycheck calculation)
-            total_overtime_hours = approved_overtime_hours
-
-        # Calculate earnings
-        regular_pay = regular_hours * float(self.hourly_rate or 0)
-        overtime_pay = total_overtime_hours * float(self.overtime_rate or 0)
+        # Calculate pay amounts
+        regular_pay = regular_hours * float(self.hourly_rate) if self.hourly_rate else 0
+        overtime_pay = approved_overtime_hours * float(self.overtime_rate) if self.overtime_rate else 0
         total_pay = regular_pay + overtime_pay
 
         return {
-            'start_date': start_date,
-            'end_date': end_date,
-            'total_days_worked': total_days_worked,
+            'period_start': start_date,
+            'period_end': end_date,
             'regular_hours': round(regular_hours, 2),
             'approved_overtime_hours': round(approved_overtime_hours, 2),
-            'pending_overtime_hours': round(pending_overtime_hours, 2),
-            'rejected_overtime_hours': round(rejected_overtime_hours, 2),
-            'total_overtime_hours': round(total_overtime_hours, 2),
-            'total_hours': round(regular_hours + total_overtime_hours, 2),
-            'hourly_rate': float(self.hourly_rate or 0),
-            'overtime_rate': float(self.overtime_rate or 0),
+            'total_overtime_hours': round(total_overtime_hours, 2),  # For admin reference
+            'unapproved_overtime_hours': round(total_overtime_hours - approved_overtime_hours, 2),
             'regular_pay': round(regular_pay, 2),
             'overtime_pay': round(overtime_pay, 2),
             'total_pay': round(total_pay, 2),
-            'include_unapproved_overtime': include_unapproved_overtime,
-            # Additional breakdown for admin review
-            'overtime_breakdown': {
-                'approved': round(approved_overtime_hours, 2),
-                'pending': round(pending_overtime_hours, 2),
-                'rejected': round(rejected_overtime_hours, 2),
-            }
+            'hourly_rate': float(self.hourly_rate) if self.hourly_rate else 0,
+            'overtime_rate': float(self.overtime_rate) if self.overtime_rate else 0,
         }
 
-    def get_suggested_paycheck_amount(self):
-        """Get suggested paycheck amount based on current week's work"""
-        breakdown = self.calculate_payroll_breakdown()
+    def get_suggested_paycheck_amount(self, start_date=None, end_date=None):
+        """Get suggested paycheck amount based on approved hours only"""
+        breakdown = self.calculate_payroll_breakdown(start_date, end_date)
         return breakdown['total_pay']
+
+    def get_pending_overtime_hours(self, start_date=None, end_date=None):
+        """Get overtime hours pending approval"""
+        from attendance.models import Attendance
+        from datetime import datetime, timedelta
+
+        if not start_date or not end_date:
+            today = timezone.now().date()
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=6)
+
+        pending_records = Attendance.objects.filter(
+            employee=self,
+            date__range=[start_date, end_date],
+            overtime_hours__gt=0,
+            overtime_approved=False,
+            overtime_rejected=False
+        )
+
+        return sum(record.overtime_hours for record in pending_records)
+
+    def has_paycheck_sent_for_period(self, start_date, end_date):
+        """Check if paycheck has already been sent for this period"""
+        from notifications.models import PaycheckNotification
+
+        return PaycheckNotification.objects.filter(
+            employee=self,
+            sent_at__date__range=[start_date, end_date]
+        ).exists()

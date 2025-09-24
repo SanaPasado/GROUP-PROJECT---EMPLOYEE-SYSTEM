@@ -123,3 +123,4 @@ class AttendanceDetailView(DetailView):
         # Activate Manila timezone for this view
         timezone.activate(zoneinfo.ZoneInfo("Asia/Manila"))
         return super().dispatch(request, *args, **kwargs)
+

@@ -113,7 +113,28 @@
                                 </tr>
                                 <tr>
                                     <th>Overtime Hours:</th>
-                                    <td id="employee-overtime-hours">- hours</td>
+                                    <td>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span id="employee-overtime-hours">- hours</span>
+                                            <div id="overtime-approval-section" style="display: none;">
+                                                <div class="btn-group btn-group-sm me-2" role="group" id="overtime-buttons">
+                                                    <button type="button" class="btn btn-success btn-sm approve-overtime-btn" id="approve-overtime-btn">
+                                                        <i class="bi bi-check-circle"></i> Approve
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-sm reject-overtime-btn" id="reject-overtime-btn">
+                                                        <i class="bi bi-x-circle"></i> Reject
+                                                    </button>
+                                                </div>
+                                                <div id="overtime-status"></div>
+                                            </div>
+                                        </div>
+                                        <div id="overtime-details" class="mt-1" style="display: none;">
+                                            <small class="text-muted">
+                                                <span id="pending-overtime-text"></span>
+                                                <span id="unapproved-overtime-text"></span>
+                                            </small>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th>Overtime Pay:</th>
@@ -174,33 +195,33 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingState.style.display = 'block';
             employeeInfo.style.display = 'none';
 
-            // Simulate fetching employee data (replace with actual AJAX call)
-            setTimeout(() => {
-                // This would be replaced with actual employee data from your backend
-                const mockData = {
-                    id: employeeId,
-                    name: employeeSelect.options[employeeSelect.selectedIndex].text,
-                    position: 'Software Developer',
-                    department: 'IT Department',
-                    photo: null,
-                    hourly_rate: '250.00',
-                    weekly_hours: 40,
-                    regular_hours: 40,
-                    overtime_hours: 0,
-                    regular_pay: '10000.00',
-                    overtime_pay: '0.00',
-                    total_earnings: '10000.00'
-                };
+            // Fetch real employee payroll data via AJAX
+            fetch(`/notifications/ajax/employee/${employeeId}/payroll/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch employee data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    selectedEmployeeData = data;
+                    updateCalculationPanel(data);
+                    loadingState.style.display = 'none';
+                    employeeInfo.style.display = 'block';
 
-                selectedEmployeeData = mockData;
-                updateCalculationPanel(mockData);
-                loadingState.style.display = 'none';
-                employeeInfo.style.display = 'block';
-            }, 1000);
+                    // Show warnings if applicable
+                    showPayrollWarnings(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching employee data:', error);
+                    loadingState.style.display = 'none';
+                    showError('Failed to load employee payroll data. Please try again.');
+                });
 
         } else {
             calculationPanel.style.display = 'none';
             selectedEmployeeData = null;
+            clearWarnings();
         }
     });
 
@@ -233,9 +254,214 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('employee-hourly-rate').textContent = `₱${data.hourly_rate || '0.00'}`;
         document.getElementById('employee-weekly-hours').textContent = `${data.weekly_hours || '0'} hours`;
         document.getElementById('employee-regular-pay').textContent = `₱${data.regular_pay || '0.00'}`;
-        document.getElementById('employee-overtime-hours').textContent = `${data.overtime_hours || '0'} hours`;
         document.getElementById('employee-overtime-pay').textContent = `₱${data.overtime_pay || '0.00'}`;
         document.getElementById('employee-total-earnings').textContent = `₱${data.total_earnings || '0.00'}`;
+
+        // Show or hide overtime approval section
+        const overtimeApprovalSection = document.getElementById('overtime-approval-section');
+        const overtimeDetails = document.getElementById('overtime-details');
+
+        console.log('Employee data:', data);
+        console.log('Pending overtime hours:', data.pending_overtime_hours);
+        console.log('Total overtime hours:', data.total_overtime_hours);
+        console.log('Paycheck already sent:', data.paycheck_already_sent);
+
+        // Show buttons if there are any overtime hours and no paycheck sent yet
+        if (data.total_overtime_hours > 0 && !data.paycheck_already_sent) {
+            overtimeApprovalSection.style.display = 'flex';
+            overtimeDetails.style.display = 'block';
+
+            if (data.pending_overtime_hours > 0) {
+                document.getElementById('pending-overtime-text').textContent = `${data.pending_overtime_hours} overtime hours pending approval. `;
+                document.getElementById('unapproved-overtime-text').textContent = data.unapproved_overtime_hours > 0 ? `${data.unapproved_overtime_hours} overtime hours not approved.` : '';
+            } else {
+                document.getElementById('pending-overtime-text').textContent = `${data.total_overtime_hours} total overtime hours worked. `;
+                document.getElementById('unapproved-overtime-text').textContent = 'Click approve/reject to set overtime status.';
+            }
+        }
+        else {
+            overtimeApprovalSection.style.display = 'none';
+            overtimeDetails.style.display = 'none';
+        }
+
+        // Update overtime hours display to show correct status
+        const totalOvertimeHours = (data.total_overtime_hours || 0);
+        const approvedOvertimeHours = (data.overtime_hours || 0);
+        const pendingOvertimeHours = (data.pending_overtime_hours || 0);
+
+        if (totalOvertimeHours > 0) {
+            let overtimeText = `${approvedOvertimeHours} hours approved`;
+            if (pendingOvertimeHours > 0) {
+                overtimeText += ` (${pendingOvertimeHours} pending)`;
+            }
+            document.getElementById('employee-overtime-hours').textContent = overtimeText;
+        } else {
+            document.getElementById('employee-overtime-hours').textContent = '0 hours';
+        }
+    }
+
+    function showPayrollWarnings(data) {
+        clearWarnings();
+        const warningsContainer = getOrCreateWarningsContainer();
+
+        // Check if paycheck already sent
+        if (data.paycheck_already_sent) {
+            showWarning('A paycheck has already been sent for this period (' +
+                       data.period_start + ' to ' + data.period_end + ')', 'warning');
+        }
+
+        // Check for pending overtime
+        if (data.has_pending_overtime && data.pending_overtime_hours > 0) {
+            showWarning(`${data.pending_overtime_hours} overtime hours are pending approval. ` +
+                       'Only approved overtime is included in the calculation.', 'info');
+        }
+
+        // Check for unapproved overtime
+        if (data.unapproved_overtime_hours > 0) {
+            showWarning(`${data.unapproved_overtime_hours} overtime hours were not approved ` +
+                       'and are excluded from this paycheck.', 'secondary');
+        }
+    }
+
+    function showWarning(message, type = 'warning') {
+        const warningsContainer = getOrCreateWarningsContainer();
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        warningsContainer.appendChild(alertDiv);
+    }
+
+    function showError(message) {
+        const warningsContainer = getOrCreateWarningsContainer();
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="bi bi-exclamation-circle-fill"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        warningsContainer.appendChild(alertDiv);
+    }
+
+    function getOrCreateWarningsContainer() {
+        let container = document.getElementById('warnings-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'warnings-container';
+            container.className = 'mb-3';
+            calculationPanel.insertBefore(container, calculationPanel.firstChild.nextSibling);
+        }
+        return container;
+    }
+
+    function clearWarnings() {
+        const container = document.getElementById('warnings-container');
+        if (container) {
+            container.innerHTML = '';
+        }
+    }
+
+    // Handle overtime approval buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('approve-overtime-btn') || e.target.closest('.approve-overtime-btn')) {
+            handleOvertimeApproval('approve');
+        } else if (e.target.classList.contains('reject-overtime-btn') || e.target.closest('.reject-overtime-btn')) {
+            handleOvertimeApproval('reject');
+        }
+    });
+
+    function handleOvertimeApproval(action) {
+        if (!selectedEmployeeData) return;
+
+        const employeeId = selectedEmployeeData.id;
+        const actionText = action === 'approve' ? 'approve' : 'reject';
+        const actionPastTense = action === 'approve' ? 'approved' : 'rejected';
+
+        if (confirm(`Are you sure you want to ${actionText} overtime hours for ${selectedEmployeeData.name}?`)) {
+            // Disable buttons during processing
+            const approveBtn = document.getElementById('approve-overtime-btn');
+            const rejectBtn = document.getElementById('reject-overtime-btn');
+            const statusDiv = document.getElementById('overtime-status');
+
+            approveBtn.disabled = true;
+            rejectBtn.disabled = true;
+            statusDiv.innerHTML = `<small class="text-muted">Processing...</small>`;
+
+            // Make AJAX call to approve/reject overtime
+            fetch(`/notifications/ajax/employee/${employeeId}/overtime/${action}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    period_start: selectedEmployeeData.period_start,
+                    period_end: selectedEmployeeData.period_end
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the status display
+                    const badgeClass = action === 'approve' ? 'bg-success' : 'bg-danger';
+                    statusDiv.innerHTML = `<small><span class="badge ${badgeClass}">${actionPastTense.toUpperCase()}</span></small>`;
+
+                    // Hide the buttons since action is complete
+                    document.getElementById('overtime-buttons').style.display = 'none';
+
+                    // Refresh the payroll data to show updated calculations
+                    setTimeout(() => {
+                        fetch(`/notifications/ajax/employee/${employeeId}/payroll/`)
+                            .then(response => response.json())
+                            .then(updatedData => {
+                                selectedEmployeeData = updatedData;
+                                updateCalculationPanel(updatedData);
+                                showPayrollWarnings(updatedData);
+                            });
+                    }, 500);
+
+                    showSuccess(`Overtime hours ${actionPastTense} successfully! Payroll updated.`);
+                } else {
+                    showError(data.message || `Failed to ${actionText} overtime hours.`);
+                    // Re-enable buttons on error
+                    approveBtn.disabled = false;
+                    rejectBtn.disabled = false;
+                    statusDiv.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError(`Failed to ${actionText} overtime hours. Please try again.`);
+                // Re-enable buttons on error
+                approveBtn.disabled = false;
+                rejectBtn.disabled = false;
+                statusDiv.innerHTML = '';
+            });
+        }
+    }
+
+    function showSuccess(message) {
+        const warningsContainer = getOrCreateWarningsContainer();
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="bi bi-check-circle-fill"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        warningsContainer.appendChild(alertDiv);
+
+        // Auto-remove success message after 3 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 3000);
     }
 });
 </script>
