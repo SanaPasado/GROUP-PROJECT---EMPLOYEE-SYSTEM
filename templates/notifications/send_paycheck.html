@@ -84,11 +84,7 @@
                 <div class="card-body">
                     <div id="employee-info">
                         <div class="text-center mb-3">
-                            <img id="employee-photo" src="" class="rounded-circle" width="60" height="60" alt="Employee Photo" style="display: none;">
-                            <div id="employee-placeholder" class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto"
-                                 style="width: 60px; height: 60px; display: none;">
-                                <i class="bi bi-person text-white"></i>
-                            </div>
+                            <img id="employee-photo" src="" class="rounded-circle mx-auto d-block" width="60" height="60" alt="Employee Photo" style="display: none;">
                             <h6 id="employee-name" class="mt-2 mb-0"></h6>
                             <small id="employee-position" class="text-muted"></small>
                         </div>
@@ -240,14 +236,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update photo or show placeholder
         const photo = document.getElementById('employee-photo');
-        const placeholder = document.getElementById('employee-placeholder');
         if (data.photo) {
             photo.src = data.photo;
             photo.style.display = 'block';
-            placeholder.style.display = 'none';
         } else {
             photo.style.display = 'none';
-            placeholder.style.display = 'flex';
         }
 
         // Update calculation details

@@ -270,6 +270,65 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         breakdown = self.calculate_payroll_breakdown(start_date, end_date)
         return breakdown['total_pay']
 
+    def get_daily_working_hours(self):
+        """Get today's working hours - returns '0 hours' if no attendance or 0 hours worked"""
+        try:
+            from attendance.models import Attendance
+            today_attendance = Attendance.objects.get(employee=self, date=timezone.now().date())
+
+            if today_attendance.time_in and today_attendance.time_out:
+                # Calculate completed work hours
+                duration = today_attendance.time_out - today_attendance.time_in
+                hours = duration.total_seconds() / 3600
+                return f"{hours:.1f} hours"
+            elif today_attendance.time_in and not today_attendance.time_out:
+                # Currently working - calculate current duration
+                duration = timezone.now() - today_attendance.time_in
+                hours = duration.total_seconds() / 3600
+                return f"{hours:.1f} hours (ongoing)"
+            else:
+                return "0 hours"
+        except:
+            return "0 hours"
+
+    def get_weekly_working_hours(self):
+        """Get this week's total working hours - returns 0 if no hours worked"""
+        try:
+            from attendance.models import Attendance
+            from datetime import timedelta
+
+            today = timezone.now().date()
+            start_of_week = today - timedelta(days=today.weekday())  # Monday
+            end_of_week = start_of_week + timedelta(days=6)  # Sunday
+
+            attendance_records = Attendance.objects.filter(
+                employee=self,
+                date__range=[start_of_week, end_of_week],
+                time_in__isnull=False,
+                time_out__isnull=False
+            )
+
+            total_hours = 0
+            for record in attendance_records:
+                duration = record.time_out - record.time_in
+                total_hours += duration.total_seconds() / 3600
+
+            return round(total_hours, 1)
+        except:
+            return 0
+
+    def calculate_weekly_earnings(self):
+        """Calculate estimated weekly earnings based on this week's hours"""
+        try:
+            weekly_hours = self.get_weekly_working_hours()
+            if self.hourly_rate and weekly_hours > 0:
+                earnings = float(weekly_hours) * float(self.hourly_rate)
+                return f"{earnings:.2f}"
+            else:
+                return "0.00"
+        except:
+            return "0.00"
+
     def get_pending_overtime_hours(self, start_date=None, end_date=None):
         """Get overtime hours pending approval"""
         from attendance.models import Attendance

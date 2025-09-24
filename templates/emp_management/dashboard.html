@@ -21,31 +21,34 @@
         <!-- STAFF/ADMIN DASHBOARD -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-person-plus fs-1 mb-2"></i>
-                        <h5>Register New Employee</h5>
-                        <a href="{% url 'accounts:register_page' %}" class="btn btn-light btn-sm">Add Employee</a>
+                <a href="{% url 'accounts:register_page' %}" class="text-decoration-none">
+                    <div class="card bg-primary text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-person-plus fs-1 mb-3"></i>
+                            <h4 class="fw-bold">Register New Employee</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-clock-history fs-1 mb-2"></i>
-                        <h5>Employee Logs</h5>
-                        <a href="{% url 'history:history_list' %}" class="btn btn-light btn-sm">View Logs</a>
+                <a href="{% url 'history:history_list' %}" class="text-decoration-none">
+                    <div class="card bg-info text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-clock-history fs-1 mb-3"></i>
+                            <h4 class="fw-bold">Employee Logs</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-file-text fs-1 mb-2"></i>
-                        <h5>View Reports</h5>
-                        <a href="{% url 'reports:report_list' %}" class="btn btn-light btn-sm">View All Reports</a>
+                <a href="{% url 'reports:report_list' %}" class="text-decoration-none">
+                    <div class="card bg-warning text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-file-text fs-1 mb-3"></i>
+                            <h4 class="fw-bold">View Reports</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -108,40 +111,44 @@
         <!-- EMPLOYEE DASHBOARD -->
         <div class="row mb-4">
             <div class="col-md-3 mb-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-person-circle fs-1 mb-2"></i>
-                        <h5>My Profile</h5>
-                        <a href="{% url 'emp_management:employee_detail' user.slug %}" class="btn btn-light btn-sm">View Profile</a>
+                <a href="{% url 'emp_management:employee_detail' user.slug %}" class="text-decoration-none">
+                    <div class="card bg-info text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-person-circle fs-1 mb-3"></i>
+                            <h4 class="fw-bold">My Profile</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-clock fs-1 mb-2"></i>
-                        <h5>My Attendance</h5>
-                        <a href="{% url 'attendance:my-attendance' %}" class="btn btn-light btn-sm">View Attendance</a>
+                <a href="{% url 'attendance:my-attendance' %}" class="text-decoration-none">
+                    <div class="card bg-success text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-clock fs-1 mb-3"></i>
+                            <h4 class="fw-bold">My Attendance</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-calendar-x fs-1 mb-2"></i>
-                        <h5>Leave Requests</h5>
-                        <a href="{% url 'leave_requests:my_leaves' %}" class="btn btn-light btn-sm">View Leaves</a>
+                <a href="{% url 'leave_requests:my_leaves' %}" class="text-decoration-none">
+                    <div class="card bg-warning text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-calendar-x fs-1 mb-3"></i>
+                            <h4 class="fw-bold">Leave Requests</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="card bg-danger text-white">
-                    <div class="card-body text-center">
-                        <i class="bi bi-exclamation-triangle fs-1 mb-2"></i>
-                        <h5>Submit Report</h5>
-                        <a href="{% url 'reports:report_create' %}" class="btn btn-light btn-sm">Create Report</a>
+                <a href="{% url 'reports:report_create' %}" class="text-decoration-none">
+                    <div class="card bg-danger text-white h-100 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="bi bi-exclamation-triangle fs-1 mb-3"></i>
+                            <h4 class="fw-bold">Submit Report</h4>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
