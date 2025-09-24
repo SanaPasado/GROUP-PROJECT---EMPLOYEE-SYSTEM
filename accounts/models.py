@@ -7,22 +7,13 @@ from django.utils import timezone
 from Employee_System import settings
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
+from cloudinary.models import CloudinaryField
 
 
 def gmail_only_validator(value):
     if not value.lower().endswith('@gmail.com'):
         raise ValidationError('Email must end with @gmail.com')
 
-def image_file_validator(value):
-    """Validate image file extensions"""
-    if hasattr(value, 'name') and value.name:
-        allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
-        file_extension = value.name.lower().split('.')[-1]
-        if file_extension not in allowed_extensions:
-            raise ValidationError(
-                f'Only {", ".join(allowed_extensions).upper()} files are allowed. '
-                f'You uploaded a {file_extension.upper()} file.'
-            )
 
 def employee_photo_upload_path(instance, filename):
     """Generate upload path for employee photos"""
@@ -95,7 +86,20 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     phone_number = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number')
     date_hired = models.DateField(default=get_current_date)
     emergency_contact = PhoneNumberField(region='PH', help_text='Enter a Philippine phone number for emergency contact')
-    photo = models.ImageField(upload_to=employee_photo_upload_path, null=True, blank=True, validators=[image_file_validator])
+    photo = CloudinaryField('image',
+                           default='blank-profile-picture',
+                           null=True,
+                           blank=True,
+                           transformation={
+                               'width': 300,
+                               'height': 300,
+                               'crop': 'fill',
+                               'gravity': 'face',
+                               'quality': 'auto',
+                               'format': 'auto'
+                           },
+                           help_text='Upload employee photo (JPG, PNG, GIF, WEBP formats supported)')
+    # photo = models.ImageField(upload_to=employee_photo_upload_path, null=True, blank=True, validators=[image_file_validator])
     address = models.CharField(max_length=255, null=True, blank=True)
     vacation_days = models.IntegerField(null=True, blank=True)
     sick_leaves = models.IntegerField(null=True, blank=True)
