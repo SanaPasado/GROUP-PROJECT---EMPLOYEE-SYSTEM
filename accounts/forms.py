@@ -88,15 +88,16 @@ class RegisterForm(forms.ModelForm):
             'position',
             'department',
             'salary',
+            'hourly_rate',
             'phone_number',
             'emergency_contact',
             'photo',
-            'sick_leaves',
-            'vacation_days',
-            'work_schedule',
             'address',
-
-
+            'vacation_days',
+            'sick_leaves',
+            'work_start_time',
+            'work_end_time',
+            'weekly_hours',
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', "placeholder": "First Name"}),
@@ -104,14 +105,17 @@ class RegisterForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', "placeholder": "Email"}),
             'position': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Position"}),
             'department': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Department"}),
-            'salary': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "0.00", 'step': '0.01'}),
-            'phone_number': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Phone Number"}),
-            'emergency_contact': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Emergency Contact"}),
+            'salary': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Annual Salary", 'step': '0.01'}),
+            'hourly_rate': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Hourly Rate", 'step': '0.01'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Phone Number"}),
+            'emergency_contact': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Emergency Contact"}),
             'photo': forms.FileInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control', "placeholder": "Address"}),
-            'sick_leaves': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Sick Leaves"}),
             'vacation_days': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Vacation Days"}),
-            'work_schedule': forms.TextInput(attrs={'class': 'form-control' , "placeholder": "Work Schedule"}),
+            'sick_leaves': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Sick Leaves"}),
+            'work_start_time': forms.TimeInput(attrs={'class': 'form-control', 'placeholder': 'Work Start Time', 'type': 'time'}),
+            'work_end_time': forms.TimeInput(attrs={'class': 'form-control', 'placeholder': 'Work End Time', 'type': 'time'}),
+            'weekly_hours': forms.NumberInput(attrs={'class': 'form-control', "placeholder": "Weekly Hours", 'step': '0.01'}),
         }
 
 

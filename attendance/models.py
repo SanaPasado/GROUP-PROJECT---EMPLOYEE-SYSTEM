@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import models
 
 
- def get_current_date():
+def get_current_date():
     """Return current date in the default timezone"""
     return timezone.now().date()
 

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'attendance',
     'history',
     'notifications',
+    'leave_requests',
 
 ]
 AUTH_USER_MODEL = "accounts.Employee"
