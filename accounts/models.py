@@ -25,7 +25,7 @@ def image_file_validator(value):
                 f'Only {", ".join(allowed_extensions).upper()} files are allowed. '
                 f'You uploaded a {file_extension.upper()} file.'
             )
-
+ #photo = CloudinaryField('image', default='blank-profile-picture', validators=[image_file_validator])
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_active=True, is_staff=False, is_admin=False, is_superuser=False, **extra_fields):
