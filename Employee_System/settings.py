@@ -214,3 +214,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #here my settings
 # Temporarily add this to debug
 print("DEBUG:", DEBUG)
+
