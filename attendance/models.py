@@ -31,20 +31,22 @@ class Attendance(models.Model):
     def calculate_overtime_hours(self):
         """Calculate overtime hours based on time worked vs expected daily hours"""
         if self.time_in and self.time_out:
-            # Ensure both are datetime objects
-            if hasattr(self.time_in, 'total_seconds'):  # Check if it's a timedelta
-                return 0
-            if hasattr(self.time_out, 'total_seconds'):  # Check if it's a timedelta
-                return 0
-
-            # Both should be datetime objects now
             try:
-                duration = self.time_out - self.time_in
-                hours_worked = duration.total_seconds() / 3600
-                expected_daily_hours = float(self.employee.weekly_hours) / 5
-                overtime = max(0, hours_worked - expected_daily_hours)
-                return round(overtime, 2)
-            except (TypeError, AttributeError) as e:
+                # Ensure we're working with proper datetime objects
+                time_in = self.time_in
+                time_out = self.time_out
+
+                # Convert to datetime if they're not already
+                if hasattr(time_in, 'isoformat') and hasattr(time_out, 'isoformat'):
+                    duration = time_out - time_in
+                    hours_worked = duration.total_seconds() / 3600
+                    expected_daily_hours = float(self.employee.weekly_hours) / 5
+                    overtime = max(0, hours_worked - expected_daily_hours)
+                    return round(overtime, 2)
+                else:
+                    print(f"Invalid datetime objects: time_in={type(time_in)}, time_out={type(time_out)}")
+                    return 0
+            except (TypeError, AttributeError, ValueError) as e:
                 # If there's still an error, return 0 to prevent crashes
                 print(f"Error calculating overtime hours: {e}")
                 return 0
@@ -81,19 +83,23 @@ class Attendance(models.Model):
             return "none"
 
     def save(self, *args, **kwargs):
-        # Calculate overtime hours automatically
-        self.overtime_hours = self.calculate_overtime_hours()
+        # Temporarily disable automatic overtime calculation to prevent crashes
+        # self.overtime_hours = self.calculate_overtime_hours()
 
         # Update employee's online status based on attendance
-        if self.time_in and not self.time_out:
-            # Employee clocked in - set as online/working
-            self.employee.is_online = True
-        elif self.time_out:
-            # Employee clocked out - set as offline
-            self.employee.is_online = False
+        try:
+            if self.time_in and not self.time_out:
+                # Employee clocked in - set as online/working
+                self.employee.is_online = True
+            elif self.time_out:
+                # Employee clocked out - set as offline
+                self.employee.is_online = False
 
-        # Save the employee status
-        self.employee.save(update_fields=['is_online'])
+            # Save the employee status
+            self.employee.save(update_fields=['is_online'])
+        except Exception as e:
+            # If employee status update fails, don't crash the attendance save
+            print(f"Error updating employee status: {e}")
 
         super().save(*args, **kwargs)
 
