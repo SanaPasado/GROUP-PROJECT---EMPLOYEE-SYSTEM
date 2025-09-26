@@ -150,41 +150,25 @@
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
-                        <div class="col-md-3">
-                            <div class="border rounded p-2">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3">
                                 <strong class="text-primary">Sick Leave</strong>
                                 <br>
-                                <span class="h5">15</span>
+                                <span class="h4">{{ user.sick_leaves|default:0 }}</span>
                                 <small class="text-muted d-block">days remaining</small>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="border rounded p-2">
-                                <strong class="text-success">Vacation</strong>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3">
+                                <strong class="text-success">Vacation Leave</strong>
                                 <br>
-                                <span class="h5">12</span>
-                                <small class="text-muted d-block">days remaining</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="border rounded p-2">
-                                <strong class="text-info">Personal</strong>
-                                <br>
-                                <span class="h5">5</span>
-                                <small class="text-muted d-block">days remaining</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="border rounded p-2">
-                                <strong class="text-warning">Emergency</strong>
-                                <br>
-                                <span class="h5">3</span>
+                                <span class="h4">{{ user.vacation_days|default:0 }}</span>
                                 <small class="text-muted d-block">days remaining</small>
                             </div>
                         </div>
                     </div>
-                    <small class="text-muted mt-2 d-block text-center">
-                        <i class="bi bi-info-circle"></i> Leave balance is updated in real-time
+                    <small class="text-muted mt-3 d-block text-center">
+                        <i class="bi bi-info-circle"></i> Leave balances are updated automatically when requests are approved
                     </small>
                 </div>
             </div>

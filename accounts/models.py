@@ -91,7 +91,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
     department = models.CharField(max_length=255)
 
     # Simplified Salary Fields
-    salary = models.FloatField(null=True, blank=True, help_text='Annual salary')
+    salary = models.FloatField(null=True, blank=True, help_text='Weekly salary')
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text='Regular hourly wage rate')
     overtime_rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text='Overtime hourly rate (auto-calculated as hourly_rate + 0.5)')
 
@@ -134,13 +134,13 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                 num += 1
             self.slug = slug
 
-        # Auto-calculate hourly rate from salary if not provided
-        if self.salary and not self.hourly_rate:
-            # Assuming 52 weeks per year
-            self.hourly_rate = round(self.salary / (52 * float(self.weekly_hours)), 2)
-        # Auto-calculate salary from hourly rate if not provided
-        elif self.hourly_rate and not self.salary:
-            self.salary = float(self.hourly_rate) * float(self.weekly_hours) * 52
+        # Always recalculate hourly rate from weekly salary when salary is provided
+        if self.salary and self.weekly_hours:
+            # Calculate hourly rate from weekly salary
+            self.hourly_rate = round(self.salary / float(self.weekly_hours), 2)
+        # Auto-calculate weekly salary from hourly rate if salary is not provided but hourly rate is
+        elif self.hourly_rate and not self.salary and self.weekly_hours:
+            self.salary = float(self.hourly_rate) * float(self.weekly_hours)
 
         # Auto-calculate overtime rate (hourly rate + 0.5)
         if self.hourly_rate:

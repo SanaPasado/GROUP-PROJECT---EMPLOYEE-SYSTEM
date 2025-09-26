@@ -63,9 +63,10 @@ class AdminEmployeeUpdateForm(forms.ModelForm):
 
         # Add step attribute to salary field for decimal precision
         self.fields['salary'].widget.attrs['step'] = '0.01'
-        self.fields['salary'].widget.attrs['placeholder'] = '0.00'
+        self.fields['salary'].widget.attrs['placeholder'] = 'Weekly Salary (0.00)'
         self.fields['hourly_rate'].widget.attrs['step'] = '0.01'
         self.fields['hourly_rate'].widget.attrs['placeholder'] = '0.00'
+        self.fields['hourly_rate'].widget.attrs['readonly'] = True  # Auto-calculated from weekly salary
         self.fields['overtime_rate'].widget.attrs['step'] = '0.01'
         self.fields['overtime_rate'].widget.attrs['readonly'] = True  # Auto-calculated
 

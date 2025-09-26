@@ -9,10 +9,6 @@ class LeaveRequest(models.Model):
     LEAVE_TYPES = [
         ('sick', 'Sick Leave'),
         ('vacation', 'Vacation Leave'),
-        ('personal', 'Personal Leave'),
-        ('emergency', 'Emergency Leave'),
-        ('maternity', 'Maternity Leave'),
-        ('paternity', 'Paternity Leave'),
     ]
 
     STATUS_CHOICES = [
