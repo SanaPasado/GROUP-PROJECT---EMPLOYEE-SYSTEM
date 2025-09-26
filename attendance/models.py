@@ -31,11 +31,23 @@ class Attendance(models.Model):
     def calculate_overtime_hours(self):
         """Calculate overtime hours based on time worked vs expected daily hours"""
         if self.time_in and self.time_out:
-            duration = self.time_out - self.time_in
-            hours_worked = duration.total_seconds() / 3600
-            expected_daily_hours = float(self.employee.weekly_hours) / 5
-            overtime = max(0, hours_worked - expected_daily_hours)
-            return round(overtime, 2)
+            # Ensure both are datetime objects
+            if hasattr(self.time_in, 'total_seconds'):  # Check if it's a timedelta
+                return 0
+            if hasattr(self.time_out, 'total_seconds'):  # Check if it's a timedelta
+                return 0
+
+            # Both should be datetime objects now
+            try:
+                duration = self.time_out - self.time_in
+                hours_worked = duration.total_seconds() / 3600
+                expected_daily_hours = float(self.employee.weekly_hours) / 5
+                overtime = max(0, hours_worked - expected_daily_hours)
+                return round(overtime, 2)
+            except (TypeError, AttributeError) as e:
+                # If there's still an error, return 0 to prevent crashes
+                print(f"Error calculating overtime hours: {e}")
+                return 0
         return 0
 
     def approve_overtime(self, approved_by, notes=""):
