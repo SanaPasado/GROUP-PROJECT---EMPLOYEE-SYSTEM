@@ -83,25 +83,22 @@ class Attendance(models.Model):
             return "none"
 
     def save(self, *args, **kwargs):
-        # Temporarily disable automatic overtime calculation to prevent crashes
-        # self.overtime_hours = self.calculate_overtime_hours()
+        # Save the attendance record first
+        super().save(*args, **kwargs)
 
-        # Update employee's online status based on attendance
+        # Update employee's online status based on attendance (after save to avoid conflicts)
         try:
             if self.time_in and not self.time_out:
                 # Employee clocked in - set as online/working
                 self.employee.is_online = True
+                self.employee.save(update_fields=['is_online'])
             elif self.time_out:
                 # Employee clocked out - set as offline
                 self.employee.is_online = False
-
-            # Save the employee status
-            self.employee.save(update_fields=['is_online'])
+                self.employee.save(update_fields=['is_online'])
         except Exception as e:
             # If employee status update fails, don't crash the attendance save
             print(f"Error updating employee status: {e}")
-
-        super().save(*args, **kwargs)
 
     @property
     def duration(self):
