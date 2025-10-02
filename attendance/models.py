@@ -28,102 +28,11 @@ class Attendance(models.Model):
     def __str__(self):
         return f"Attendance for {self.employee} on {self.date}"
 
-    def calculate_overtime_hours(self):
-        """Calculate overtime hours based on time worked vs expected daily hours"""
-        if self.time_in and self.time_out:
-            try:
-                # Ensure we're working with proper datetime objects
-                time_in = self.time_in
-                time_out = self.time_out
-
-                # Convert to datetime if they're not already
-                if hasattr(time_in, 'isoformat') and hasattr(time_out, 'isoformat'):
-                    duration = time_out - time_in
-                    hours_worked = duration.total_seconds() / 3600
-                    expected_daily_hours = float(self.employee.weekly_hours) / 5
-                    overtime = max(0, hours_worked - expected_daily_hours)
-                    return round(overtime, 2)
-                else:
-                    print(f"Invalid datetime objects: time_in={type(time_in)}, time_out={type(time_out)}")
-                    return 0
-            except (TypeError, AttributeError, ValueError) as e:
-                # If there's still an error, return 0 to prevent crashes
-                print(f"Error calculating overtime hours: {e}")
-                return 0
-        return 0
-
-    def approve_overtime(self, approved_by, notes=""):
-        """Approve overtime hours for this attendance record"""
-        self.overtime_approved = True
-        self.overtime_rejected = False
-        self.overtime_approved_by = approved_by
-        self.overtime_approval_date = timezone.now()
-        self.overtime_notes = notes
-        self.save()
-
-    def reject_overtime(self, rejected_by, notes=""):
-        """Reject overtime hours for this attendance record"""
-        self.overtime_approved = False
-        self.overtime_rejected = True
-        self.overtime_approved_by = rejected_by
-        self.overtime_approval_date = timezone.now()
-        self.overtime_notes = notes
-        self.save()
-
-    @property
-    def overtime_status(self):
-        """Get the current overtime approval status"""
-        if self.overtime_approved:
-            return "approved"
-        elif self.overtime_rejected:
-            return "rejected"
-        elif self.overtime_hours > 0:
-            return "pending"
-        else:
-            return "none"
-
     def save(self, *args, **kwargs):
-        # Save the attendance record first
-        super().save(*args, **kwargs)
-
-        # Update employee's online status based on attendance (after save to avoid conflicts)
+        # Minimal save method to avoid any datetime conflicts
         try:
-            if self.time_in and not self.time_out:
-                # Employee clocked in - set as online/working
-                self.employee.is_online = True
-                self.employee.save(update_fields=['is_online'])
-            elif self.time_out:
-                # Employee clocked out - set as offline
-                self.employee.is_online = False
-                self.employee.save(update_fields=['is_online'])
+            super().save(*args, **kwargs)
         except Exception as e:
-            # If employee status update fails, don't crash the attendance save
-            print(f"Error updating employee status: {e}")
-
-    @property
-    def duration(self):
-        """Calculate work duration for this attendance record"""
-        if self.time_in and self.time_out:
-            duration = self.time_out - self.time_in
-            total_minutes = int(duration.total_seconds() / 60)
-            hours = total_minutes // 60
-            minutes = total_minutes % 60
-            return f"{hours}h {minutes}m"
-        elif self.time_in:
-            # Currently working
-            duration = timezone.now() - self.time_in
-            total_minutes = int(duration.total_seconds() / 60)
-            hours = total_minutes // 60
-            minutes = total_minutes % 60
-            return f"{hours}h {minutes}m (ongoing)"
-        return "No time recorded"
-
-    @property
-    def is_complete(self):
-        """Check if both time_in and time_out are recorded"""
-        return self.time_in is not None and self.time_out is not None
-
-    @property
-    def is_ongoing(self):
-        """Check if employee has clocked in but not clocked out"""
-        return self.time_in is not None and self.time_out is None
+            print(f"Save error: {e}")
+            # Try to save without any additional processing
+            models.Model.save(self, *args, **kwargs)
