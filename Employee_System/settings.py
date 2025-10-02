@@ -168,6 +168,37 @@ TIME_ZONE = 'Asia/Manila'
 USE_I18N = True
 USE_TZ = True
 
+# Add explicit datetime and time input formats for better parsing compatibility
+DATETIME_INPUT_FORMATS = [
+    '%Y-%m-%d %H:%M:%S',     # '2025-10-02 14:30:00'
+    '%Y-%m-%d %H:%M:%S.%f',  # '2025-10-02 14:30:00.000000'
+    '%Y-%m-%d %H:%M',        # '2025-10-02 14:30'
+    '%m/%d/%Y %H:%M:%S',     # '10/02/2025 14:30:00'
+    '%m/%d/%Y %H:%M',        # '10/02/2025 14:30'
+    '%Y-%m-%dT%H:%M:%S',     # ISO format: '2025-10-02T14:30:00'
+    '%Y-%m-%dT%H:%M:%S.%f',  # ISO format with microseconds
+    '%Y-%m-%dT%H:%M:%S%z',   # ISO format with timezone
+    '%Y-%m-%dT%H:%M:%S.%f%z', # ISO format with microseconds and timezone
+]
+
+TIME_INPUT_FORMATS = [
+    '%H:%M:%S',     # '14:30:00'
+    '%H:%M:%S.%f',  # '14:30:00.000000'
+    '%H:%M',        # '14:30'
+]
+
+DATE_INPUT_FORMATS = [
+    '%Y-%m-%d',     # '2025-10-02'
+    '%m/%d/%Y',     # '10/02/2025'
+    '%m/%d/%y',     # '10/02/25'
+    '%b %d %Y',     # 'Oct 02 2025'
+    '%b %d, %Y',    # 'Oct 02, 2025'
+    '%d %b %Y',     # '02 Oct 2025'
+    '%B %d %Y',     # 'October 02 2025'
+    '%B %d, %Y',    # 'October 02, 2025'
+    '%d %B %Y',     # '02 October 2025'
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -214,4 +245,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #here my settings
 # Temporarily add this to debug
 print("DEBUG:", DEBUG)
-
