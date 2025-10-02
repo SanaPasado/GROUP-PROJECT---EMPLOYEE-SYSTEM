@@ -29,12 +29,5 @@ class Attendance(models.Model):
         return f"Attendance for {self.employee} on {self.date}"
 
     def save(self, *args, **kwargs):
-        # Ensure datetime fields are properly handled
-        if self.time_in and (not self.time_in.tzinfo):
-            from django.utils import timezone
-            self.time_in = timezone.make_aware(self.time_in)
-        if self.time_out and (not self.time_out.tzinfo):
-            from django.utils import timezone
-            self.time_out = timezone.make_aware(self.time_out)
-
+        # Simply save without timezone manipulation since timezone.now() already returns timezone-aware datetime
         super().save(*args, **kwargs)
