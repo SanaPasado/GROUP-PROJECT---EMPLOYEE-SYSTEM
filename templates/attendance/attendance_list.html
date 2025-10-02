@@ -30,14 +30,14 @@
                 <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
                 <td>
                     {% if record.time_in %}
-                        {{ record.time_in|timezone:"Asia/Manila"|date:"H:i" }}
+                        {{ record.time_in|localtime|date:"M d, Y H:i" }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
                 <td>
                     {% if record.time_out %}
-                        {{ record.time_out|timezone:"Asia/Manila"|date:"H:i" }}
+                        {{ record.time_out|localtime|date:"M d, Y H:i" }}
                     {% else %}
                         --
                     {% endif %}

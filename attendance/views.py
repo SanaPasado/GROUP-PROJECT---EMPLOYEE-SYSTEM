@@ -43,6 +43,12 @@ def my_attendance(request):
 
 @login_required
 def record_time(request):
+    # Get current time in UTC (aware datetime object)
+    now_utc = timezone.now()
+
+    # Convert to the default local time zone (defined by TIME_ZONE setting)
+    now_local = timezone.localtime(now_utc)
+
     if request.method == 'POST':
         action = request.POST.get('action')
         user = request.user
@@ -59,7 +65,7 @@ def record_time(request):
                 Attendance.objects.create(
                     employee=user,
                     date=today,
-                    time_in=current_time
+                    time_in=now_local
                 )
                 messages.success(request, "Time In recorded successfully.")
 
@@ -72,7 +78,7 @@ def record_time(request):
                     messages.error(request, "You must time in before timing out.")
                 else:
                     # Update with timezone-aware datetime
-                    attendance.time_out = current_time
+                    attendance.time_out = now_local
                     attendance.save()
                     messages.success(request, "Time Out recorded successfully.")
             except Attendance.DoesNotExist:
