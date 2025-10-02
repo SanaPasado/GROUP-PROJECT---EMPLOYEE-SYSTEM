@@ -29,10 +29,12 @@ class Attendance(models.Model):
         return f"Attendance for {self.employee} on {self.date}"
 
     def save(self, *args, **kwargs):
-        # Minimal save method to avoid any datetime conflicts
-        try:
-            super().save(*args, **kwargs)
-        except Exception as e:
-            print(f"Save error: {e}")
-            # Try to save without any additional processing
-            models.Model.save(self, *args, **kwargs)
+        # Ensure datetime fields are properly handled
+        if self.time_in and (not self.time_in.tzinfo):
+            from django.utils import timezone
+            self.time_in = timezone.make_aware(self.time_in)
+        if self.time_out and (not self.time_out.tzinfo):
+            from django.utils import timezone
+            self.time_out = timezone.make_aware(self.time_out)
+
+        super().save(*args, **kwargs)
