@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView
 from django.db.models import Q
-import zoneinfo
 
 from .models import Attendance
 
@@ -17,9 +16,7 @@ def is_staff(user):
 
 @login_required
 def my_attendance(request):
-    # Activate Manila timezone for this view
-    timezone.activate(zoneinfo.ZoneInfo("Asia/Manila"))
-
+    # Use Django's standard timezone handling
     today = timezone.now().date()
     user = request.user
 
@@ -46,20 +43,19 @@ def my_attendance(request):
 
 @login_required
 def record_time(request):
-    # Activate Manila timezone for this view
-    timezone.activate(zoneinfo.ZoneInfo("Asia/Manila"))
-
     if request.method == 'POST':
         action = request.POST.get('action')
         user = request.user
-        today = timezone.now().date()
-        current_time = timezone.now()  # This will now be Manila time
+
+        # Use Django's timezone.now() directly - it's already timezone-aware
+        current_time = timezone.now()
+        today = current_time.date()
 
         if action == 'in':
             if Attendance.objects.filter(employee=user, date=today).exists():
                 messages.error(request, "You have already timed in today.")
             else:
-                # Create with Manila timezone-aware datetime
+                # Create with timezone-aware datetime
                 Attendance.objects.create(
                     employee=user,
                     date=today,
@@ -75,7 +71,7 @@ def record_time(request):
                 elif not attendance.time_in:
                     messages.error(request, "You must time in before timing out.")
                 else:
-                    # Update with Manila timezone-aware datetime
+                    # Update with timezone-aware datetime
                     attendance.time_out = current_time
                     attendance.save()
                     messages.success(request, "Time Out recorded successfully.")
@@ -92,11 +88,6 @@ class AttendanceListView(ListView):
     template_name = 'attendance/attendance_list.html'
     context_object_name = 'attendance_records'
     paginate_by = 20
-
-    def dispatch(self, request, *args, **kwargs):
-        # Activate Manila timezone for this view
-        timezone.activate(zoneinfo.ZoneInfo("Asia/Manila"))
-        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         # The ordering is now handled in the model's Meta class
@@ -118,9 +109,3 @@ class AttendanceDetailView(DetailView):
     model = Attendance
     template_name = 'attendance/attendance_detail.html'
     context_object_name = 'record'
-
-    def dispatch(self, request, *args, **kwargs):
-        # Activate Manila timezone for this view
-        timezone.activate(zoneinfo.ZoneInfo("Asia/Manila"))
-        return super().dispatch(request, *args, **kwargs)
-
