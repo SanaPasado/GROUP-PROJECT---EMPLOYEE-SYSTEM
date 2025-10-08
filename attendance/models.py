@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.utils import timezone
 from django.db import models
 
@@ -7,7 +8,7 @@ from django.db import models
 
 class Attendance(models.Model):
     employee = models.ForeignKey('accounts.Employee', on_delete=models.CASCADE)
-    date = models.DateField(default=timezone.now)
+    date = models.DateField(default=datetime.now)
     time_in = models.DateTimeField(null=True, blank=True)
     time_out = models.DateTimeField(null=True, blank=True)
 

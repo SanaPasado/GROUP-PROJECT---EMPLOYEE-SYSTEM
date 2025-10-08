@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
@@ -43,44 +43,40 @@ def my_attendance(request):
 
 @login_required
 def record_time(request):
-    # Get current time in UTC (aware datetime object)
-    now_utc = timezone.now()
-
-    # Convert to the default local time zone (defined by TIME_ZONE setting)
-    now_local = timezone.localtime(now_utc)
-
     if request.method == 'POST':
         action = request.POST.get('action')
         user = request.user
 
-        # Use Django's timezone.now() directly - it's already timezone-aware
-        current_time = timezone.now()
+        # Simple approach: use Django's timezone.now() directly
+        current_time = datetime.now()
         today = current_time.date()
 
         if action == 'in':
-            if Attendance.objects.filter(employee=user, date=today).exists():
-                messages.error(request, "You have already timed in today.")
-            else:
-                # Create with timezone-aware datetime
-                Attendance.objects.create(
-                    employee=user,
-                    date=today,
-                    time_in=now_local
-                )
+            # Check if already timed in today using get_or_create
+            attendance, created = Attendance.objects.get_or_create(
+                employee=user,
+                date=today,
+                defaults={'time_in': current_time}
+            )
+
+            if created:
                 messages.success(request, "Time In recorded successfully.")
+            else:
+                messages.error(request, "You have already timed in today.")
 
         elif action == 'out':
             try:
                 attendance = Attendance.objects.get(employee=user, date=today)
+
                 if attendance.time_out:
                     messages.error(request, "You have already timed out today.")
                 elif not attendance.time_in:
                     messages.error(request, "You must time in before timing out.")
                 else:
-                    # Update with timezone-aware datetime
-                    attendance.time_out = now_local
+                    attendance.time_out = current_time
                     attendance.save()
                     messages.success(request, "Time Out recorded successfully.")
+
             except Attendance.DoesNotExist:
                 messages.error(request, "You haven't timed in yet.")
 
