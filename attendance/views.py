@@ -48,8 +48,8 @@ def record_time(request):
         user = request.user
 
         # Simple approach: use Django's timezone.now() directly
-        current_time = datetime.now()
-        today = current_time.date()
+        current_time = datetime.now().time()
+        today = datetime.now().date()
 
         if action == 'in':
             # Check if already timed in today using get_or_create
