@@ -1,8 +1,7 @@
-from datetime import date, datetime
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView
 from django.db.models import Q
@@ -16,8 +15,8 @@ def is_staff(user):
 
 @login_required
 def my_attendance(request):
-    # Use Django's standard timezone handling
-    today = timezone.now().date()
+    # Use datetime for current date
+    today = datetime.now().date()
     user = request.user
 
     try:
@@ -47,11 +46,13 @@ def record_time(request):
         action = request.POST.get('action')
         user = request.user
 
-        # Simple approach: use Django's timezone.now() directly
-        current_time = datetime.now().time()
+        # Get current time only when needed and current date
         today = datetime.now().date()
 
         if action == 'in':
+            # Get current time only for time_in action
+            current_time = datetime.now().time()
+
             # Check if already timed in today using get_or_create
             attendance, created = Attendance.objects.get_or_create(
                 employee=user,
@@ -65,6 +66,9 @@ def record_time(request):
                 messages.error(request, "You have already timed in today.")
 
         elif action == 'out':
+            # Get current time only for time_out action
+            current_time = datetime.now().time()
+
             try:
                 attendance = Attendance.objects.get(employee=user, date=today)
 
