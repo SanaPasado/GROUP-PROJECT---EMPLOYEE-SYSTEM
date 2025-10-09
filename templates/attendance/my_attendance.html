@@ -41,7 +41,7 @@
                         </div>
                         <div class="col-md-6">
                             <!-- Time In/Out Buttons -->
-                            <form method="post" action="{% url 'attendance:record-time' %}">
+                            <form method="post" action="{% url 'attendance:record_time' %}">
                                 {% csrf_token %}
                                 <div class="text-center">
                                     {% if not has_timed_in %}
