@@ -8,7 +8,7 @@ class Attendance(models.Model):
     employee = models.ForeignKey('accounts.Employee', on_delete=models.CASCADE)
     date = models.DateField(default=get_current_date)
     time_in = models.DateTimeField(null=True, blank=True)
-    time_out = models.TimeField(null=True, blank=True)
+    time_out = models.DateTimeField(null=True, blank=True)
 
     # Overtime approval fields
     overtime_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, help_text="Calculated overtime hours for this day")
