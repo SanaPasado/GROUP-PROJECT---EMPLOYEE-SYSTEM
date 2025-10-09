@@ -18,7 +18,7 @@ def is_staff(user):
 @login_required
 def my_attendance(request):
     # Use datetime for current date
-    today = datetime.now().date()
+    today = datetime.now()
     user = request.user
 
     try:
@@ -49,7 +49,7 @@ def record_time(request):
         user = request.user
 
         # Get current time only when needed and current date
-        today = datetime.now().date()
+        today = datetime.now()
 
         if action == 'in':
             # Get current time only for time_in action
