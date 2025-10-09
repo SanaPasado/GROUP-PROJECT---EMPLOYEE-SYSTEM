@@ -24,25 +24,25 @@
             </tr>
         </thead>
         <tbody>
-            {% for record in attendance_records %}
+            {% for attendance in attendance_records %}
             <tr>
-                <td>{{ record.date }}</td>
-                <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
+                <td>{{ attendance.date }}</td>
+                <td>{{ attendance.employee.first_name }} {{ attendance.employee.last_name }}</td>
                 <td>
-                    {% if record.time_in %}
-                        {{ record.time_in|localtime|date:"M d, Y H:i" }}
+                    {% if attendance.time_in %}
+                        {{ attendance.time_in|localtime|date:"M d, Y H:i" }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
                 <td>
-                    {% if record.time_out %}
-                        {{ record.time_out|localtime|date:"M d, Y H:i" }}
+                    {% if attendance.time_out %}
+                        {{ attendance.time_out|localtime|date:"M d, Y H:i" }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
-                <td><a href="{% url 'attendance:attendance_detail' record.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
+                <td><a href="{% url 'attendance:attendance_detail' attendance.pk %}" class="btn btn-sm btn-outline-primary">View</a></td>
             </tr>
             {% empty %}
             <tr>
