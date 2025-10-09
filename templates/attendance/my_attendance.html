@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load l10n %}
 {% load tz %}
 
 
@@ -70,14 +69,14 @@
                             <td>{{ attendance.date }}</td>
                             <td>
                                 {% if attendance.time_in %}
-                                    {{ attendance.time_in  | localize |time }}
+                                    {{ attendance.time_in|localtime|time:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}
                             </td>
                             <td>
                                 {% if attendance.time_out %}
-                                    {{ attendance.time_out | localize | time }}
+                                    {{ attendance.time_out|localtime|time:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}

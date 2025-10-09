@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load tz %}
+
 {% block content %}
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -23,20 +25,20 @@
             </tr>
         </thead>
         <tbody>
-            {% for attendance in records %}
+            {% for attendance in attendance_records %}
             <tr>
                 <td>{{ attendance.date }}</td>
                 <td>{{ attendance.employee.first_name }} {{ attendance.employee.last_name }}</td>
                 <td>
                     {% if attendance.time_in %}
-                        {{ attendance.time_in|date:"M d, Y H:i" }}
+                        {{ attendance.time_in|localtime|time:"H:i" }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
                 <td>
                     {% if attendance.time_out %}
-                        {{ attendance.time_out|date:"M d, Y H:i" }}
+                        {{ attendance.time_out|localtime|time:"H:i" }}
                     {% else %}
                         --
                     {% endif %}
