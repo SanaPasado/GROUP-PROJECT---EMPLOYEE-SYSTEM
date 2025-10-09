@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView
 from django.db.models import Q
+from django.utils import timezone
 
 from .models import Attendance
 
@@ -51,7 +52,7 @@ def record_time(request):
 
         if action == 'in':
             # Get current time only for time_in action
-            current_time = datetime.now()
+            current_time = timezone.now()
 
             # Check if already timed in today using get_or_create
             attendance, created = Attendance.objects.get_or_create(
@@ -67,7 +68,7 @@ def record_time(request):
 
         elif action == 'out':
             # Get current time only for time_out action
-            current_time = datetime.now()
+            current_time = timezone.now()
 
             try:
                 attendance = Attendance.objects.get(employee=user, date=today)
