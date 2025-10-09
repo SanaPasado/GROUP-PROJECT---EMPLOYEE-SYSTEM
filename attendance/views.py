@@ -18,7 +18,7 @@ def is_staff(user):
 @login_required
 def my_attendance(request):
     # Use datetime for current date
-    today = datetime.now()
+    today = timezone.now()
     user = request.user
 
     try:
@@ -49,11 +49,12 @@ def record_time(request):
         user = request.user
 
         # Get current time only when needed and current date
-        today = datetime.now()
+        today = timezone.now()
+
 
         if action == 'in':
             # Get current time only for time_in action
-            current_time = datetime.now()
+            current_time = timezone.now()
 
             # Check if already timed in today using get_or_create
             attendance, created = Attendance.objects.get_or_create(
@@ -69,7 +70,7 @@ def record_time(request):
 
         elif action == 'out':
             # Get current time only for time_out action
-            current_time = datetime.now()
+            current_time = timezone.now()
 
             try:
                 attendance = Attendance.objects.get(employee=user, date=today)
