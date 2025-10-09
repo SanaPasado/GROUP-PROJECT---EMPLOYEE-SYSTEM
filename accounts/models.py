@@ -200,7 +200,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
                     return f"{hours}h {minutes}m"
             except:
                 pass
-        return "Not working"
+        return ""
 
     def calculate_payroll_breakdown(self, start_date=None, end_date=None):
         """Calculate detailed payroll breakdown including approved overtime"""
