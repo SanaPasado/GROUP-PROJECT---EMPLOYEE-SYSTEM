@@ -166,13 +166,13 @@
                                     <br>
                                     <small class="text-muted">
                                         {% if attendance.time_in %}
-                                            In: {% timezone "Asia/Manila" %}{{ attendance.time_in|time:"H:i" }}{% endtimezone %}
+                                            In: {% timezone "Asia/Manila" %}{{ attendance.time_in|date:"H:i" }}{% endtimezone %}
                                         {% else %}
                                             In: --
                                         {% endif %}
                                         |
                                         {% if attendance.time_out %}
-                                            Out: {% timezone "Asia/Manila" %}{{ attendance.time_out|time:"H:i" }}{% endtimezone %}
+                                            Out: {% timezone "Asia/Manila" %}{{ attendance.time_out|date:"H:i" }}{% endtimezone %}
                                         {% else %}
                                             Out: --
                                         {% endif %}
