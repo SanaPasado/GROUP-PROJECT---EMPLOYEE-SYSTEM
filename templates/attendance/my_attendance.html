@@ -1,30 +1,36 @@
 {% extends 'base.html' %}
 {% load tz %}
 
-
 {% block content %}
 <div class="container my-5">
     <!-- Top bar with navigation buttons -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="btn-group">
             <!-- Attendance List button -->
-
-
             <!-- Attendance Detail button (only for staff and if today's record exists) -->
-
         </div>
     </div>
-{% if not request.user.is_staff %}
+
+    {% if not request.user.is_staff %}
     <!-- Page header -->
     <div class="text-center mb-4">
         <h1 class="fw-bold display-5 text-primary">My Attendance</h1>
         <p class="lead text-muted">Welcome, {{ request.user.first_name }}! Let's get to work.</p>
     </div>
 
-    <!-- Messages -->
+    <!-- Attendance Messages (only attendance-related) -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
+            <!-- Only show attendance-related messages, block leave requests and other notifications -->
+            {% if "Time" in message or "attendance" in message|lower or "timed" in message|lower %}
+                <!-- Exclude leave request and paycheck notifications -->
+                {% if "leave" not in message|lower and "paycheck" not in message|lower and "pay" not in message|lower %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show text-center" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endif %}
         {% endfor %}
     {% endif %}
 
@@ -54,43 +60,45 @@
         <div class="card-header bg-white border-0">
             <h2 class="h5 fw-bold mb-0">Recent Records</h2>
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Date</th>
-                        <th>Time In</th>
-                        <th>Time Out</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for attendance in records %}
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
                         <tr>
-                            <td>{{ attendance.date }}</td>
-                            <td>
-                                {% if attendance.time_in %}
-                                    {{ attendance.time_in|time:"H:i" }}
-                                {% else %}
-                                    --
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if attendance.time_out %}
-                                    {{ attendance.time_out|time:"H:i" }}
-                                {% else %}
-                                    --
-                                {% endif %}
-                            </td>
+                            <th>Date</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">No recent records found.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for attendance in records %}
+                            <tr>
+                                <td>{{ attendance.date }}</td>
+                                <td>
+                                    {% if attendance.time_in %}
+                                        {{ attendance.time_in|time:"H:i" }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if attendance.time_out %}
+                                        {{ attendance.time_out|time:"H:i" }}
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No recent records found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
     {% endif %}
+</div>
 {% endblock %}
