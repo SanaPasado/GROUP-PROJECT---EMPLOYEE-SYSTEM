@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load tz %}
 
 {% block title %}
 <title>Dashboard - Employee System</title>
@@ -162,7 +162,7 @@
                         {% for attendance in recent_attendance %}
                             <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                                 <div>
-                                    <strong>{% load tz %}{% timezone "Asia/Manila" %}{{ attendance.date|date:"M d, Y" }}{% endtimezone %}</strong>
+                                    <strong>{% timezone "Asia/Manila" %}{{ attendance.date|date:"M d, Y" }}{% endtimezone %}</strong>
                                     <br>
                                     <small class="text-muted">
                                         {% if attendance.time_in %}
