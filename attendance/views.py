@@ -77,8 +77,9 @@ def record_time(request):
                 elif not attendance.time_in:
                     messages.error(request, "You must time in before timing out.")
                 else:
-                    attendance.time_out = current_time
-                    attendance.save()
+                    Attendance.objects.filter(employee=user, date=today).update(
+                        time_out=datetime.now()
+                    )
                     messages.success(request, "Time Out recorded successfully.")
 
             except Attendance.DoesNotExist:
