@@ -64,19 +64,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for record in records %}
+                    {% for attendance in records %}
                         <tr>
-                            <td>{{ record.date }}</td>
+                            <td>{{ attendance.date }}</td>
                             <td>
-                                {% if record.time_in %}
-                                    {{ record.time_in|localtime|date:"H:i" }}
+                                {% if attendance.time_in %}
+                                    {{ attendance.time_in|date:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}
                             </td>
                             <td>
-                                {% if record.time_out %}
-                                    {{ record.time_out|localtime|date:"H:i" }}
+                                {% if attendance.time_out %}
+                                    {{ attendance.time_out|date:"H:i" }}
                                 {% else %}
                                     --
                                 {% endif %}

@@ -30,14 +30,14 @@
                 <td>{{ attendance.employee.first_name }} {{ attendance.employee.last_name }}</td>
                 <td>
                     {% if attendance.time_in %}
-                        {{ attendance.time_in|localtime|date:"M d, Y H:i" }}
+                        {{ attendance.time_in|date:"M d, Y H:i" }}
                     {% else %}
                         --
                     {% endif %}
                 </td>
                 <td>
                     {% if attendance.time_out %}
-                        {{ attendance.time_out|localtime|date:"M d, Y H:i" }}
+                        {{ attendance.time_out|date:"M d, Y H:i" }}
                     {% else %}
                         --
                     {% endif %}
