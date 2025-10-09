@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for attendance in attendance_records %}
+            {% for attendance in records %}
             <tr>
                 <td>{{ attendance.date }}</td>
                 <td>{{ attendance.employee.first_name }} {{ attendance.employee.last_name }}</td>
