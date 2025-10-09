@@ -53,7 +53,7 @@ def record_time(request):
 
         if action == 'in':
             # Get current time only for time_in action
-            current_time = datetime.datetime.now()
+            current_time = datetime.now()
 
             # Check if already timed in today using get_or_create
             attendance, created = Attendance.objects.get_or_create(
@@ -69,7 +69,7 @@ def record_time(request):
 
         elif action == 'out':
             # Get current time only for time_out action
-            current_time = datetime.datetime.now()
+            current_time = datetime.now()
 
             try:
                 attendance = Attendance.objects.get(employee=user, date=today)
