@@ -51,7 +51,7 @@ def record_time(request):
 
         if action == 'in':
             # Get current time only for time_in action
-            current_time = datetime.now()
+            current_time = datetime.now().time()
 
             # Check if already timed in today using get_or_create
             attendance, created = Attendance.objects.get_or_create(
@@ -67,16 +67,17 @@ def record_time(request):
 
         elif action == 'out':
             # Get current time only for time_out action
-            current_time = datetime.now()
-
+            current_time = datetime.now().time()
             try:
                 attendance = Attendance.objects.get(employee=user, date=today)
 
                 if attendance.time_out:
                     messages.error(request, "You have already timed out today.")
-
+                elif not attendance.time_in:
+                    messages.error(request, "You must time in before timing out.")
                 else:
                     attendance.time_out = current_time
+                    attendance.save()
                     messages.success(request, "Time Out recorded successfully.")
 
             except Attendance.DoesNotExist:
