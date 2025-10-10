@@ -1,8 +1,8 @@
-from datetime import datetime
 from django.db import models
+from django.utils import timezone
 
 def get_current_date():
-    return datetime.now().date()
+    return timezone.now().date()
 
 class Attendance(models.Model):
     employee = models.ForeignKey('accounts.Employee', on_delete=models.CASCADE)
