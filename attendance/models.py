@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from datetime import datetime, timedelta
 
 def get_current_date():
     return timezone.now().date()
@@ -26,28 +27,27 @@ class Attendance(models.Model):
         return f"Attendance for {self.employee} on {self.date}"
 
     def save(self, *args, **kwargs):
-        # from django.utils import timezone
-        #
-        # # Ensure time_in and time_out are timezone-aware
-        # if self.time_in and timezone.is_naive(self.time_in):
-        #     # If time_in is naive (no timezone info), make it timezone-aware
-        #     self.time_in = timezone.make_aware(self.time_in, timezone.get_current_timezone())
-        #
-        # if self.time_out and timezone.is_naive(self.time_out):
-        #     # If time_out is naive (no timezone info), make it timezone-aware
-        #     self.time_out = timezone.make_aware(self.time_out, timezone.get_current_timezone())
-        #
-        # # Calculate overtime hours if both time_in and time_out exist
-        # if self.time_in and self.time_out and not self.overtime_hours:
-        #     # Calculate total hours worked
-        #     duration = self.time_out - self.time_in
-        #     total_hours = duration.total_seconds() / 3600
-        #
-        #     # Assuming 8 hours is a standard work day
-        #     standard_hours = 8.0
-        #     if total_hours > standard_hours:
-        #         self.overtime_hours = round(total_hours - standard_hours, 2)
-        #     else:
-        #         self.overtime_hours = 0.00
+        # Calculate overtime hours if both time_in and time_out exist
+        if self.time_in and self.time_out:
+            # Create datetime objects for calculation (TimeFields are already in local time)
+            time_in_dt = datetime.combine(self.date, self.time_in)
+            time_out_dt = datetime.combine(self.date, self.time_out)
+
+            # Handle case where time_out is past midnight (next day)
+            if self.time_out < self.time_in:
+                time_out_dt += timedelta(days=1)
+
+            # Calculate total hours worked
+            duration = time_out_dt - time_in_dt
+            total_hours = duration.total_seconds() / 3600
+
+            # Get expected daily hours from employee's weekly hours (weekly_hours / 5 days)
+            expected_daily_hours = float(self.employee.weekly_hours) / 5 if self.employee.weekly_hours else 8.0
+
+            # Calculate overtime hours
+            if total_hours > expected_daily_hours:
+                self.overtime_hours = round(total_hours - expected_daily_hours, 2)
+            else:
+                self.overtime_hours = 0.00
 
         super().save(*args, **kwargs)

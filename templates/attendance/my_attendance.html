@@ -76,14 +76,14 @@
                                 <td>{{ attendance.date }}</td>
                                 <td>
                                     {% if attendance.time_in %}
-                                        {{ attendance.time_in|time:"H:i" }}
+                                        {{ attendance.time_in|time:"g:i A" }}
                                     {% else %}
                                         --
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if attendance.time_out %}
-                                        {{ attendance.time_out|time:"H:i" }}
+                                        {{ attendance.time_out|time:"g:i A" }}
                                     {% else %}
                                         --
                                     {% endif %}

@@ -191,9 +191,18 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         if self.is_currently_working():
             try:
                 from attendance.models import Attendance
+                from datetime import datetime, timedelta
+
                 today_attendance = Attendance.objects.get(employee=self, date=timezone.now().date())
                 if today_attendance.time_in:
-                    duration = timezone.now() - today_attendance.time_in
+                    # Convert current time to local timezone and extract time component
+                    current_local_time = timezone.localtime(timezone.now()).time()
+
+                    # Create datetime objects for calculation
+                    time_in_dt = datetime.combine(timezone.now().date(), today_attendance.time_in)
+                    current_dt = datetime.combine(timezone.now().date(), current_local_time)
+
+                    duration = current_dt - time_in_dt
                     total_minutes = int(duration.total_seconds() / 60)
                     hours = total_minutes // 60
                     minutes = total_minutes % 60
@@ -226,8 +235,19 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         total_overtime_hours = 0  # For tracking purposes
 
         for record in attendance_records:
-            # Calculate daily hours worked
-            duration = record.time_out - record.time_in
+            # Calculate daily hours worked using proper timezone-aware calculation
+            # Since time_in and time_out are TimeFields (local time), we can calculate directly
+            from datetime import datetime, timedelta
+
+            # Create datetime objects for calculation
+            time_in_dt = datetime.combine(record.date, record.time_in)
+            time_out_dt = datetime.combine(record.date, record.time_out)
+
+            # Handle case where time_out is past midnight (next day)
+            if record.time_out < record.time_in:
+                time_out_dt += timedelta(days=1)
+
+            duration = time_out_dt - time_in_dt
             daily_hours = duration.total_seconds() / 3600
 
             # Expected daily hours (weekly_hours / 5 days)
@@ -274,16 +294,29 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         """Get today's working hours - returns '0 hours' if no attendance or 0 hours worked"""
         try:
             from attendance.models import Attendance
+            from datetime import datetime, timedelta
+
             today_attendance = Attendance.objects.get(employee=self, date=timezone.now().date())
 
             if today_attendance.time_in and today_attendance.time_out:
-                # Calculate completed work hours
-                duration = today_attendance.time_out - today_attendance.time_in
+                # Calculate completed work hours using proper datetime calculation
+                time_in_dt = datetime.combine(today_attendance.date, today_attendance.time_in)
+                time_out_dt = datetime.combine(today_attendance.date, today_attendance.time_out)
+
+                # Handle case where time_out is past midnight (next day)
+                if today_attendance.time_out < today_attendance.time_in:
+                    time_out_dt += timedelta(days=1)
+
+                duration = time_out_dt - time_in_dt
                 hours = duration.total_seconds() / 3600
                 return f"{hours:.1f} hours"
             elif today_attendance.time_in and not today_attendance.time_out:
                 # Currently working - calculate current duration
-                duration = timezone.now() - today_attendance.time_in
+                current_local_time = timezone.localtime(timezone.now()).time()
+                time_in_dt = datetime.combine(today_attendance.date, today_attendance.time_in)
+                current_dt = datetime.combine(timezone.now().date(), current_local_time)
+
+                duration = current_dt - time_in_dt
                 hours = duration.total_seconds() / 3600
                 return f"{hours:.1f} hours (ongoing)"
             else:
@@ -295,7 +328,7 @@ class Employee(AbstractBaseUser, PermissionsMixin):
         """Get this week's total working hours - returns 0 if no hours worked"""
         try:
             from attendance.models import Attendance
-            from datetime import timedelta
+            from datetime import timedelta, datetime
 
             today = timezone.now().date()
             start_of_week = today - timedelta(days=today.weekday())  # Monday
@@ -310,7 +343,15 @@ class Employee(AbstractBaseUser, PermissionsMixin):
 
             total_hours = 0
             for record in attendance_records:
-                duration = record.time_out - record.time_in
+                # Use proper datetime calculation for each record
+                time_in_dt = datetime.combine(record.date, record.time_in)
+                time_out_dt = datetime.combine(record.date, record.time_out)
+
+                # Handle case where time_out is past midnight (next day)
+                if record.time_out < record.time_in:
+                    time_out_dt += timedelta(days=1)
+
+                duration = time_out_dt - time_in_dt
                 total_hours += duration.total_seconds() / 3600
 
             return round(total_hours, 1)
